@@ -31,14 +31,25 @@ export class LocalChatRepository implements IChatRepository {
     return of(chat).pipe(delay(300));
   }
 
-  createChat(title: string): Observable<Chat> {
+  createChat(chatData: Partial<Chat>): Observable<Chat> {
     const chats = JSON.parse(localStorage.getItem(this.CHATS_KEY) || '[]');
 
     const newChat: Chat = {
       id: Date.now().toString(),
-      title,
+      title: chatData.title || 'Nuevo chat',
+      scenario: chatData.scenario || 'Conversación casual',
+      language: chatData.language || 'en',
+      level: chatData.level || 'beginner',
       createdAt: new Date(),
       updatedAt: new Date(),
+      stats: {
+        totalMessages: 0,
+        improvementPoints: 0,
+        grammarPoints: 0,
+        vocabularyPoints: 0,
+        phrasalVerbPoints: 0,
+        idiomPoints: 0,
+      },
     };
 
     chats.push(newChat);

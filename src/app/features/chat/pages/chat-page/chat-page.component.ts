@@ -13,6 +13,7 @@ import { Message } from '../../../../core/models/message.model';
 import { ChatSidebarComponent } from '../../components/chat-sidebar/chat-sidebar.component';
 import { ChatMessageComponent } from '../../components/chat-message/chat-message.component';
 import { ChatInputComponent } from '../../components/chat-input/chat-input.component';
+import { ChatAnalysisComponent } from '../../../analysis/components/chat-analysis.component';
 
 @Component({
   selector: 'app-chat-page',
@@ -22,11 +23,12 @@ import { ChatInputComponent } from '../../components/chat-input/chat-input.compo
     ChatSidebarComponent,
     ChatMessageComponent,
     ChatInputComponent,
+    ChatAnalysisComponent, // Nuevo componente
   ],
   template: `
     <div class="flex h-screen bg-gray-900 text-white">
       <!-- Sidebar -->
-      <div class="w-80 h-full border-r border-gray-700">
+      <div class="w-64 lg:w-80 h-full border-r border-gray-700 flex-shrink-0">
         <app-chat-sidebar></app-chat-sidebar>
       </div>
 
@@ -37,8 +39,35 @@ import { ChatInputComponent } from '../../components/chat-input/chat-input.compo
           class="flex-grow flex flex-col p-4"
         >
           <!-- Chat header -->
-          <div class="pb-4 border-b border-gray-700">
-            <h2 class="text-xl font-bold">{{ chat.title }}</h2>
+          <div
+            class="pb-4 border-b border-gray-700 flex justify-between items-center"
+          >
+            <div>
+              <h2 class="text-xl font-bold">{{ chat.title }}</h2>
+              <p class="text-sm text-gray-400">
+                {{ chat.scenario || 'Conversación casual' }}
+              </p>
+            </div>
+            <button
+              (click)="toggleAnalysis()"
+              class="p-2 bg-gray-700 rounded-full hover:bg-gray-600 transition"
+              [title]="showAnalysis ? 'Ocultar análisis' : 'Mostrar análisis'"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                />
+              </svg>
+            </button>
           </div>
 
           <!-- Messages -->
@@ -84,12 +113,29 @@ import { ChatInputComponent } from '../../components/chat-input/chat-input.compo
           </div>
         </div>
       </div>
+
+      <!-- Panel de análisis (contraíble) -->
+      <div
+        class="h-full border-l border-gray-700 transition-all duration-300 ease-in-out"
+        [class.w-0]="!showAnalysis"
+        [class.lg:w-80]="showAnalysis"
+        [class.w-0]="!showAnalysis"
+        [class.invisible]="!showAnalysis"
+        [class.visible]="showAnalysis"
+      >
+        <app-chat-analysis
+          *ngIf="showAnalysis"
+          [chatId]="(currentChat$ | async)?.id"
+        >
+        </app-chat-analysis>
+      </div>
     </div>
   `,
 })
 export class ChatPageComponent implements OnInit, AfterViewChecked {
   currentChat$: Observable<Chat | null>;
   messages$: Observable<Message[]>;
+  showAnalysis = true;
 
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
 
@@ -102,6 +148,10 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
 
   ngAfterViewChecked(): void {
     this.scrollToBottom();
+}
+
+  toggleAnalysis(): void {
+    this.showAnalysis = !this.showAnalysis;
   }
 
   scrollToBottom(): void {

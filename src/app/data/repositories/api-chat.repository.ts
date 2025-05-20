@@ -1,3 +1,4 @@
+// src/app/data/repositories/api-chat.repository.ts
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../api/api.service';
@@ -17,8 +18,10 @@ export class ApiChatRepository implements IChatRepository {
     return this.apiService.get<Chat>(`chats/${id}`);
   }
 
-  createChat(title: string): Observable<Chat> {
-    return this.apiService.post<Chat>('chats', { title });
+  // Modificar este método para que acepte Partial<Chat>
+  createChat(chatData: Partial<Chat>): Observable<Chat> {
+    // Enviamos el objeto completo al API
+    return this.apiService.post<Chat>('chats', chatData);
   }
 
   deleteChat(id: string): Observable<void> {

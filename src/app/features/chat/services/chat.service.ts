@@ -1,8 +1,12 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of, tap } from 'rxjs';
+import { BehaviorSubject, Observable, of, tap, map } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { Chat } from '../../../core/models/chat.model';
 import { Message } from '../../../core/models/message.model';
 import { ChatRepositoryFactory } from '../../../data/factories/chat-repository.factory';
+import { MockLanguageAnalysisService } from '../../analysis/services/mock-language-analysis.service';
+import { LocalAnalysisRepository } from '../../../data/repositories/local-analysis.repository';
+import { LanguageAnalysisPoint } from '../models/language-analysis.model';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +24,11 @@ export class ChatService {
     return this.repositoryFactory.getRepository();
   }
 
-  constructor(private repositoryFactory: ChatRepositoryFactory) {
+  constructor(
+    private repositoryFactory: ChatRepositoryFactory,
+    private analysisService: MockLanguageAnalysisService,
+    private analysisRepository: LocalAnalysisRepository
+  ) {
     this.loadChats();
 
     // Escuchar eventos de nuevos mensajes del bot (solo para local)
@@ -65,11 +73,11 @@ export class ChatService {
     });
   }
 
-  createChat(title: string): Observable<Chat> {
-    return this.repository.createChat(title).pipe(
+  createChat(chatData: Partial<Chat>): Observable<Chat> {
+    return this.repository.createChat(chatData).pipe(
       tap((newChat) => {
         const currentChats = this.chatsSubject.value;
-        this.chatsSubject.next([newChat, ...currentChats]); // Añadir al principio
+        this.chatsSubject.next([newChat, ...currentChats]);
         this.selectChat(newChat.id);
       })
     );
@@ -86,6 +94,44 @@ export class ChatService {
       tap((message) => {
         const currentMessages = this.messagesSubject.value;
         this.messagesSubject.next([...currentMessages, message]);
+
+        // Analizar el texto del usuario
+        this.analysisService
+          .analyzeText(content, currentChat.language || 'en')
+          .subscribe((analysisPoints) => {
+            // Guardar cada punto de análisis
+            analysisPoints.forEach((point) => {
+              const fullPoint = {
+                ...point,
+                chatId: currentChat.id,
+                messageId: message.id,
+              };
+              this.analysisRepository.saveAnalysisPoint(fullPoint).subscribe();
+            });
+          });
+      }),
+      // Generar respuesta del bot basada en el escenario
+      switchMap((message) => {
+        // Obtener el escenario del chat (podría ser una propiedad del chat)
+        const scenario = currentChat.scenario || 'neighbor-dog';
+
+        return this.analysisService.generateBotResponse(scenario, content).pipe(
+          tap((botResponse) => {
+            // Crear y guardar mensaje del bot
+            const botMessage: Message = {
+              id: Date.now().toString(),
+              chatId: currentChat.id,
+              content: botResponse,
+              timestamp: new Date(),
+              isUser: false,
+            };
+
+            // Añadir mensaje del bot a la lista de mensajes
+            const updatedMessages = [...this.messagesSubject.value, botMessage];
+            this.messagesSubject.next(updatedMessages);
+          }),
+          map(() => message) // Devolver el mensaje original del usuario
+        );
       })
     );
   }
