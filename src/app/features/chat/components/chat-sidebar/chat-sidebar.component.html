@@ -1,0 +1,38 @@
+<div class="w-full h-full flex flex-col bg-gray-800 text-white">
+  <div class="p-4 border-b border-gray-700 flex justify-between items-center">
+    <h1 class="text-xl font-bold">Mis Chats</h1>
+    <!-- Toggle solo visible en desarrollo -->
+    <div *ngIf="!environment.production" class="mt-2 text-xs">
+      <button (click)="toggleStorageMode()" class="px-2 py-1 rounded text-xs" [class.bg-blue-600]="usingLocalStorage"
+        [class.bg-green-600]="!usingLocalStorage">
+        {{ usingLocalStorage ? 'Usando LocalStorage' : 'Usando API' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="flex-grow overflow-y-auto">
+    <div *ngFor="let chat of chats$ | async" (click)="selectChat(chat.id)"
+      class="p-3 hover:bg-gray-700 cursor-pointer transition-colors duration-200"
+      [class.bg-gray-700]="(currentChat$ | async)?.id === chat.id">
+      <h3 class="font-medium truncate">{{ chat.title }}</h3>
+      <div class="flex justify-between">
+        <span class="text-xs text-blue-400">{{ chat.language || 'en' }} ·
+          {{ chat.level || 'beginner' }}</span>
+        <span class="text-xs text-gray-400">{{
+          chat.updatedAt | date : 'short'
+          }}</span>
+      </div>
+    </div>
+
+    <div *ngIf="(chats$ | async)?.length === 0" class="p-4 text-center text-gray-500">
+      No hay chats. Crea uno nuevo para comenzar.
+    </div>
+  </div>
+
+  <div class="p-4 border-t border-gray-700">
+    <button (click)="openScenarioSelector()"
+      class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded flex items-center justify-center">
+      <span class="mr-2">+</span> Nuevo Chat
+    </button>
+  </div>
+</div>

@@ -7,7 +7,6 @@ export interface IChatRepository {
   getChats(): Observable<Chat[]>;
   getChatById(id: string): Observable<Chat>;
 
-  // Modificar esta línea para aceptar Partial<Chat> en lugar de solo el título
   createChat(chatData: Partial<Chat>): Observable<Chat>;
 
   deleteChat(id: string): Observable<void>;
