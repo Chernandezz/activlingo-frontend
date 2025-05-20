@@ -1,0 +1,134 @@
+{
+  "chats": [
+    {
+      "id": "1",
+      "title": "Conversación en Restaurante",
+      "scenario": "restaurant",
+      "language": "en",
+      "level": "beginner",
+      "createdAt": "2023-05-20T15:32:00Z",
+      "updatedAt": "2023-05-20T15:45:00Z"
+    },
+    {
+      "id": "2",
+      "title": "Paseo con el Perro",
+      "scenario": "neighbor-dog",
+      "language": "en",
+      "level": "beginner",
+      "createdAt": "2023-05-20T14:15:00Z",
+      "updatedAt": "2023-05-20T14:30:00Z"
+    }
+  ],
+  "messages": [
+    {
+      "id": "101",
+      "chatId": "1",
+      "content": "Hi, I would like to order a coffee please.",
+      "isUser": true,
+      "timestamp": "2023-05-20T15:32:30Z"
+    },
+    {
+      "id": "102",
+      "chatId": "1",
+      "content": "Sure, would you like that hot or iced?",
+      "isUser": false,
+      "timestamp": "2023-05-20T15:33:00Z"
+    },
+    {
+      "id": "103",
+      "chatId": "1",
+      "content": "Hot, please. And can I have a chocolate muffin too?",
+      "isUser": true,
+      "timestamp": "2023-05-20T15:33:30Z"
+    },
+    {
+      "id": "104",
+      "chatId": "1",
+      "content": "Of course. Would you like anything else?",
+      "isUser": false,
+      "timestamp": "2023-05-20T15:34:00Z"
+    },
+    {
+      "id": "201",
+      "chatId": "2",
+      "content": "Hi there! I see you got a new dog. What's its name?",
+      "isUser": false,
+      "timestamp": "2023-05-20T14:15:30Z"
+    },
+    {
+      "id": "202",
+      "chatId": "2",
+      "content": "Yes! Dog name is Lucas. He's a labrador.",
+      "isUser": true,
+      "timestamp": "2023-05-20T14:16:00Z"
+    },
+    {
+      "id": "203",
+      "chatId": "2",
+      "content": "He's very cute! How old is he?",
+      "isUser": false,
+      "timestamp": "2023-05-20T14:16:30Z"
+    }
+  ],
+  "analysisPoints": [
+    {
+      "id": "301",
+      "chatId": "2",
+      "messageId": "202",
+      "type": "grammar",
+      "originalText": "Dog name is Lucas",
+      "suggestion": "My dog's name is Lucas",
+      "explanation": "Los nombres son posesivos, es decir, le pertenecen a tu perro. Cuando algo le pertenece a alguien, agregamos 's a esa persona o cosa. Por ejemplo: el lápiz de Ana → Ana's pen, no 'Ana pen'.",
+      "timestamp": "2023-05-20T14:16:05Z",
+      "reviewed": false
+    },
+    {
+      "id": "302",
+      "chatId": "1",
+      "messageId": "101",
+      "type": "vocabulary",
+      "originalText": "I would like to order",
+      "suggestion": "I'd like to order/I'll have",
+      "explanation": "En un café o restaurante, es común usar expresiones más informales como 'I'll have' o la contracción 'I'd like' en lugar de 'I would like'.",
+      "timestamp": "2023-05-20T15:32:35Z",
+      "reviewed": false
+    },
+    {
+      "id": "303",
+      "chatId": "1",
+      "messageId": "103",
+      "type": "phrasal_verb",
+      "originalText": "can I have",
+      "suggestion": "could I get",
+      "explanation": "El phrasal verb 'get' es muy común en situaciones de servicio. 'Could I get' es ligeramente más formal y educado que 'can I have'.",
+      "timestamp": "2023-05-20T15:33:35Z",
+      "reviewed": false
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "restaurant",
+      "title": "En el Restaurante",
+      "description": "Practica pidiendo comida y bebida en un restaurante o café. Aprenderás vocabulario relacionado con comida y expresiones útiles para ordenar.",
+      "language": "en",
+      "level": "beginner",
+      "tags": ["food", "ordering", "service"]
+    },
+    {
+      "id": "neighbor-dog",
+      "title": "Paseo con el Perro",
+      "description": "Conversación casual con un vecino mientras paseas a tu perro. Practica presentaciones, descripciones y preguntas básicas.",
+      "language": "en",
+      "level": "beginner",
+      "tags": ["casual", "pets", "introductions"]
+    },
+    {
+      "id": "job-interview",
+      "title": "Entrevista de Trabajo",
+      "description": "Simula una entrevista de trabajo donde tendrás que hablar sobre tus habilidades, experiencia y logros.",
+      "language": "en",
+      "level": "intermediate",
+      "tags": ["professional", "career", "formal"]
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+{
+  "/api/chats/:id/messages": "/messages?chatId=:id",
+  "/api/chats/:id/analysis": "/analysisPoints?chatId=:id"
+}
