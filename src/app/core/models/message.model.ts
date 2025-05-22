@@ -1,8 +1,7 @@
 export interface Message {
-  id: string;
-  chatId: string;
+  id: number;
+  chat_id: number;
+  sender: 'human' | 'ai' | 'system';
   content: string;
-  timestamp: Date;
-  isUser: boolean;
-  isVoice?: boolean;
+  timestamp: string;
 }

@@ -4,16 +4,17 @@ import {
   ViewChild,
   ElementRef,
   AfterViewChecked,
+  OnDestroy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChatService } from '../../services/chat.service';
-import { Observable } from 'rxjs';
+import { MessageService } from '../../services/message.service';
+import { Observable, Subscription } from 'rxjs';
 import { Chat } from '../../../../core/models/chat.model';
 import { Message } from '../../../../core/models/message.model';
 import { ChatSidebarComponent } from '../../components/chat-sidebar/chat-sidebar.component';
 import { ChatMessageComponent } from '../../components/chat-message/chat-message.component';
 import { ChatInputComponent } from '../../components/chat-input/chat-input.component';
-// import { ChatAnalysisComponent } from '../../../analysis/components/chat-analysis/chat-analysis.component';
 
 @Component({
   selector: 'app-chat-page',
@@ -21,25 +22,30 @@ import { ChatInputComponent } from '../../components/chat-input/chat-input.compo
   imports: [
     CommonModule,
     ChatSidebarComponent,
-    // ChatMessageComponent,
-    // ChatInputComponent,
-    // ChatAnalysisComponent,
+    ChatMessageComponent,
+    ChatInputComponent,
   ],
   templateUrl: './chat-page.component.html',
 })
-export class ChatPageComponent implements OnInit, AfterViewChecked {
+export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
   currentChat$: Observable<Chat | null>;
-  // messages$: Observable<Message[]>;
+  messages$: Observable<Message[]>;
   showAnalysis = false;
+
+  private subscriptions = new Subscription();
 
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
 
-  constructor(private chatService: ChatService) {
+  constructor(
+    private chatService: ChatService,
+    private messageService: MessageService
+  ) {
     this.currentChat$ = this.chatService.currentChat$;
-    // this.messages$ = this.chatService.messages$;
+    this.messages$ = this.messageService.messages$;
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+  }
 
   ngAfterViewChecked(): void {
     this.scrollToBottom();
@@ -54,5 +60,9 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
 
   toggleAnalysisView(): void {
     this.showAnalysis = !this.showAnalysis;
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 }

@@ -4,12 +4,11 @@ import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { Chat } from '../../../core/models/chat.model';
 import { ChatCreate } from '../../../core/models/chat.model';
 import { environment } from '../../../../environments/environment';
+import { MessageService } from './message.service';
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
   private apiUrl = environment.apiUrl;
-  
-  
 
   private chatsSubject = new BehaviorSubject<Chat[]>([]);
   private currentChatSubject = new BehaviorSubject<Chat | null>(null);
@@ -17,8 +16,7 @@ export class ChatService {
   chats$ = this.chatsSubject.asObservable();
   currentChat$ = this.currentChatSubject.asObservable();
 
-  constructor(private http: HttpClient) {
-  }
+  constructor(private http: HttpClient, private messageService: MessageService) {}
 
   fetchChats(userId: number): void {
     this.http
@@ -39,9 +37,10 @@ export class ChatService {
   }
 
   selectChat(chatId: number): void {
-    this.http
-      .get<Chat>(`${this.apiUrl}/chats/${chatId}`)
-      .subscribe((chat) => this.currentChatSubject.next(chat));
+    this.http.get<Chat>(`${this.apiUrl}/chats/${chatId}`).subscribe((chat) => {
+      this.currentChatSubject.next(chat);
+      this.messageService.fetchMessages(chatId); 
+    });
   }
 
   getChatById(chatId: number): Observable<Chat> {
