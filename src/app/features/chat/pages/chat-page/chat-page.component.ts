@@ -13,7 +13,7 @@ import { Message } from '../../../../core/models/message.model';
 import { ChatSidebarComponent } from '../../components/chat-sidebar/chat-sidebar.component';
 import { ChatMessageComponent } from '../../components/chat-message/chat-message.component';
 import { ChatInputComponent } from '../../components/chat-input/chat-input.component';
-import { ChatAnalysisComponent } from '../../../analysis/components/chat-analysis/chat-analysis.component';
+// import { ChatAnalysisComponent } from '../../../analysis/components/chat-analysis/chat-analysis.component';
 
 @Component({
   selector: 'app-chat-page',
@@ -21,22 +21,22 @@ import { ChatAnalysisComponent } from '../../../analysis/components/chat-analysi
   imports: [
     CommonModule,
     ChatSidebarComponent,
-    ChatMessageComponent,
-    ChatInputComponent,
-    ChatAnalysisComponent,
+    // ChatMessageComponent,
+    // ChatInputComponent,
+    // ChatAnalysisComponent,
   ],
   templateUrl: './chat-page.component.html',
 })
 export class ChatPageComponent implements OnInit, AfterViewChecked {
   currentChat$: Observable<Chat | null>;
-  messages$: Observable<Message[]>;
+  // messages$: Observable<Message[]>;
   showAnalysis = false;
 
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
 
   constructor(private chatService: ChatService) {
     this.currentChat$ = this.chatService.currentChat$;
-    this.messages$ = this.chatService.messages$;
+    // this.messages$ = this.chatService.messages$;
   }
 
   ngOnInit(): void {}

@@ -20,16 +20,16 @@ export class ChatInputComponent {
   }
 
   sendMessage(): void {
-    if (!this.messageText.trim()) return;
+    // if (!this.messageText.trim()) return;
 
-    this.chatService
-      .sendMessage(this.messageText, this.isVoiceMode)
-      .subscribe(() => {
-        this.messageText = '';
-        if (this.isVoiceMode) {
-          this.isVoiceMode = false;
-        }
-      });
+    // this.chatService
+    //   .sendMessage(this.messageText, this.isVoiceMode)
+    //   .subscribe(() => {
+    //     this.messageText = '';
+    //     if (this.isVoiceMode) {
+    //       this.isVoiceMode = false;
+    //     }
+    //   });
   }
 }
 

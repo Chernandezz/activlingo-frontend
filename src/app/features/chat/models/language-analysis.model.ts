@@ -1,5 +1,4 @@
 export interface LanguageAnalysisPoint {
-  id: string;
   chatId: string;
   messageId: string;
   type: 'grammar' | 'vocabulary' | 'phrasal_verb' | 'idiom' | 'pronunciation';

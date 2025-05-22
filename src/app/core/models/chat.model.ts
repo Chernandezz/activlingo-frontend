@@ -1,18 +1,17 @@
 export interface Chat {
-  id: string;
+  id: number;
+  user_id: number;
   title: string;
-  scenario: string; // Descripción del escenario
-  language: string; // Idioma practicado (en, es, fr, etc.)
-  level: string; // Nivel (beginner, intermediate, advanced)
-  createdAt: Date;
-  updatedAt: Date;
-  stats?: {
-    // Estadísticas de este chat
-    totalMessages: number;
-    improvementPoints: number;
-    grammarPoints: number;
-    vocabularyPoints: number;
-    phrasalVerbPoints: number;
-    idiomPoints: number;
-  };
+  language: string;
+  level: string;
+  created_at: string;
+}
+
+
+export interface ChatCreate {
+  title: string;
+  language?: string;
+  level?: string;
+  role?: string;
+  context?: string;
 }

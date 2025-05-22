@@ -22,18 +22,18 @@
     </div>
 
     <!-- Análisis visible -->
-    <div *ngIf="showAnalysis && (currentChat$ | async)" class="flex-grow overflow-y-auto">
+    <!-- <div *ngIf="showAnalysis && (currentChat$ | async)" class="flex-grow overflow-y-auto">
       <app-chat-analysis [chatId]="(currentChat$ | async)?.id"></app-chat-analysis>
       <div class="p-4">
         <button (click)="toggleAnalysisView()"
           class="w-full py-3 bg-gray-800 text-white rounded-lg font-bold transition hover:bg-gray-700 font-hand">
           Back to chat
         </button>
-      </div>
-    </div>
+      </div> -->
+    <!-- </div> -->
 
     <!-- Conversación visible -->
-    <div *ngIf="!showAnalysis && (currentChat$ | async)" class="flex-grow flex flex-col">
+    <!-- <div *ngIf="!showAnalysis && (currentChat$ | async)" class="flex-grow flex flex-col">
       <div class="flex-grow overflow-y-auto px-6 py-4" #messagesContainer>
         <div *ngIf="(messages$ | async)?.length === 0" class="text-center text-gray-500 mt-10 font-hand">
           No hay mensajes aún. ¡Comienza la conversación!
@@ -46,7 +46,7 @@
       <div class="px-4 pt-2 pb-4">
         <app-chat-input></app-chat-input>
       </div>
-    </div>
+    </div> -->
 
     <!-- No hay chat seleccionado -->
     <div *ngIf="!(currentChat$ | async)" class="flex-grow flex flex-col items-center justify-center p-8">
