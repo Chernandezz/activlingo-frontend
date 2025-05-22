@@ -44,11 +44,17 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     this.messages$ = this.messageService.messages$;
   }
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   ngAfterViewChecked(): void {
     this.scrollToBottom();
+  }
+
+  handleSendMessage(content: string): void {
+    const currentChat = this.chatService.getCurrentChatValue(); // método extra para acceder directamente
+    if (currentChat) {
+      this.messageService.sendMessage(currentChat.id, content);
+    }
   }
 
   scrollToBottom(): void {

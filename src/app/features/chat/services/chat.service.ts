@@ -12,11 +12,18 @@ export class ChatService {
 
   private chatsSubject = new BehaviorSubject<Chat[]>([]);
   private currentChatSubject = new BehaviorSubject<Chat | null>(null);
+  
+  getCurrentChatValue(): Chat | null {
+    return this.currentChatSubject.getValue();
+  }
 
   chats$ = this.chatsSubject.asObservable();
   currentChat$ = this.currentChatSubject.asObservable();
 
-  constructor(private http: HttpClient, private messageService: MessageService) {}
+  constructor(
+    private http: HttpClient,
+    private messageService: MessageService
+  ) {}
 
   fetchChats(userId: number): void {
     this.http
@@ -39,7 +46,7 @@ export class ChatService {
   selectChat(chatId: number): void {
     this.http.get<Chat>(`${this.apiUrl}/chats/${chatId}`).subscribe((chat) => {
       this.currentChatSubject.next(chat);
-      this.messageService.fetchMessages(chatId); 
+      this.messageService.fetchMessages(chatId);
     });
   }
 

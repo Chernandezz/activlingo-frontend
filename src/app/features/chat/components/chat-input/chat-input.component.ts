@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+// chat-input.component.ts
+import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ChatService } from '../../services/chat.service';
 
 @Component({
   selector: 'app-chat-input',
@@ -10,26 +10,14 @@ import { ChatService } from '../../services/chat.service';
   templateUrl: './chat-input.component.html',
 })
 export class ChatInputComponent {
-  messageText = '';
-  isVoiceMode = false;
-
-  constructor(private chatService: ChatService) {}
-
-  toggleVoiceMode(): void {
-    this.isVoiceMode = !this.isVoiceMode;
-  }
+  message = '';
+  @Output() send = new EventEmitter<string>();
 
   sendMessage(): void {
-    // if (!this.messageText.trim()) return;
+    const content = this.message.trim();
+    if (!content) return;
 
-    // this.chatService
-    //   .sendMessage(this.messageText, this.isVoiceMode)
-    //   .subscribe(() => {
-    //     this.messageText = '';
-    //     if (this.isVoiceMode) {
-    //       this.isVoiceMode = false;
-    //     }
-    //   });
+    this.send.emit(content);
+    this.message = '';
   }
 }
-

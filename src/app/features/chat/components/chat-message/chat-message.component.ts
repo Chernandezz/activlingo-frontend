@@ -11,7 +11,10 @@ import { Message } from '../../../../core/models/message.model';
 export class ChatMessageComponent implements OnInit {
   @Input() message!: Message;
 
-  ngOnInit(): void {
+  ngOnInit(): void {}
+
+  get isLoading(): boolean {
+    return this.message.sender === 'ai' && this.message.content === '...';
   }
 
   get isUser(): boolean {

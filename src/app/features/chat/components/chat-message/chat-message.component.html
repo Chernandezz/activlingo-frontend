@@ -7,7 +7,16 @@
       'bg-blue-500 mr-auto': isAI,
       'bg-gray-500 mr-auto': isSystem
     }">
-    <div class="whitespace-pre-wrap">{{ message.content }}</div>
+    <!-- Animación si es loading -->
+    <div *ngIf="isLoading" class="text-sm italic animate-pulse">
+      Thinking...
+    </div>
+    
+    <!-- Normal -->
+    <div *ngIf="!isLoading">
+      {{ message.content }}
+    </div>
+
     <div class="text-xs text-right text-white/70 mt-1">
       {{ message.timestamp | date: 'shortTime' }}
     </div>

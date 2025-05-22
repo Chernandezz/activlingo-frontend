@@ -15,21 +15,56 @@ export class MessageService {
     this.http
       .get<Message[]>(`${environment.apiUrl}/messages/?chat_id=${chatId}`)
       .subscribe((messages) => {
-        const filtered = messages.filter(m => m.sender !== 'system');
-        this.messagesSubject.next(filtered)});
+        const filtered = messages.filter((m) => m.sender !== 'system');
+        this.messagesSubject.next(filtered);
+      });
   }
 
   clearMessages(): void {
     this.messagesSubject.next([]);
   }
 
-  // sendMessage(message: Partial<Message>): Observable<Message> {
-  //   return this.messageRepo.sendMessage(message).pipe(
-  //     tap((newMessage) => {
-  //       const current = this.messagesSubject.getValue();
-  //       this.messagesSubject.next([...current, newMessage]);
-  //     })
-  //   );
-  // }
+  sendMessage(chatId: number, content: string): void {
+    const currentMessages = this.messagesSubject.getValue();
 
+    // Mensaje del usuario
+    const humanMessage: Message = {
+      id: Date.now(), // temporal
+      chat_id: chatId,
+      sender: 'human',
+      content,
+      timestamp: new Date().toISOString(),
+    };
+
+    // Mensaje placeholder de la IA
+    const aiPlaceholder: Message = {
+      id: Date.now() + 1,
+      chat_id: chatId,
+      sender: 'ai',
+      content: '...',
+      timestamp: new Date().toISOString(),
+    };
+
+    // Mostrar ambos de inmediato
+    this.messagesSubject.next([
+      ...currentMessages,
+      humanMessage,
+      aiPlaceholder,
+    ]);
+
+    // Llamar a la API
+    this.http
+      .post<Message>(`${environment.apiUrl}/messages/`, {
+        chat_id: chatId,
+        sender: 'human',
+        content,
+      })
+      .subscribe((response) => {
+        // Reemplazar el placeholder con la respuesta real
+        const updatedMessages = this.messagesSubject
+          .getValue()
+          .map((msg) => (msg.id === aiPlaceholder.id ? response : msg));
+        this.messagesSubject.next(updatedMessages);
+      });
+  }
 }
