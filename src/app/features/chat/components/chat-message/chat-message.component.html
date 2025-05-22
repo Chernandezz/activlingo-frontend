@@ -1,0 +1,15 @@
+<div class="mb-4 flex" [class.justify-end]="message.isUser">
+  <div class="max-w-[80%] p-3 rounded-lg text-white" [class.bg-green-500]="message.isUser"
+    [class.bg-blue-500]="!message.isUser" [class.ml-auto]="message.isUser">
+    <div class="flex items-center" *ngIf="message.isVoice">
+      <span class="mr-2">🎤</span>
+      <span>{{ message.content }}</span>
+    </div>
+    <div *ngIf="!message.isVoice">
+      {{ message.content }}
+    </div>
+    <div class="text-xs opacity-70 mt-1 text-right">
+      {{ message.timestamp | date : 'shortTime' }}
+    </div>
+  </div>
+</div>

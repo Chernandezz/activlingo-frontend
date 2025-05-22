@@ -6,6 +6,7 @@ export const routes: Routes = [
     redirectTo: 'chat',
     pathMatch: 'full',
   },
+  
   {
     path: 'chat',
     loadComponent: () =>

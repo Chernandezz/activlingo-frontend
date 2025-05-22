@@ -23,15 +23,14 @@ import { ChatAnalysisComponent } from '../../../analysis/components/chat-analysi
     ChatSidebarComponent,
     ChatMessageComponent,
     ChatInputComponent,
-    ChatAnalysisComponent, // Nuevo componente
+    ChatAnalysisComponent,
   ],
   templateUrl: './chat-page.component.html',
 })
 export class ChatPageComponent implements OnInit, AfterViewChecked {
   currentChat$: Observable<Chat | null>;
   messages$: Observable<Message[]>;
-  showAnalysis = true;
-  showFullAnalysisView = false;
+  showAnalysis = false;
 
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
 
@@ -46,14 +45,6 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
     this.scrollToBottom();
   }
 
-  toggleAnalysisView(): void {
-    this.showFullAnalysisView = !this.showFullAnalysisView;
-  }
-
-  toggleAnalysis(): void {
-    this.showAnalysis = !this.showAnalysis;
-  }
-
   scrollToBottom(): void {
     try {
       this.messagesContainer.nativeElement.scrollTop =
@@ -61,9 +52,7 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
     } catch (err) {}
   }
 
-  endChat(): void {
-    if (confirm('¿Estás seguro que deseas terminar este chat?')) {
-      this.chatService.endChat();
-    }
+  toggleAnalysisView(): void {
+    this.showAnalysis = !this.showAnalysis;
   }
 }

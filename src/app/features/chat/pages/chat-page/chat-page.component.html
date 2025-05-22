@@ -1,26 +1,41 @@
-<!-- chat-page.component.html -->
-<div class="flex h-screen bg-gray-900 text-white">
-  <!-- Sidebar siempre visible -->
-  <div class="w-64 lg:w-80 h-full border-r border-gray-700 flex-shrink-0">
+<div class="flex h-[calc(100vh-4rem)] pt-16 bg-white text-black">
+  <!-- Sidebar -->
+  <div class="w-64 lg:w-80 h-full border-r border-gray-200 flex-shrink-0">
     <app-chat-sidebar></app-chat-sidebar>
   </div>
 
-  <!-- Área principal: chat o análisis -->
+  <!-- Área principal -->
   <div class="flex-grow flex flex-col h-full">
-    <!-- Header del chat siempre visible -->
+
+    <!-- Encabezado del chat -->
     <div *ngIf="currentChat$ | async as chat"
-      class="pb-4 border-b border-gray-700 flex justify-between items-center p-4">
+      class="pb-4 flex justify-between items-center p-4">
       <div>
-        <h2 class="text-xl font-bold">{{ chat.title }}</h2>
-        <p class="text-sm text-gray-400">{{ chat.scenario || 'Conversación casual' }}</p>
+        <h2 class="text-xl font-bold font-hand">{{ chat.title }}</h2>
+      </div>
+      <div>
+        <button (click)="toggleAnalysisView()"
+          class="px-4 py-2 border border-blue-500 rounded text-blue-600 font-bold font-hand hover:bg-blue-100 transition">
+          Analyze Chat &gt;
+        </button>
       </div>
     </div>
 
-    <!-- Vista de conversación (visible cuando showFullAnalysisView es false) -->
-    <div *ngIf="!showFullAnalysisView && (currentChat$ | async)" class="flex-grow flex flex-col">
-      <!-- Messages -->
-      <div class="flex-grow overflow-y-auto py-4 px-4" #messagesContainer>
-        <div *ngIf="(messages$ | async)?.length === 0" class="text-center text-gray-500 mt-10">
+    <!-- Análisis visible -->
+    <div *ngIf="showAnalysis && (currentChat$ | async)" class="flex-grow overflow-y-auto">
+      <app-chat-analysis [chatId]="(currentChat$ | async)?.id"></app-chat-analysis>
+      <div class="p-4">
+        <button (click)="toggleAnalysisView()"
+          class="w-full py-3 bg-gray-800 text-white rounded-lg font-bold transition hover:bg-gray-700 font-hand">
+          Back to chat
+        </button>
+      </div>
+    </div>
+
+    <!-- Conversación visible -->
+    <div *ngIf="!showAnalysis && (currentChat$ | async)" class="flex-grow flex flex-col">
+      <div class="flex-grow overflow-y-auto px-6 py-4" #messagesContainer>
+        <div *ngIf="(messages$ | async)?.length === 0" class="text-center text-gray-500 mt-10 font-hand">
           No hay mensajes aún. ¡Comienza la conversación!
         </div>
 
@@ -28,129 +43,18 @@
         </app-chat-message>
       </div>
 
-      <!-- Input area -->
-      <div class="border-t border-gray-700 pt-4 px-4">
+      <div class="px-4 pt-2 pb-4">
         <app-chat-input></app-chat-input>
-
-        <!-- Botón para ver análisis completo -->
-        <div class="mt-4">
-          <button (click)="toggleAnalysisView()"
-            class="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold transition-colors">
-            Ver mi análisis
-          </button>
-        </div>
-
       </div>
     </div>
 
-    <!-- Vista de análisis completo (visible cuando showFullAnalysisView es true) -->
-    <div *ngIf="showFullAnalysisView && (currentChat$ | async)" class="flex-grow flex flex-col p-4">
-      <div class="flex-grow overflow-y-auto">
-        <!-- Contenido expandido del análisis -->
-        <div class="mb-8">
-          <h2 class="text-2xl font-bold mb-4">Análisis Completo de la Conversación</h2>
-
-          <!-- Panel de resumen -->
-          <div class="mb-6 p-4 bg-gray-800 rounded-lg">
-            <h3 class="text-lg font-semibold mb-2">Resumen</h3>
-            <div class="grid grid-cols-4 gap-3 text-center">
-              <div class="p-3 bg-blue-900 rounded">
-                <div class="text-xl font-bold">2</div>
-                <div class="text-sm">Gramática</div>
-              </div>
-              <div class="p-3 bg-purple-900 rounded">
-                <div class="text-xl font-bold">1</div>
-                <div class="text-sm">Vocabulario</div>
-              </div>
-              <div class="p-3 bg-green-900 rounded">
-                <div class="text-xl font-bold">1</div>
-                <div class="text-sm">Phrasal Verbs</div>
-              </div>
-              <div class="p-3 bg-yellow-900 rounded">
-                <div class="text-xl font-bold">0</div>
-                <div class="text-sm">Expresiones</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Lista de errores desplegables -->
-          <h3 class="text-xl font-semibold mb-4">Puntos de Mejora</h3>
-
-          <div class="space-y-4">
-            <!-- Error 1 - desplegable -->
-            <div class="p-4 bg-gray-800 rounded-lg">
-              <details class="cursor-pointer">
-                <summary class="flex justify-between items-center">
-                  <span class="font-medium text-red-400 line-through">Dog name is Lucas</span>
-                  <span class="text-green-400 ml-2">My dog's name is Lucas</span>
-                  <span class="px-2 py-1 ml-4 text-xs bg-blue-900 rounded">Gramática</span>
-                </summary>
-                <div class="mt-3 pl-4 border-l-2 border-gray-700">
-                  <p class="text-gray-300">Recuerda que un nombre es posesivo, es decir, que le pertenece a tu perro.
-                    Cuando algo le pertenece a alguien, agregamos 's a esa persona o cosa.</p>
-                  <p class="mt-2 text-gray-300">Por ejemplo:</p>
-                  <ul class="list-disc pl-5 mt-1 text-gray-300">
-                    <li>El lápiz de Ana → <span class="text-green-400">Ana's pen</span>, no "Ana pen"</li>
-                    <li>La casa de John → <span class="text-green-400">John's house</span>, no "John house"</li>
-                  </ul>
-                </div>
-              </details>
-            </div>
-
-            <!-- Error 2 - desplegable -->
-            <div class="p-4 bg-gray-800 rounded-lg">
-              <details class="cursor-pointer">
-                <summary class="flex justify-between items-center">
-                  <span class="font-medium text-red-400 line-through">I very happy</span>
-                  <span class="text-green-400 ml-2">I am very happy</span>
-                  <span class="px-2 py-1 ml-4 text-xs bg-blue-900 rounded">Gramática</span>
-                </summary>
-                <div class="mt-3 pl-4 border-l-2 border-gray-700">
-                  <p class="text-gray-300">Falta el verbo "to be" (am) en esta frase. En inglés, siempre necesitas un
-                    verbo en la oración.</p>
-                </div>
-              </details>
-            </div>
-
-            <!-- Error 3 - desplegable -->
-            <div class="p-4 bg-gray-800 rounded-lg">
-              <details class="cursor-pointer">
-                <summary class="flex justify-between items-center">
-                  <span class="font-medium text-red-400 line-through">look for my keys</span>
-                  <span class="text-green-400 ml-2">search for my keys</span>
-                  <span class="px-2 py-1 ml-4 text-xs bg-green-900 rounded">Phrasal Verb</span>
-                </summary>
-                <div class="mt-3 pl-4 border-l-2 border-gray-700">
-                  <p class="text-gray-300">"Look for" es correcto, pero podrías ampliar tu vocabulario usando "search
-                    for" en contextos más formales.</p>
-                </div>
-              </details>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Botón para volver a la conversación -->
-      <div class="mt-4">
-        <button (click)="toggleAnalysisView()"
-          class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition-colors">
-          Regresar al chat
-        </button>
-      </div>
-    </div>
-
-    <!-- Mensaje de no hay chat seleccionado -->
+    <!-- No hay chat seleccionado -->
     <div *ngIf="!(currentChat$ | async)" class="flex-grow flex flex-col items-center justify-center p-8">
       <div class="text-center">
         <h2 class="text-2xl font-bold mb-4">No hay chat seleccionado</h2>
-        <p class="text-gray-400 mb-6">Selecciona un chat existente o crea uno nuevo para comenzar</p>
+        <p class="text-gray-400 mb-6 font-hand">Selecciona un chat existente o crea uno nuevo para comenzar</p>
       </div>
     </div>
-  </div>
 
-  <!-- Panel lateral de análisis (visible solo cuando showAnalysis es true y showFullAnalysisView es false) -->
-  <div *ngIf="showAnalysis && !showFullAnalysisView"
-    class="h-full border-l border-gray-700 w-80 transition-all duration-300">
-    <app-chat-analysis [chatId]="(currentChat$ | async)?.id"></app-chat-analysis>
   </div>
 </div>
