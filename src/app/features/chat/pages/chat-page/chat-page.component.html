@@ -33,7 +33,10 @@
 
       <!-- Input -->
       <div class="px-4 pt-2 pb-4 bg-white flex-shrink-0">
-        <app-chat-input (send)="handleSendMessage($event)"></app-chat-input>
+        <app-chat-input (send)="handleSendMessage($event)" (sendVoice)="handleAudioRecording($event)">
+        </app-chat-input>
+      
+
       </div>
     </div>
 

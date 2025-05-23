@@ -4,4 +4,6 @@ export interface Message {
   sender: 'human' | 'ai' | 'system';
   content: string;
   timestamp: string;
+  isVoice?: boolean;
+  audioBase64?: string;
 }

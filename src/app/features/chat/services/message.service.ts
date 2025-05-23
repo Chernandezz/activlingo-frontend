@@ -24,6 +24,44 @@ export class MessageService {
     this.messagesSubject.next([]);
   }
 
+  sendVoiceMessage(chatId: number, audioBlob: Blob): void {
+    const formData = new FormData();
+    formData.append('file', audioBlob, 'audio.webm');
+
+    this.http
+      .post<{ user_text: string; ai_text: string }>(
+        `${environment.apiUrl}/messages/transcribe-audio/?chat_id=${chatId}`,
+        formData
+      )
+      .subscribe({
+        next: (res) => {
+          const current = this.messagesSubject.getValue();
+          const now = new Date().toISOString();
+
+          this.messagesSubject.next([
+            ...current,
+            {
+              id: Date.now(), // solo para UI, Supabase tiene su propio ID
+              chat_id: chatId,
+              sender: 'human',
+              content: res.user_text,
+              timestamp: now,
+            },
+            {
+              id: Date.now() + 1,
+              chat_id: chatId,
+              sender: 'ai',
+              content: res.ai_text,
+              timestamp: now,
+            },
+          ]);
+        },
+        error: (err) => {
+          console.error('❌ Voice message error', err);
+        },
+      });
+  }
+
   sendMessage(chatId: number, content: string): void {
     const currentMessages = this.messagesSubject.getValue();
 
