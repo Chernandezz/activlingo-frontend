@@ -1,7 +1,29 @@
 <!-- chat-input.component.html -->
-<div class="flex items-end gap-2">
+<div class="flex items-end gap-2 relative">
   <input [(ngModel)]="message" (keydown.enter)="sendMessage()" class="flex-grow p-2 border rounded"
-    placeholder="Escribe un mensaje..." />
+    placeholder="Escribe un mensaje..." [disabled]="isRecording || isProcessing" />
 
-  <button (click)="sendMessage()" class="bg-blue-500 p-2 rounded-full text-white">Enviar</button>
+  <button (click)="toggleRecording()"
+    class="bg-blue-600 text-white px-4 py-2 rounded font-bold relative flex items-center gap-1"
+    [disabled]="isProcessing">
+    <span *ngIf="isRecording" class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+    {{ isRecording ? 'Stop 🎤' : 'Speak 🎙️' }}
+  </button>
+
+  <button (click)="sendMessage()" class="bg-blue-500 p-2 rounded-full text-white"
+    [disabled]="isRecording || isProcessing">
+    Enviar
+  </button>
+  <div *ngIf="isRecording"
+    class="absolute bottom-14 left-4 bg-white border border-gray-300 shadow-md p-3 rounded-lg flex items-center gap-2 z-20">
+    <div class="animate-pulse w-3 h-3 bg-red-500 rounded-full"></div>
+    <p class="text-sm text-gray-700 font-medium">Grabando…</p>
+  </div>
+  
+
+  <!-- Overlay de cargando -->
+  <div *ngIf="isProcessing"
+    class="absolute inset-0 bg-white bg-opacity-60 flex items-center justify-center rounded z-10">
+    <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-600"></div>
+  </div>
 </div>

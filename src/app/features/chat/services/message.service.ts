@@ -24,6 +24,63 @@ export class MessageService {
     this.messagesSubject.next([]);
   }
 
+  sendVoiceMessage(chatId: number, audioBlob: Blob): void {
+    const formData = new FormData();
+    formData.append('file', audioBlob, 'audio.webm');
+
+    this.http
+      .post<{ user_text: string; ai_text: string }>(
+        `${environment.apiUrl}/messages/transcribe-audio/?chat_id=${chatId}`,
+        formData
+      )
+      .subscribe({
+        next: (res) => {
+          const current = this.messagesSubject.getValue();
+          const now = new Date().toISOString();
+
+          this.messagesSubject.next([
+            ...current,
+            {
+              id: Date.now(),
+              chat_id: chatId,
+              sender: 'human',
+              content: res.user_text,
+              timestamp: now,
+            },
+            {
+              id: Date.now() + 1,
+              chat_id: chatId,
+              sender: 'ai',
+              content: res.ai_text,
+              timestamp: now,
+            },
+          ]);
+          this.speak(res.ai_text);
+        },
+        error: (err) => {
+          console.error('❌ Voice message error', err);
+        },
+      });
+  }
+
+  speak(text: string): void {
+    const url = `${environment.apiUrl}/messages/speak`;
+
+    this.http.post(url, { text }, { responseType: 'blob' }).subscribe({
+      next: (blob) => {
+        const audio = new Audio();
+        const blobUrl = URL.createObjectURL(blob);
+        audio.src = blobUrl;
+        audio.play().catch((err) => {
+          console.error('❌ Error reproduciendo voz:', err);
+        });
+      },
+      error: (err) => {
+        console.error('❌ Error en TTS API:', err);
+      },
+    });
+  }
+
   sendMessage(chatId: number, content: string): void {
     const currentMessages = this.messagesSubject.getValue();
 
@@ -65,6 +122,7 @@ export class MessageService {
           .getValue()
           .map((msg) => (msg.id === aiPlaceholder.id ? response : msg));
         this.messagesSubject.next(updatedMessages);
+        this.speak(response.content);
       });
   }
 }

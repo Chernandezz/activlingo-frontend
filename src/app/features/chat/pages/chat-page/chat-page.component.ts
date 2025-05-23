@@ -56,6 +56,12 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
       this.messageService.sendMessage(currentChat.id, content);
     }
   }
+  handleAudioRecording(audioBlob: Blob): void {
+    const currentChat = this.chatService.getCurrentChatValue();
+    if (currentChat) {
+      this.messageService.sendVoiceMessage(currentChat.id, audioBlob);
+    }
+  }
 
   scrollToBottom(): void {
     try {
