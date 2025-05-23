@@ -24,8 +24,6 @@ export class MessageService {
     this.messagesSubject.next([]);
   }
 
-  
-
   sendVoiceMessage(chatId: number, audioBlob: Blob): void {
     const formData = new FormData();
     formData.append('file', audioBlob, 'audio.webm');
@@ -57,11 +55,30 @@ export class MessageService {
               timestamp: now,
             },
           ]);
+          this.speak(res.ai_text);
         },
         error: (err) => {
           console.error('❌ Voice message error', err);
         },
       });
+  }
+
+  speak(text: string): void {
+    const url = `${environment.apiUrl}/messages/speak`;
+
+    this.http.post(url, { text }, { responseType: 'blob' }).subscribe({
+      next: (blob) => {
+        const audio = new Audio();
+        const blobUrl = URL.createObjectURL(blob);
+        audio.src = blobUrl;
+        audio.play().catch((err) => {
+          console.error('❌ Error reproduciendo voz:', err);
+        });
+      },
+      error: (err) => {
+        console.error('❌ Error en TTS API:', err);
+      },
+    });
   }
 
   sendMessage(chatId: number, content: string): void {
@@ -105,6 +122,7 @@ export class MessageService {
           .getValue()
           .map((msg) => (msg.id === aiPlaceholder.id ? response : msg));
         this.messagesSubject.next(updatedMessages);
+        this.speak(response.content);
       });
   }
 }
