@@ -29,13 +29,17 @@ export class ChatSidebarComponent implements OnInit {
 
   createNewChat(): void {
     const title = prompt('Título para este chat:');
+    const role = prompt('Rol para este chat:');
+    const context = prompt('Contexto para este chat:');
     if (!title) return;
+    if (!role) return;
+    if (!context) return;
 
     this.chatService
       .createChat(1, {
         title,
-        role: 'default',
-        context: 'default',
+        role,
+        context
       })
       .subscribe();
   }

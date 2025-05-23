@@ -12,7 +12,7 @@ export class ChatService {
 
   private chatsSubject = new BehaviorSubject<Chat[]>([]);
   private currentChatSubject = new BehaviorSubject<Chat | null>(null);
-  
+
   getCurrentChatValue(): Chat | null {
     return this.currentChatSubject.getValue();
   }
@@ -32,6 +32,13 @@ export class ChatService {
   }
 
   createChat(userId: number, chat: ChatCreate): Observable<Chat> {
+    chat = {
+      title: chat.title || 'Nuevo chat',
+      language: 'en',
+      level: 'A1',
+      role: chat.role || 'Usuario',
+      context: chat.context || 'Sin contexto',
+    }
     return this.http
       .post<Chat>(`${this.apiUrl}/chats/?user_id=${userId}`, chat)
       .pipe(
