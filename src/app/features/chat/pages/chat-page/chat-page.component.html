@@ -1,5 +1,5 @@
 <!-- chat-page.component.html -->
-<div class="flex h-[calc(100vh-4rem)] pt-16 bg-gray-50">
+<div class="flex h-screen pt-16 bg-gray-50">
 
   <!-- Sidebar -->
   <div class="w-64 lg:w-80 h-full flex-shrink-0">
@@ -128,7 +128,7 @@
         </div>
 
         <!-- Input Section -->
-        <div class="bg-white border-t border-gray-200 p-4 flex-shrink-0">
+        <div class="bg-white p-4 pb-8 flex-shrink-0">
           <app-chat-input (send)="handleSendMessage($event)" (sendVoice)="handleAudioRecording($event)"
             [chatId]="(currentChat$ | async)?.id || 0">
           </app-chat-input>
