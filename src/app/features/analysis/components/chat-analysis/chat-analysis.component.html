@@ -1,54 +1,217 @@
-<div class="p-4 h-full overflow-y-auto">
-  <h2 class="text-2xl font-bold mb-6">🔍 Conversación Analizada</h2>
-
-  <!-- Estadísticas de resumen -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-    <div class="rounded-xl p-4 bg-pink-700 text-center shadow-md">
-      <div class="text-3xl font-bold">{{ getCategoryCount('grammar') }}</div>
-      <div class="text-sm">Grammar Mistakes</div>
-    </div>
-    <div class="rounded-xl p-4 bg-yellow-600 text-center shadow-md">
-      <div class="text-3xl font-bold">{{ getCategoryCount('vocabulary') }}</div>
-      <div class="text-sm">Vocabulary</div>
-    </div>
-    <div class="rounded-xl p-4 bg-blue-600 text-center shadow-md">
-      <div class="text-3xl font-bold">{{ getCategoryCount('phrasal_verb') }}</div>
-      <div class="text-sm">Phrasal Verbs</div>
-    </div>
-    <div class="rounded-xl p-4 bg-green-700 text-center shadow-md">
-      <div class="text-3xl font-bold">{{ getCategoryCount('expression') }}</div>
-      <div class="text-sm">Expressions</div>
+<!-- chat-analysis.component.html -->
+<div class="min-h-screen bg-gray-50">
+  <!-- Header Section -->
+  <div class="bg-white border-b border-gray-200 px-6 py-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-1">
+          🧠 Análisis Inteligente
+        </h1>
+        <p class="text-gray-600 text-base">
+          Mejora tu inglés con recomendaciones personalizadas
+        </p>
+      </div>
+      <div class="hidden md:block">
+        <div class="bg-blue-50 border border-blue-200 rounded-lg px-4 py-2">
+          <span class="text-blue-700 font-medium text-sm">{{ getTotalPoints() }} puntos encontrados</span>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Lista de recomendaciones -->
-  <div>
-    <h3 class="text-xl font-semibold mb-4">🧠 Recomendaciones</h3>
+  <div class="p-6 space-y-6">
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- Grammar Card -->
+      <div class="group cursor-pointer transform transition-all duration-200 hover:scale-105">
+        <div
+          class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md transition-all duration-200">
+          <div class="flex items-center justify-between mb-3">
+            <div class="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center">
+              <span class="text-xl">📝</span>
+            </div>
+            <div class="bg-pink-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
+              {{ getCategoryCount('grammar') }}
+            </div>
+          </div>
+          <h3 class="text-gray-900 font-semibold text-base mb-1">Gramática</h3>
+          <p class="text-gray-500 text-sm">Errores detectados</p>
+        </div>
+      </div>
 
-    <div *ngIf="(analysisPoints$ | async)?.length === 0" class="text-center text-gray-400">
-      No se encontraron puntos de análisis para esta conversación.
+      <!-- Vocabulary Card -->
+      <div class="group cursor-pointer transform transition-all duration-200 hover:scale-105">
+        <div
+          class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md transition-all duration-200">
+          <div class="flex items-center justify-between mb-3">
+            <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+              <span class="text-xl">📚</span>
+            </div>
+            <div
+              class="bg-orange-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
+              {{ getCategoryCount('vocabulary') }}
+            </div>
+          </div>
+          <h3 class="text-gray-900 font-semibold text-base mb-1">Vocabulario</h3>
+          <p class="text-gray-500 text-sm">Palabras nuevas</p>
+        </div>
+      </div>
+
+      <!-- Phrasal Verbs Card -->
+      <div class="group cursor-pointer transform transition-all duration-200 hover:scale-105">
+        <div
+          class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md transition-all duration-200">
+          <div class="flex items-center justify-between mb-3">
+            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+              <span class="text-xl">🔗</span>
+            </div>
+            <div class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
+              {{ getCategoryCount('phrasal_verb') }}
+            </div>
+          </div>
+          <h3 class="text-gray-900 font-semibold text-base mb-1">Phrasal Verbs</h3>
+          <p class="text-gray-500 text-sm">Expresiones compuestas</p>
+        </div>
+      </div>
+
+      <!-- Expressions Card -->
+      <div class="group cursor-pointer transform transition-all duration-200 hover:scale-105">
+        <div
+          class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md transition-all duration-200">
+          <div class="flex items-center justify-between mb-3">
+            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+              <span class="text-xl">💬</span>
+            </div>
+            <div
+              class="bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
+              {{ getCategoryCount('expression') }}
+            </div>
+          </div>
+          <h3 class="text-gray-900 font-semibold text-base mb-1">Expresiones</h3>
+          <p class="text-gray-500 text-sm">Frases idiomáticas</p>
+        </div>
+      </div>
     </div>
 
-    <div class="space-y-4">
-      <div *ngFor="let point of analysisPoints$ | async"
-        class="bg-gray-800 p-4 rounded-lg shadow hover:bg-gray-700 transition cursor-pointer"
-        (click)="showPointDetail(point)">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider"
-            [ngClass]="getTypeClass(point.category)">
-            {{ getTypeLabel(point.category) }}
-          </span>
-          <span class="text-xs text-gray-400">{{ point.created_at | date: 'short' }}</span>
+    <!-- Analysis Section -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+        <h2 class="text-xl font-semibold text-gray-900 flex items-center">
+          <span class="mr-3 text-2xl">🎯</span>
+          Recomendaciones Personalizadas
+        </h2>
+        <p class="text-gray-600 mt-1 text-sm">
+          Haz clic en cada elemento para ver los detalles y explicaciones
+        </p>
+      </div>
+
+      <div class="p-6">
+        <!-- Empty State -->
+        <div *ngIf="(analysisPoints$ | async)?.length === 0" class="text-center py-12">
+          <div class="mb-4">
+            <div class="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center">
+              <span class="text-2xl">🤔</span>
+            </div>
+          </div>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">
+            No hay análisis disponible
+          </h3>
+          <p class="text-gray-500 text-sm max-w-md mx-auto">
+            Comienza una conversación para recibir análisis y recomendaciones personalizadas sobre tu inglés.
+          </p>
         </div>
-        <div class="text-sm">
-          <p class="mb-1">
-            <span class="line-through text-red-400">{{ point.mistake }}</span>
-            <span class="mx-2">→</span>
-            <span class="text-green-400 font-semibold">{{ point.suggestion }}</span>
-          </p>
-          <p class="text-gray-300 text-xs flex items-start">
-            <span class="mr-1">💡</span> {{ point.explanation }}
-          </p>
+
+        <!-- Analysis Points -->
+        <div class="space-y-3" *ngIf="(analysisPoints$ | async)?.length! > 0">
+          <div *ngFor="let point of analysisPoints$ | async; trackBy: trackByPointId" class="group">
+
+            <!-- Point Card -->
+            <div
+              class="bg-white rounded-lg border border-gray-200 hover:border-gray-300 hover:shadow-sm transition-all duration-200 overflow-hidden"
+              [class.border-blue-300]="isExpanded(point.id)" [class.shadow-sm]="isExpanded(point.id)">
+
+              <!-- Clickable Header -->
+              <div class="p-4 cursor-pointer select-none hover:bg-gray-50 transition-colors duration-150"
+                (click)="togglePoint(point.id)">
+                <div class="flex items-start justify-between">
+                  <!-- Left Content -->
+                  <div class="flex-1 min-w-0">
+                    <!-- Category Badge -->
+                    <div class="flex items-center space-x-3 mb-3">
+                      <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium text-white"
+                        [class]="getTypeConfig(point.category).class">
+                        <span class="mr-1.5">{{ getTypeConfig(point.category).icon }}</span>
+                        {{ getTypeConfig(point.category).label }}
+                      </span>
+                      <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                        {{ point.created_at | date: 'MMM d' }}
+                      </span>
+                    </div>
+
+                    <!-- Mistake and Suggestion Preview -->
+                    <div class="space-y-2">
+                      <div class="flex items-start text-sm">
+                        <span class="text-red-500 mr-2 mt-0.5 flex-shrink-0">❌</span>
+                        <span class="line-through text-red-600 font-medium bg-red-50 px-2 py-1 rounded flex-1">
+                          {{ point.mistake }}
+                        </span>
+                      </div>
+                      <div class="flex items-start text-sm">
+                        <span class="text-green-500 mr-2 mt-0.5 flex-shrink-0">✅</span>
+                        <span class="text-green-700 font-medium bg-green-50 px-2 py-1 rounded flex-1">
+                          {{ point.suggestion }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Expand Button -->
+                  <div class="ml-4 flex-shrink-0">
+                    <div
+                      class="w-8 h-8 rounded-full bg-gray-100 hover:bg-blue-100 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-all duration-200"
+                      [class.rotate-180]="isExpanded(point.id)" [class.bg-blue-100]="isExpanded(point.id)"
+                      [class.text-blue-600]="isExpanded(point.id)">
+                      <svg class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Expanded Content -->
+              <div *ngIf="isExpanded(point.id)" class="border-t border-gray-100 bg-gray-50 p-4">
+                <div class="flex items-start space-x-3">
+                  <div class="flex-shrink-0">
+                    <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                      <span class="text-lg">💡</span>
+                    </div>
+                  </div>
+                  <div class="flex-1">
+                    <h4 class="font-medium text-gray-900 mb-2">
+                      Explicación Detallada
+                    </h4>
+                    <p class="text-gray-700 text-sm leading-relaxed mb-3">
+                      {{ point.explanation }}
+                    </p>
+
+                    <!-- Issue Context (if different from explanation) -->
+                    <div *ngIf="point.issue && point.issue !== point.explanation"
+                      class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                      <div class="flex items-start space-x-2">
+                        <span class="text-amber-600 text-sm">⚠️</span>
+                        <div>
+                          <h5 class="font-medium text-amber-800 text-sm mb-1">Contexto del Error</h5>
+                          <p class="text-amber-700 text-xs">{{ point.issue }}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
