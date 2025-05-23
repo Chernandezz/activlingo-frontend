@@ -55,7 +55,7 @@ export class MessageService {
               timestamp: now,
             },
           ]);
-          this.speak(res.ai_text);
+          // this.speak(res.ai_text); // Descomentar si quieres que la IA hable
         },
         error: (err) => {
           console.error('❌ Voice message error', err);
@@ -122,7 +122,7 @@ export class MessageService {
           .getValue()
           .map((msg) => (msg.id === aiPlaceholder.id ? response : msg));
         this.messagesSubject.next(updatedMessages);
-        this.speak(response.content);
+        // this.speak(response.content); // Descomentar si quieres que la IA hable
       });
   }
 }
