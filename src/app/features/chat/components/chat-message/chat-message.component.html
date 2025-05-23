@@ -1,15 +1,26 @@
-<div class="mb-4 flex" [class.justify-end]="message.isUser">
-  <div class="max-w-[80%] p-3 rounded-lg text-white" [class.bg-green-500]="message.isUser"
-    [class.bg-blue-500]="!message.isUser" [class.ml-auto]="message.isUser">
-    <div class="flex items-center" *ngIf="message.isVoice">
-      <span class="mr-2">🎤</span>
-      <span>{{ message.content }}</span>
+<div class="mb-4 flex" [ngClass]="{
+    'justify-end': isUser,
+    'justify-start': isAI || isSystem
+  }">
+  <div class="max-w-[75%] p-3 rounded-xl text-white font-hand" [ngClass]="{
+      'bg-green-500 ml-auto': isUser,
+      'bg-blue-500 mr-auto': isAI,
+      'bg-gray-500 mr-auto': isSystem
+    }">
+    <!-- Animación si es loading -->
+    <div *ngIf="isLoading" class="text-sm italic animate-pulse">
+      Thinking...
     </div>
-    <div *ngIf="!message.isVoice">
+    
+    <!-- Normal -->
+    <div *ngIf="!isLoading">
       {{ message.content }}
     </div>
-    <div class="text-xs opacity-70 mt-1 text-right">
-      {{ message.timestamp | date : 'shortTime' }}
+
+    
+
+    <div class="text-xs text-right text-white/70 mt-1">
+      {{ message.timestamp | date: 'shortTime' }}
     </div>
   </div>
 </div>

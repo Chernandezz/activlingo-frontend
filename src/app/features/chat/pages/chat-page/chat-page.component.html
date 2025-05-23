@@ -5,11 +5,10 @@
   </div>
 
   <!-- Área principal -->
-  <div class="flex-grow flex flex-col h-full">
+  <div class="flex-grow flex flex-col h-full overflow-hidden">
 
     <!-- Encabezado del chat -->
-    <div *ngIf="currentChat$ | async as chat"
-      class="pb-4 flex justify-between items-center p-4">
+    <div *ngIf="currentChat$ | async as chat" class="pb-4 flex justify-between items-center p-4 flex-shrink-0">
       <div>
         <h2 class="text-xl font-bold font-hand">{{ chat.title }}</h2>
       </div>
@@ -21,19 +20,8 @@
       </div>
     </div>
 
-    <!-- Análisis visible -->
-    <div *ngIf="showAnalysis && (currentChat$ | async)" class="flex-grow overflow-y-auto">
-      <app-chat-analysis [chatId]="(currentChat$ | async)?.id"></app-chat-analysis>
-      <div class="p-4">
-        <button (click)="toggleAnalysisView()"
-          class="w-full py-3 bg-gray-800 text-white rounded-lg font-bold transition hover:bg-gray-700 font-hand">
-          Back to chat
-        </button>
-      </div>
-    </div>
-
-    <!-- Conversación visible -->
-    <div *ngIf="!showAnalysis && (currentChat$ | async)" class="flex-grow flex flex-col">
+    <!-- Mensajes -->
+    <div *ngIf="!showAnalysis && (currentChat$ | async)" class="flex-grow overflow-hidden flex flex-col">
       <div class="flex-grow overflow-y-auto px-6 py-4" #messagesContainer>
         <div *ngIf="(messages$ | async)?.length === 0" class="text-center text-gray-500 mt-10 font-hand">
           No hay mensajes aún. ¡Comienza la conversación!
@@ -43,8 +31,12 @@
         </app-chat-message>
       </div>
 
-      <div class="px-4 pt-2 pb-4">
-        <app-chat-input></app-chat-input>
+      <!-- Input -->
+      <div class="px-4 pt-2 pb-4 bg-white flex-shrink-0">
+        <app-chat-input (send)="handleSendMessage($event)" (sendVoice)="handleAudioRecording($event)">
+        </app-chat-input>
+      
+
       </div>
     </div>
 
@@ -55,6 +47,5 @@
         <p class="text-gray-400 mb-6 font-hand">Selecciona un chat existente o crea uno nuevo para comenzar</p>
       </div>
     </div>
-
   </div>
 </div>

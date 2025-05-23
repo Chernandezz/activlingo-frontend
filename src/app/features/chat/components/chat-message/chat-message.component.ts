@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Message } from '../../../../core/models/message.model';
 
@@ -8,6 +8,24 @@ import { Message } from '../../../../core/models/message.model';
   imports: [CommonModule],
   templateUrl: './chat-message.component.html',
 })
-export class ChatMessageComponent {
+export class ChatMessageComponent implements OnInit {
   @Input() message!: Message;
+
+  ngOnInit(): void {}
+
+  get isLoading(): boolean {
+    return this.message.sender === 'ai' && this.message.content === '...';
+  }
+
+  get isUser(): boolean {
+    return this.message.sender === 'human';
+  }
+
+  get isAI(): boolean {
+    return this.message.sender === 'ai';
+  }
+
+  get isSystem(): boolean {
+    return this.message.sender === 'system';
+  }
 }

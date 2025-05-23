@@ -4,10 +4,11 @@
   </div>
 
   <div class="flex-grow overflow-y-auto px-4 py-2 space-y-2">
-    <div *ngFor="let chat of chats$ | async" (click)="selectChat(chat.id)" class="cursor-pointer hover:underline"
-      [class.font-bold]="(currentChat$ | async)?.id === chat.id">
-      {{ chat.title }}
+    <div *ngFor="let chat of chats$ | async" (click)="selectChat(chat.id)"
+      class="p-2 cursor-pointer hover:bg-gray-200 font-hand">
+      <div class="font-bold">{{ chat.title }}</div>
     </div>
+
 
     <div *ngIf="(chats$ | async)?.length === 0" class="text-center text-gray-400 text-sm mt-4">
       No chats yet.
@@ -25,7 +26,7 @@
       </label>
     </div>
 
-    <button (click)="openScenarioSelector()" class="w-full text-green-600 font-bold hover:underline">
+    <button (click)="createNewChat()" class="w-full text-green-600 font-bold hover:underline">
       + New Chat
     </button>
   </div>

@@ -76,7 +76,6 @@ export class MockLanguageAnalysisService {
     explanation: string
   ): LanguageAnalysisPoint {
     return {
-      id: Date.now().toString() + Math.random().toString().substring(2, 8),
       chatId: '',
       messageId: '',
       type,

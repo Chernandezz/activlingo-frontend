@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+// chat-input.component.ts
+import { Component, EventEmitter, Output, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ChatService } from '../../services/chat.service';
+import { AudioRecorderService } from '../../services/audio-recorder.service';
 
 @Component({
   selector: 'app-chat-input',
@@ -10,26 +11,36 @@ import { ChatService } from '../../services/chat.service';
   templateUrl: './chat-input.component.html',
 })
 export class ChatInputComponent {
-  messageText = '';
-  isVoiceMode = false;
+  message = '';
+  isRecording = false;
+  isProcessing = false;
 
-  constructor(private chatService: ChatService) {}
+  @Input() chatId!: number;
+  @Output() send = new EventEmitter<string>();
+  @Output() sendVoice = new EventEmitter<Blob>();
 
-  toggleVoiceMode(): void {
-    this.isVoiceMode = !this.isVoiceMode;
-  }
+  constructor(private audioService: AudioRecorderService) {}
 
   sendMessage(): void {
-    if (!this.messageText.trim()) return;
+    const content = this.message.trim();
+    if (!content) return;
 
-    this.chatService
-      .sendMessage(this.messageText, this.isVoiceMode)
-      .subscribe(() => {
-        this.messageText = '';
-        if (this.isVoiceMode) {
-          this.isVoiceMode = false;
-        }
-      });
+    this.send.emit(content);
+    this.message = '';
+  }
+
+  async toggleRecording() {
+    if (!this.isRecording) {
+      this.isRecording = true;
+      await this.audioService.startRecording();
+    } else {
+      this.isRecording = false;
+      this.isProcessing = true;
+
+      const audio = await this.audioService.stopRecording();
+      this.sendVoice.emit(audio);
+
+      this.isProcessing = false;
+    }
   }
 }
-
