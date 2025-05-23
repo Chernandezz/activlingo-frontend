@@ -24,6 +24,8 @@ export class MessageService {
     this.messagesSubject.next([]);
   }
 
+  
+
   sendVoiceMessage(chatId: number, audioBlob: Blob): void {
     const formData = new FormData();
     formData.append('file', audioBlob, 'audio.webm');
@@ -41,7 +43,7 @@ export class MessageService {
           this.messagesSubject.next([
             ...current,
             {
-              id: Date.now(), // solo para UI, Supabase tiene su propio ID
+              id: Date.now(),
               chat_id: chatId,
               sender: 'human',
               content: res.user_text,

@@ -1,5 +1,5 @@
 // chat-input.component.ts
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AudioRecorderService } from '../../services/audio-recorder.service';
@@ -12,11 +12,12 @@ import { AudioRecorderService } from '../../services/audio-recorder.service';
 })
 export class ChatInputComponent {
   message = '';
-  @Output() send = new EventEmitter<string>();
-  @Output() sendVoice = new EventEmitter<Blob>();
-
   isRecording = false;
   isProcessing = false;
+
+  @Input() chatId!: number;
+  @Output() send = new EventEmitter<string>();
+  @Output() sendVoice = new EventEmitter<Blob>();
 
   constructor(private audioService: AudioRecorderService) {}
 
@@ -34,15 +35,12 @@ export class ChatInputComponent {
       await this.audioService.startRecording();
     } else {
       this.isRecording = false;
+      this.isProcessing = true;
+
       const audio = await this.audioService.stopRecording();
-      console.log('🎧 Audio grabado:', audio);
-
-      // OPCIONAL: reproducir para probar
-      const audioUrl = URL.createObjectURL(audio);
-      const audioElement = new Audio(audioUrl);
-      audioElement.play();
-
       this.sendVoice.emit(audio);
+
+      this.isProcessing = false;
     }
   }
 }
