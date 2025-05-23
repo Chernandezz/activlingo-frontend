@@ -7,13 +7,13 @@ import {
   withInterceptorsFromDi,
 } from '@angular/common/http';
 import { ApiService } from './data/api/api.service';
-import { MockLanguageAnalysisService } from './features/analysis/services/mock-language-analysis.service';
+// import { MockLanguageAnalysisService } from './features/analysis/services/mock-language-analysis.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
     provideHttpClient(withInterceptorsFromDi()),
     ApiService,
-    MockLanguageAnalysisService,
+    // MockLanguageAnalysisService,
   ],
 };

@@ -15,6 +15,7 @@ import { Message } from '../../../../core/models/message.model';
 import { ChatSidebarComponent } from '../../components/chat-sidebar/chat-sidebar.component';
 import { ChatMessageComponent } from '../../components/chat-message/chat-message.component';
 import { ChatInputComponent } from '../../components/chat-input/chat-input.component';
+import { ChatAnalysisComponent } from '../../../analysis/components/chat-analysis/chat-analysis.component';
 
 @Component({
   selector: 'app-chat-page',
@@ -24,6 +25,7 @@ import { ChatInputComponent } from '../../components/chat-input/chat-input.compo
     ChatSidebarComponent,
     ChatMessageComponent,
     ChatInputComponent,
+    ChatAnalysisComponent,
   ],
   templateUrl: './chat-page.component.html',
 })
