@@ -222,3 +222,16 @@
     display: none;
   }
 }
+@media (max-width: 768px) {
+  nav, .hidden.lg\\:flex, .user-button .text-right {
+    display: none !important;
+  }
+
+  .navbar {
+    display: none !important;
+  }
+
+  .user-avatar {
+    margin-left: auto;
+  }
+}

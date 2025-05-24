@@ -1,6 +1,7 @@
 // header.component.ts
 import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { UiService } from '../../services/ui.service';
 
 @Component({
   selector: 'app-header',
@@ -22,7 +23,12 @@ export class HeaderComponent implements OnInit {
     chats: 23,
   };
 
-  constructor() {}
+  isMobileSidebarOpen = false;
+
+  toggleSidebar(): void {
+    this.isMobileSidebarOpen = !this.isMobileSidebarOpen;
+  }
+  constructor(public ui: UiService) {}
 
   ngOnInit(): void {
     // Initialize component

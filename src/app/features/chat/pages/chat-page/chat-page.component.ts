@@ -17,6 +17,7 @@ import { ChatSidebarComponent } from '../../components/chat-sidebar/chat-sidebar
 import { ChatMessageComponent } from '../../components/chat-message/chat-message.component';
 import { ChatInputComponent } from '../../components/chat-input/chat-input.component';
 import { ChatAnalysisComponent } from '../../../analysis/components/chat-analysis/chat-analysis.component';
+import { UiService } from '../../../../shared/services/ui.service';
 
 @Component({
   selector: 'app-chat-page',
@@ -31,6 +32,9 @@ import { ChatAnalysisComponent } from '../../../analysis/components/chat-analysi
   templateUrl: './chat-page.component.html',
 })
 export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
+  isSidebarOpen = false;
+
+
   currentChat$: Observable<Chat | null>;
   messages$: Observable<Message[]>;
   showAnalysis = false;
@@ -42,7 +46,8 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
 
   constructor(
     private chatService: ChatService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    public ui: UiService
   ) {
     this.currentChat$ = this.chatService.currentChat$;
     this.messages$ = this.messageService.messages$;
@@ -57,6 +62,8 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
         }
       })
     );
+
+    this.ui.sidebarOpen$.subscribe((open) => (this.isSidebarOpen = open));
   }
 
   ngAfterViewChecked(): void {

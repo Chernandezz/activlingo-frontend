@@ -2,9 +2,22 @@
 <div class="flex h-screen pt-16">
 
   <!-- Sidebar -->
-  <div class="w-64 lg:w-80 h-full flex-shrink-0">
-    <app-chat-sidebar></app-chat-sidebar>
+  <!-- Sidebar Desktop -->
+  <!-- Sidebar Desktop -->
+  <div class="hidden md:flex w-[25rem] flex-shrink-0 h-full">
+    <app-chat-sidebar class="w-full h-full"></app-chat-sidebar>
   </div>
+
+
+  <!-- Sidebar Mobile -->
+  <div *ngIf="isSidebarOpen" class="fixed inset-0 z-50 flex lg:hidden">
+    <div class="w-[320px] bg-white shadow-xl">
+      <app-chat-sidebar></app-chat-sidebar>
+    </div>
+    <div class="flex-1 bg-black/20" (click)="ui.closeSidebar()"></div>
+  </div>
+
+
 
   <!-- Main Content Area -->
   <div class="flex-grow flex flex-col h-full overflow-hidden">
@@ -21,7 +34,9 @@
           </div>
           <div>
             <h2 class="text-xl font-bold text-gray-900">{{ chat.title }}</h2>
-            <div class="flex items-center space-x-3 mt-1">
+
+            <!-- Language and Message Count -->
+            <div class="flex items-center space-x-3 mt-1 hidden sm:flex">
               <span class="text-sm text-gray-500 flex items-center">
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

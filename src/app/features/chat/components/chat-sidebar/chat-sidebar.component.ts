@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { ChatService } from '../../services/chat.service';
 import { Chat } from '../../../../core/models/chat.model';
 import { Observable } from 'rxjs';
+import { UiService } from '../../../../shared/services/ui.service';
+
 
 @Component({
   selector: 'app-chat-sidebar',
@@ -12,22 +14,25 @@ import { Observable } from 'rxjs';
   templateUrl: './chat-sidebar.component.html',
 })
 export class ChatSidebarComponent implements OnInit {
+  isSidebarOpen = false;
   chats$: Observable<Chat[]>;
   currentChat$: Observable<Chat | null>;
   hideAIResponses = false;
   isCreatingChat = false;
 
-  constructor(private chatService: ChatService) {
+  constructor(private chatService: ChatService, public ui: UiService) {
     this.chats$ = this.chatService.chats$;
     this.currentChat$ = this.chatService.currentChat$;
   }
 
   ngOnInit(): void {
     this.chatService.fetchChats(1);
+    this.ui.sidebarOpen$.subscribe((open) => (this.isSidebarOpen = open));
   }
 
   selectChat(chatId: number): void {
     this.chatService.selectChat(chatId);
+    this.ui.closeSidebar();
   }
 
   createNewChat(): void {
