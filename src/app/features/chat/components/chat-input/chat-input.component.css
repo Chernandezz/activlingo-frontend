@@ -1,0 +1,93 @@
+/* Estilos adicionales opcionales para chat-input.component.css */
+
+/* Auto-resize textarea */
+.chat-input-container textarea {
+  field-sizing: content;
+  min-height: 24px;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+/* Custom scrollbar for textarea */
+.chat-input-container textarea::-webkit-scrollbar {
+  width: 4px;
+}
+
+.chat-input-container textarea::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-input-container textarea::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.3);
+  border-radius: 2px;
+}
+
+.chat-input-container textarea::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.5);
+}
+
+/* Pulse animation for recording */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.33);
+  }
+  40%, 50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.2);
+  }
+}
+
+.recording-pulse::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 2px solid #ef4444;
+  border-radius: 50%;
+  animation: pulse-ring 1.5s ease-out infinite;
+}
+
+/* Slide up animation for recording overlay */
+@keyframes slide-up {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.recording-overlay {
+  animation: slide-up 0.3s ease-out;
+}
+
+/* Button press effect */
+.btn-press:active {
+  transform: scale(0.95);
+}
+
+/* Focus styles */
+.input-focus:focus-within {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Dark mode support (if needed) */
+@media (prefers-color-scheme: dark) {
+  .chat-input-container .bg-white {
+    background-color: #1f2937;
+    border-color: #374151;
+  }
+  
+  .chat-input-container .text-gray-900 {
+    color: #f9fafb;
+  }
+  
+  .chat-input-container .placeholder-gray-500::placeholder {
+    color: #9ca3af;
+  }
+}

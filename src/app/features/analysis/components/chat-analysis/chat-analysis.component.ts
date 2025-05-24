@@ -1,79 +1,121 @@
-// // src/app/features/analysis/components/chat-analysis.component.ts
-// import { Component, Input, OnChanges } from '@angular/core';
-// import { CommonModule } from '@angular/common';
-// import { Observable, BehaviorSubject } from 'rxjs';
-// import { LanguageAnalysisPoint } from '../../../chat/models/language-analysis.model';
-// import { LocalAnalysisRepository } from '../../../../data/repositories/local-analysis.repository';
+// chat-analysis.component.ts
+import { Component, Input, OnChanges } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { BehaviorSubject } from 'rxjs';
+import { LanguageAnalysisPoint } from '../../../chat/models/language-analysis.model';
+import { AnalysisService } from '../../../chat/services/analysis.service';
 
-// @Component({
-//   selector: 'app-chat-analysis',
-//   standalone: true,
-//   imports: [CommonModule],
-//   templateUrl: './chat-analysis.component.html',
-// })
-// export class ChatAnalysisComponent implements OnChanges {
-//   @Input() chatId: number | undefined;
+@Component({
+  selector: 'app-chat-analysis',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './chat-analysis.component.html',
+})
+export class ChatAnalysisComponent implements OnChanges {
+  @Input() chatId: number | undefined;
 
-//   private analysisPointsSubject = new BehaviorSubject<LanguageAnalysisPoint[]>(
-//     []
-//   );
-//   analysisPoints$ = this.analysisPointsSubject.asObservable();
+  private analysisPointsSubject = new BehaviorSubject<LanguageAnalysisPoint[]>(
+    []
+  );
+  analysisPoints$ = this.analysisPointsSubject.asObservable();
 
-//   constructor(private analysisRepository: LocalAnalysisRepository) {}
+  expandedPoints = new Set<number>();
 
-//   ngOnChanges(): void {
-//     if (this.chatId) {
-//       this.loadAnalysisPoints();
-//     } else {
-//       this.analysisPointsSubject.next([]);
-//     }
-//   }
+  constructor(private analysisService: AnalysisService) {}
 
-//   loadAnalysisPoints(): void {
-//     // if (this.chatId) {
-//     //   this.analysisRepository
-//     //     .getAnalysisPointsForChat(this.chatId)
-//     //     .subscribe((points) => {
-//     //       this.analysisPointsSubject.next(points);
-//     //     });
-//     // }
-//   }
+  ngOnChanges(): void {
+    if (this.chatId) {
+      this.clearExpandedPoints();
+      this.loadAnalysisPoints();
+    } else {
+      this.analysisPointsSubject.next([]);
+      this.clearExpandedPoints();
+    }
+  }
 
-//   getCategoryCount(type: string): number {
-//     return this.analysisPointsSubject.value.filter((p) => p.type === type)
-//       .length;
-//   }
+  loadAnalysisPoints(): void {
+    if (this.chatId) {
+      this.analysisService
+        .getAnalysisPointsForChat(this.chatId)
+        .subscribe((points) => {
+          this.analysisPointsSubject.next(points);
+        });
+    }
+  }
 
-//   getTypeClass(type: string): string {
-//     const classes = {
-//       grammar: 'bg-blue-900',
-//       vocabulary: 'bg-purple-900',
-//       phrasal_verb: 'bg-green-900',
-//       idiom: 'bg-yellow-900',
-//       pronunciation: 'bg-red-900',
-//     };
-//     return classes[type as keyof typeof classes] || 'bg-gray-900';
-//   }
+  getCategoryCount(type: string): number {
+    return this.analysisPointsSubject.value.filter((p) => p.category === type)
+      .length;
+  }
 
-//   getTypeLabel(type: string): string {
-//     const labels = {
-//       grammar: 'Gramática',
-//       vocabulary: 'Vocabulario',
-//       phrasal_verb: 'Phrasal Verb',
-//       idiom: 'Expresión',
-//       pronunciation: 'Pronunciación',
-//     };
-//     return labels[type as keyof typeof labels] || type;
-//   }
+  getTotalPoints(): number {
+    return this.analysisPointsSubject.value.length;
+  }
 
-//   showPointDetail(point: LanguageAnalysisPoint): void {
-//     // Aquí implementarías un modal o panel para mostrar detalles
-//     alert(`${point.explanation}`);
+  getTypeConfig(type: string): {
+    gradient: string;
+    icon: string;
+    label: string;
+  } {
+    const configs = {
+      grammar: {
+        gradient: 'from-rose-500 to-pink-600',
+        icon: '📝',
+        label: 'Gramática',
+      },
+      vocabulary: {
+        gradient: 'from-amber-500 to-orange-600',
+        icon: '📚',
+        label: 'Vocabulario',
+      },
+      phrasal_verb: {
+        gradient: 'from-blue-500 to-indigo-600',
+        icon: '🔗',
+        label: 'Phrasal Verbs',
+      },
+      idiom: {
+        gradient: 'from-purple-500 to-violet-600',
+        icon: '🎭',
+        label: 'Idiomas',
+      },
+      collocation: {
+        gradient: 'from-cyan-500 to-teal-600',
+        icon: '🧩',
+        label: 'Colocaciones',
+      },
+      expression: {
+        gradient: 'from-emerald-500 to-green-600',
+        icon: '💬',
+        label: 'Expresiones',
+      },
+    };
+    return (
+      configs[type as keyof typeof configs] || {
+        gradient: 'from-gray-500 to-gray-600',
+        icon: '📋',
+        label: type,
+      }
+    );
+  }
 
-//     // Marcar como revisado
-//     this.analysisRepository.markAsReviewed(point.id).subscribe(() => {
-//       // Opcionalmente, recargar los puntos o actualizar la UI
-//       this.loadAnalysisPoints();
-//     });
-//   }
-// }
+  togglePoint(pointId: number): void {
+    if (this.expandedPoints.has(pointId)) {
+      this.expandedPoints.delete(pointId);
+    } else {
+      this.expandedPoints.add(pointId);
+    }
+  }
+
+  isExpanded(pointId: number): boolean {
+    return this.expandedPoints.has(pointId);
+  }
+
+  trackByPointId(index: number, point: LanguageAnalysisPoint): number {
+    return point.id;
+  }
+
+  // Método para limpiar puntos expandidos cuando cambia el chat
+  private clearExpandedPoints(): void {
+    this.expandedPoints.clear();
+  }
+}
