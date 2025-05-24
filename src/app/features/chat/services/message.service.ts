@@ -24,6 +24,58 @@ export class MessageService {
     this.messagesSubject.next([]);
   }
 
+  async sendVoiceMessageAndWait(
+    chatId: number,
+    audioBlob: Blob
+  ): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      const formData = new FormData();
+      formData.append('file', audioBlob, 'audio.webm');
+
+      this.http
+        .post<{ user_text: string; ai_text: string }>(
+          `${environment.apiUrl}/messages/transcribe-audio/?chat_id=${chatId}`,
+          formData
+        )
+        .subscribe({
+          next: (res) => {
+            const now = new Date().toISOString();
+            const current = this.messagesSubject.getValue();
+
+            // Mostrar ambos mensajes
+            this.messagesSubject.next([
+              ...current,
+              {
+                id: Date.now(),
+                chat_id: chatId,
+                sender: 'human',
+                content: res.user_text,
+                timestamp: now,
+              },
+              {
+                id: Date.now() + 1,
+                chat_id: chatId,
+                sender: 'ai',
+                content: res.ai_text,
+                timestamp: now,
+              },
+            ]);
+
+            // Reproducir voz y resolver al terminar
+            const audio = new Audio();
+            audio.src = URL.createObjectURL(
+              new Blob([res.ai_text], { type: 'text/plain' })
+            );
+            this.speak(res.ai_text, () => resolve());
+          },
+          error: (err) => {
+            console.error('❌ Voice message error', err);
+            reject(err);
+          },
+        });
+    });
+  }
+
   sendVoiceMessage(chatId: number, audioBlob: Blob): void {
     const formData = new FormData();
     formData.append('file', audioBlob, 'audio.webm');
@@ -55,7 +107,7 @@ export class MessageService {
               timestamp: now,
             },
           ]);
-          // this.speak(res.ai_text); // Descomentar si quieres que la IA hable
+          this.speak(res.ai_text); // Descomentar si quieres que la IA hable
         },
         error: (err) => {
           console.error('❌ Voice message error', err);
@@ -63,7 +115,7 @@ export class MessageService {
       });
   }
 
-  speak(text: string): void {
+  speak(text: string, onEnd?: () => void): void {
     const url = `${environment.apiUrl}/messages/speak`;
 
     this.http.post(url, { text }, { responseType: 'blob' }).subscribe({
@@ -71,12 +123,14 @@ export class MessageService {
         const audio = new Audio();
         const blobUrl = URL.createObjectURL(blob);
         audio.src = blobUrl;
-        audio.play().catch((err) => {
-          console.error('❌ Error reproduciendo voz:', err);
-        });
+        audio
+          .play()
+          .catch((err) => console.error('❌ Error reproduciendo voz:', err));
+        if (onEnd) audio.addEventListener('ended', onEnd);
       },
       error: (err) => {
         console.error('❌ Error en TTS API:', err);
+        if (onEnd) onEnd(); // fallback
       },
     });
   }

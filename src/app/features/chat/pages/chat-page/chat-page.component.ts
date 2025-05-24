@@ -33,7 +33,8 @@ import { UiService } from '../../../../shared/services/ui.service';
 })
 export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
   isSidebarOpen = false;
-
+  overlayVisible$: Observable<boolean>;
+  overlayMessage = 'Tu turno. Estamos escuchando...';
 
   currentChat$: Observable<Chat | null>;
   messages$: Observable<Message[]>;
@@ -51,10 +52,10 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
   ) {
     this.currentChat$ = this.chatService.currentChat$;
     this.messages$ = this.messageService.messages$;
+    this.overlayVisible$ = this.ui.conversationOverlay$;
   }
 
   ngOnInit(): void {
-    // Subscribe to current chat changes to reset analysis view
     this.subscriptions.add(
       this.currentChat$.subscribe((chat) => {
         if (chat) {
@@ -105,6 +106,16 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     } catch (err) {
       console.warn('Error scrolling to bottom:', err);
     }
+  }
+  startConversationMode(): void {
+    this.overlayMessage = 'Tu turno. Estamos escuchando...';
+    this.ui.showOverlay();
+    // Aquí podrías emitir un evento a ChatInputComponent si quieres iniciar el loop
+  }
+
+  endConversationMode() {
+    this.ui.hideOverlay();
+    
   }
 
   toggleAnalysisView(): void {
