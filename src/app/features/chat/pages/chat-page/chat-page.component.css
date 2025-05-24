@@ -119,20 +119,3 @@
     padding: 2rem 1rem;
   }
 }
-
-/* Dark mode support (if needed) */
-@media (prefers-color-scheme: dark) {
-  .chat-header {
-    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-    border-color: #374151;
-  }
-  
-  .welcome-section {
-    background: #1f2937;
-  }
-  
-  .feature-card {
-    background: #374151;
-    border-color: #4b5563;
-  }
-}
