@@ -7,6 +7,7 @@ import {
   withInterceptorsFromDi,
 } from '@angular/common/http';
 import { ApiService } from './data/api/api.service';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 // import { MockLanguageAnalysisService } from './features/analysis/services/mock-language-analysis.service';
 
 export const appConfig: ApplicationConfig = {
@@ -14,6 +15,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(withInterceptorsFromDi()),
     ApiService,
+    FontAwesomeModule,
     // MockLanguageAnalysisService,
   ],
 };
