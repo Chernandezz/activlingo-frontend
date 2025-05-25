@@ -18,6 +18,7 @@ import { ChatMessageComponent } from '../../components/chat-message/chat-message
 import { ChatInputComponent } from '../../components/chat-input/chat-input.component';
 import { ChatAnalysisComponent } from '../../../analysis/components/chat-analysis/chat-analysis.component';
 import { UiService } from '../../../../shared/services/ui.service';
+import { map } from 'rxjs';
 
 @Component({
   selector: 'app-chat-page',
@@ -68,7 +69,11 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
   }
 
   ngAfterViewChecked(): void {
-    this.scrollToBottom();
+    try {
+      this.scrollToBottom();
+    } catch (err) {
+      console.warn('Error auto-scroll:', err);
+    }
   }
 
   handleSendMessage(content: string): void {
@@ -115,7 +120,6 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
 
   endConversationMode() {
     this.ui.hideOverlay();
-    
   }
 
   toggleAnalysisView(): void {
@@ -135,15 +139,15 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
   }
 
   getMessageCount(): Observable<number> {
-    return new Observable((observer) => {
-      this.messages$.subscribe((messages) => {
-        observer.next(messages?.length || 0);
-      });
-    });
+    return this.messages$.pipe(map((messages) => messages.length));
   }
 
-  trackByMessage(index: number, message: Message): number {
+  trackByMessage(index: number, message: Message): string {
     return message.id;
+  }
+
+  trackByChatId(index: number, chat: Chat): string {
+    return chat.id;
   }
 
   ngOnDestroy(): void {

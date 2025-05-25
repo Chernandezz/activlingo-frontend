@@ -26,11 +26,11 @@ export class ChatSidebarComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.chatService.fetchChats(1);
+    this.chatService.fetchChats('1238c9cd-a894-4e00-a8aa-d0d0cf388488');
     this.ui.sidebarOpen$.subscribe((open) => (this.isSidebarOpen = open));
   }
 
-  selectChat(chatId: number): void {
+  selectChat(chatId: string): void {
     this.chatService.selectChat(chatId);
     this.ui.closeSidebar();
   }
@@ -57,22 +57,19 @@ export class ChatSidebarComponent implements OnInit {
         return;
       }
 
-      this.chatService
-        .createChat(1, {
-          title,
-          role,
-          context,
-        })
-        .subscribe({
-          next: () => {
-            this.isCreatingChat = false;
-          },
-          error: () => {
-            this.isCreatingChat = false;
-          },
-        });
+      const userId = '1238c9cd-a894-4e00-a8aa-d0d0cf388488';
+
+      this.chatService.createChat(userId, { title, role, context }).subscribe({
+        next: () => {
+          this.isCreatingChat = false;
+        },
+        error: () => {
+          this.isCreatingChat = false;
+        },
+      });
     }, 300);
   }
+
 
   toggleAIResponses(): void {
     this.hideAIResponses = !this.hideAIResponses;
@@ -100,7 +97,7 @@ export class ChatSidebarComponent implements OnInit {
     });
   }
 
-  trackByChat(index: number, chat: Chat): number {
+  trackByChat(index: number, chat: Chat): string {
     return chat.id;
   }
 }

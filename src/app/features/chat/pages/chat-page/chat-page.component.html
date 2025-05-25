@@ -96,8 +96,8 @@
         <!-- Messages Container -->
         <div class="flex-grow overflow-y-auto bg-white" #messagesContainer>
 
-            <!-- Conversation Mode Overlay -->
-            <!-- <div *ngIf="overlayVisible$ | async"
+          <!-- Conversation Mode Overlay -->
+          <!-- <div *ngIf="overlayVisible$ | async"
               class="absolute h-full w-full z-40 bg-black/80 flex flex-col items-center justify-center text-white text-center px-4 overflow-hidden">
             
               <div class="mb-6">
@@ -176,8 +176,8 @@
 
         <!-- Input Section -->
         <div class="bg-white p-4 pb-8 flex-shrink-0">
-          <app-chat-input (send)="handleSendMessage($event)" (sendVoice)="handleAudioRecording($event)" (conversationModeChange)="startConversationMode()"
-            [chatId]="(currentChat$ | async)?.id || 0">
+          <app-chat-input (send)="handleSendMessage($event)" (sendVoice)="handleAudioRecording($event)"
+            (conversationModeChange)="startConversationMode()" [chatId]="(currentChat$ | async)?.id || ''">
           </app-chat-input>
         </div>
       </div>

@@ -11,7 +11,7 @@ export class AnalysisService {
   constructor(private http: HttpClient) {}
 
   getAnalysisPointsForChat(
-    chatId: number
+    chatId: string
   ): Observable<LanguageAnalysisPoint[]> {
     return this.http.get<LanguageAnalysisPoint[]>(
       `${this.apiUrl}/analysis/${chatId}`

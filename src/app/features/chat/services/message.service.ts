@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { Message } from '../../../core/models/message.model';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
@@ -11,7 +11,7 @@ export class MessageService {
 
   constructor(private http: HttpClient) {}
 
-  fetchMessages(chatId: number): void {
+  fetchMessages(chatId: string): void {
     this.http
       .get<Message[]>(`${environment.apiUrl}/messages/?chat_id=${chatId}`)
       .subscribe((messages) => {
@@ -25,7 +25,7 @@ export class MessageService {
   }
 
   async sendVoiceMessageAndWait(
-    chatId: number,
+    chatId: string,
     audioBlob: Blob
   ): Promise<void> {
     return new Promise<void>((resolve, reject) => {
@@ -42,18 +42,17 @@ export class MessageService {
             const now = new Date().toISOString();
             const current = this.messagesSubject.getValue();
 
-            // Mostrar ambos mensajes
             this.messagesSubject.next([
               ...current,
               {
-                id: Date.now(),
+                id: crypto.randomUUID(),
                 chat_id: chatId,
                 sender: 'human',
                 content: res.user_text,
                 timestamp: now,
               },
               {
-                id: Date.now() + 1,
+                id: crypto.randomUUID(),
                 chat_id: chatId,
                 sender: 'ai',
                 content: res.ai_text,
@@ -61,11 +60,6 @@ export class MessageService {
               },
             ]);
 
-            // Reproducir voz y resolver al terminar
-            const audio = new Audio();
-            audio.src = URL.createObjectURL(
-              new Blob([res.ai_text], { type: 'text/plain' })
-            );
             this.speak(res.ai_text, () => resolve());
           },
           error: (err) => {
@@ -76,7 +70,7 @@ export class MessageService {
     });
   }
 
-  sendVoiceMessage(chatId: number, audioBlob: Blob): void {
+  sendVoiceMessage(chatId: string, audioBlob: Blob): void {
     const formData = new FormData();
     formData.append('file', audioBlob, 'audio.webm');
 
@@ -93,21 +87,21 @@ export class MessageService {
           this.messagesSubject.next([
             ...current,
             {
-              id: Date.now(),
+              id: crypto.randomUUID(),
               chat_id: chatId,
               sender: 'human',
               content: res.user_text,
               timestamp: now,
             },
             {
-              id: Date.now() + 1,
+              id: crypto.randomUUID(),
               chat_id: chatId,
               sender: 'ai',
               content: res.ai_text,
               timestamp: now,
             },
           ]);
-          this.speak(res.ai_text); // Descomentar si quieres que la IA hable
+          this.speak(res.ai_text);
         },
         error: (err) => {
           console.error('❌ Voice message error', err);
@@ -130,40 +124,36 @@ export class MessageService {
       },
       error: (err) => {
         console.error('❌ Error en TTS API:', err);
-        if (onEnd) onEnd(); // fallback
+        if (onEnd) onEnd();
       },
     });
   }
 
-  sendMessage(chatId: number, content: string): void {
+  sendMessage(chatId: string, content: string): void {
     const currentMessages = this.messagesSubject.getValue();
 
-    // Mensaje del usuario
     const humanMessage: Message = {
-      id: Date.now(), // temporal
+      id: crypto.randomUUID(),
       chat_id: chatId,
       sender: 'human',
       content,
       timestamp: new Date().toISOString(),
     };
 
-    // Mensaje placeholder de la IA
     const aiPlaceholder: Message = {
-      id: Date.now() + 1,
+      id: crypto.randomUUID(),
       chat_id: chatId,
       sender: 'ai',
       content: '...',
       timestamp: new Date().toISOString(),
     };
 
-    // Mostrar ambos de inmediato
     this.messagesSubject.next([
       ...currentMessages,
       humanMessage,
       aiPlaceholder,
     ]);
 
-    // Llamar a la API
     this.http
       .post<Message>(`${environment.apiUrl}/messages/`, {
         chat_id: chatId,
@@ -171,12 +161,10 @@ export class MessageService {
         content,
       })
       .subscribe((response) => {
-        // Reemplazar el placeholder con la respuesta real
         const updatedMessages = this.messagesSubject
           .getValue()
           .map((msg) => (msg.id === aiPlaceholder.id ? response : msg));
         this.messagesSubject.next(updatedMessages);
-        // this.speak(response.content); // Descomentar si quieres que la IA hable
       });
   }
 }

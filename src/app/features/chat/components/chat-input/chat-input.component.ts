@@ -23,7 +23,7 @@ export class ChatInputComponent {
 
   recordingInterval: any;
 
-  @Input() chatId!: number;
+  @Input() chatId!: string;
   @Output() send = new EventEmitter<string>();
   @Output() sendVoice = new EventEmitter<Blob>();
 

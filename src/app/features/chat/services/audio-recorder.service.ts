@@ -9,11 +9,13 @@ export class AudioRecorderService {
   private analyser!: AnalyserNode;
   private source!: MediaStreamAudioSourceNode;
 
-  private silenceThreshold = 0.01;
-  private silenceDuration = 1800;
-  private maxRecordingTime = 15000;
+  private silenceThreshold = 0.01; // Sensibilidad del silencio
+  private silenceDuration = 1800; // ms de silencio antes de parar
+  private maxRecordingTime = 15000; // Duración máxima total
 
-  // Modo manual
+  /**
+   * Grabación manual sin auto-parada
+   */
   async startRecording(): Promise<void> {
     this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     this.mediaRecorder = new MediaRecorder(this.stream);
@@ -26,6 +28,9 @@ export class AudioRecorderService {
     this.mediaRecorder.start();
   }
 
+  /**
+   * Detener grabación manual
+   */
   async stopRecording(): Promise<Blob> {
     return new Promise((resolve) => {
       this.mediaRecorder.onstop = () => {
@@ -37,6 +42,9 @@ export class AudioRecorderService {
     });
   }
 
+  /**
+   * Grabación automática hasta detectar silencio
+   */
   async recordUntilSilence(): Promise<Blob | null> {
     this.audioContext = new AudioContext();
     this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -60,9 +68,10 @@ export class AudioRecorderService {
         this.mediaRecorder.stop();
         this.audioContext.close();
         this.stream.getTracks().forEach((track) => track.stop());
+
         this.mediaRecorder.onstop = () => {
           if (!spoke) {
-            resolve(null); // No se habló nada
+            resolve(null); // No se habló nada útil
           } else {
             const blob = new Blob(this.audioChunks, { type: 'audio/webm' });
             resolve(blob);
@@ -71,7 +80,7 @@ export class AudioRecorderService {
       };
 
       const checkSilence = () => {
-        const now = Date.now(); // 🔧 ahora sí está definido correctamente
+        const now = Date.now();
 
         const dataArray = new Uint8Array(this.analyser.fftSize);
         this.analyser.getByteTimeDomainData(dataArray);
@@ -86,7 +95,7 @@ export class AudioRecorderService {
           if (now - silenceStart > this.silenceDuration) return stop();
         }
 
-        if (now - spokeAt > 5000) return stop(); // 💤 más de 5s sin voz útil
+        if (now - spokeAt > 5000) return stop(); // 💤 más de 5s sin hablar
         if (now - startTime > this.maxRecordingTime) return stop();
 
         requestAnimationFrame(checkSilence);
@@ -99,6 +108,9 @@ export class AudioRecorderService {
     });
   }
 
+  /**
+   * Cálculo de volumen para detectar voz vs silencio
+   */
   private calculateVolume(data: Uint8Array): number {
     const rms =
       Math.sqrt(

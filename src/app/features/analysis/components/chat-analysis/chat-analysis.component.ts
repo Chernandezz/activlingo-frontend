@@ -12,14 +12,14 @@ import { AnalysisService } from '../../../chat/services/analysis.service';
   templateUrl: './chat-analysis.component.html',
 })
 export class ChatAnalysisComponent implements OnChanges {
-  @Input() chatId: number | undefined;
+  @Input() chatId: string | undefined;
 
   private analysisPointsSubject = new BehaviorSubject<LanguageAnalysisPoint[]>(
     []
   );
   analysisPoints$ = this.analysisPointsSubject.asObservable();
 
-  expandedPoints = new Set<number>();
+  expandedPoints = new Set<string>();
 
   constructor(private analysisService: AnalysisService) {}
 
@@ -98,7 +98,7 @@ export class ChatAnalysisComponent implements OnChanges {
     );
   }
 
-  togglePoint(pointId: number): void {
+  togglePoint(pointId: string): void {
     if (this.expandedPoints.has(pointId)) {
       this.expandedPoints.delete(pointId);
     } else {
@@ -106,11 +106,11 @@ export class ChatAnalysisComponent implements OnChanges {
     }
   }
 
-  isExpanded(pointId: number): boolean {
+  isExpanded(pointId: string): boolean {
     return this.expandedPoints.has(pointId);
   }
 
-  trackByPointId(index: number, point: LanguageAnalysisPoint): number {
+  trackByPointId(index: number, point: LanguageAnalysisPoint): string {
     return point.id;
   }
 
