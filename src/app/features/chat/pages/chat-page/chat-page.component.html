@@ -162,8 +162,14 @@
 
           <!-- Messages List -->
           <div *ngIf="(messages$ | async)?.length! > 0" class="px-4 py-6 space-y-4">
-            <app-chat-message *ngFor="let message of messages$ | async; trackBy: trackByMessage" [message]="message">
+            <app-chat-message *ngFor="let message of messages$ | async; trackBy: trackByMessage" [message]="message"
+              [hideAIResponses]="(hideAIResponses$ | async) ?? false">
             </app-chat-message>
+          
+
+
+          
+            
           </div>
 
 

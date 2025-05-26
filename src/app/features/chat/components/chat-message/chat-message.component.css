@@ -1,5 +1,13 @@
 /* chat-message.component.css */
 
+.text-transparent.blur-sm {
+  color: transparent;
+  filter: blur(5px);
+  pointer-events: none;
+  user-select: none;
+}
+
+
 /* Message entrance animation */
 @keyframes messageSlideIn {
   from {

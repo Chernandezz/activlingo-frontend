@@ -40,6 +40,8 @@ export class ChatSidebarComponent implements OnInit {
   ngOnInit(): void {
     this.chatService.fetchChats('1238c9cd-a894-4e00-a8aa-d0d0cf388488');
     this.ui.sidebarOpen$.subscribe((open) => (this.showModal = false));
+
+    this.ui.hideAIResponses$.subscribe((hide) => (this.hideAIResponses = hide));
   }
 
   selectChat(chatId: string): void {
@@ -96,7 +98,7 @@ export class ChatSidebarComponent implements OnInit {
   }
 
   toggleAIResponses(): void {
-    this.hideAIResponses = !this.hideAIResponses;
+    this.ui.toggleHideAIResponses(); // cambia el estado global
   }
 
   getRelativeTime(dateString: string): string {
