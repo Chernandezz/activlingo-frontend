@@ -24,7 +24,6 @@ export class ChatService {
     return this.currentChatSubject.getValue();
   }
 
-
   setCurrentChat(chat: Chat | null): void {
     this.currentChatSubject.next(chat);
   }
@@ -54,6 +53,11 @@ export class ChatService {
           this.currentChatSubject.next(newChat);
         })
       );
+  }
+
+  clearChats(): void {
+    this.chatsSubject.next([]);
+    this.currentChatSubject.next(null);
   }
 
   selectChat(chatId: string): void {
