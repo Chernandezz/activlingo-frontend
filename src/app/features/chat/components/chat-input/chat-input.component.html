@@ -20,28 +20,7 @@
     </div>
   </div>
 
-  <div class="flex gap-3">
-    <!-- Botón para iniciar conversación (fuera del overlay) -->
-    <!-- Botón de modo conversación ON/OFF -->
-    <div
-      class="flex gap-1 items-center justify-end text-center p-2 rounded-md font-bold cursor-pointer transition-all duration-300"
-      [ngClass]="{
-    'bg-green-600 text-white': !conversationMode,
-    'bg-red-600 text-white': conversationMode
-  }" (click)="toggleConversationMode()">
-
-      <button [disabled]="isProcessing" class="relative transition-all duration-200 flex-shrink-0 text-white">
-        <!-- Microphone Icon -->
-        <svg *ngIf="!isRecording" class="w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M12 1a3 3 0 00-3 3v6a3 3 0 006 0V4a3 3 0 00-3-3zM19 10v1a7 7 0 01-14 0v-1M12 17v4m0 0h-4m4 0h4" />
-        </svg>
-      </button>
-      <span class="text-xs text-white">
-        {{ conversationMode ? 'Stop\nConversation' : 'Conversation\nMode' }}
-      </span>
-
-    </div>
+  <div class="flex">
 
     <!-- Main Input Container -->
     <div
@@ -52,7 +31,7 @@
 
         <!-- Text Input -->
         <div class="flex-1 relative">
-          <textarea [(ngModel)]="message" (keydown)="onKeyDown($event)" placeholder="Type your message..." rows="1"
+          <textarea [(ngModel)]="message" (keydown)="onKeyDown($event)" placeholder="Escribe tu mensaje..." rows="1"
             class="w-full resize-none border-0 focus:ring-0 focus:outline-none text-gray-900 placeholder-gray-500 bg-transparent max-h-32"
             [disabled]="isRecording || isProcessing" style="min-height: 24px; line-height: 24px;"></textarea>
         </div>

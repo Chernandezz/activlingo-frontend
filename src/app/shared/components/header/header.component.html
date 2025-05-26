@@ -21,22 +21,22 @@
 
 
       <nav class="flex items-center space-x-2 navbar">
-
-        <!-- Dictionary -->
-        <a routerLink="/dictionary" routerLinkActive="!text-gray-900 bg-gray-100"
-          [routerLinkActiveOptions]="{ exact: true }"
-          class="nav-button relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900">
-          <fa-icon [icon]="faBookOpen" class="w-4 h-4"></fa-icon>
-          <span class="hidden sm:block">My Dictionary</span>
-        </a>
-
+        
         <!-- Chat -->
         <a routerLink="/chat" routerLinkActive="!text-green-900 bg-green-100"
           [routerLinkActiveOptions]="{ exact: true }"
           class="nav-button relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 text-gray-600 hover:bg-green-50 hover:text-green-900">
           <fa-icon [icon]="faComments" class="w-4 h-4"></fa-icon>
-          <span class="hidden sm:block">Chat</span>
+          <span class="hidden sm:block">Chats</span>
         </a>
+        <!-- Dictionary -->
+        <a routerLink="/dictionary" routerLinkActive="!text-gray-900 bg-gray-100"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="nav-button relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900">
+          <fa-icon [icon]="faBookOpen" class="w-4 h-4"></fa-icon>
+          <span class="hidden sm:block">Mis Palabras</span>
+        </a>
+
 
 
       </nav>
