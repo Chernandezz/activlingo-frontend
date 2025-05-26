@@ -1,4 +1,3 @@
-// chat-page.component.ts
 import {
   Component,
   OnInit,
@@ -10,15 +9,23 @@ import {
 import { CommonModule } from '@angular/common';
 import { ChatService } from '../../services/chat.service';
 import { MessageService } from '../../services/message.service';
+import { UiService } from '../../../../shared/services/ui.service';
 import { Observable, Subscription } from 'rxjs';
+import { map } from 'rxjs';
 import { Chat } from '../../../../core/models/chat.model';
 import { Message } from '../../../../core/models/message.model';
 import { ChatSidebarComponent } from '../../components/chat-sidebar/chat-sidebar.component';
 import { ChatMessageComponent } from '../../components/chat-message/chat-message.component';
 import { ChatInputComponent } from '../../components/chat-input/chat-input.component';
 import { ChatAnalysisComponent } from '../../../analysis/components/chat-analysis/chat-analysis.component';
-import { UiService } from '../../../../shared/services/ui.service';
-import { map } from 'rxjs';
+import {
+  faSpinner,
+  faComments,
+  faMicrophone,
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+
+
 
 @Component({
   selector: 'app-chat-page',
@@ -29,24 +36,31 @@ import { map } from 'rxjs';
     ChatMessageComponent,
     ChatInputComponent,
     ChatAnalysisComponent,
+    FontAwesomeModule,
   ],
   templateUrl: './chat-page.component.html',
 })
 export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
-  public hideAIResponses$!: Observable<boolean>;
+  faSpinner = faSpinner;
+  faComments = faComments;
+  faMicrophone = faMicrophone;
 
-  isSidebarOpen = false;
-  overlayVisible$: Observable<boolean>;
-  overlayMessage = 'Tu turno. Estamos escuchando...';
+  @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
+  @ViewChild(ChatInputComponent)
+  private chatInputComponent!: ChatInputComponent;
+  conversationStatus: 'idle' | 'thinking' | 'responding' | 'user-turn' = 'idle';
 
   currentChat$: Observable<Chat | null>;
   messages$: Observable<Message[]>;
+  hideAIResponses$: Observable<boolean>;
+  overlayVisible$: Observable<boolean>;
+  overlayMessage = 'Tu turno. Estamos escuchando...';
+
   showAnalysis = false;
+  isSidebarOpen = false;
   isLoading = false;
 
   private subscriptions = new Subscription();
-
-  @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
 
   constructor(
     private chatService: ChatService,
@@ -55,78 +69,75 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
   ) {
     this.currentChat$ = this.chatService.currentChat$;
     this.messages$ = this.messageService.messages$;
-    this.overlayVisible$ = this.ui.conversationOverlay$;
     this.hideAIResponses$ = this.ui.hideAIResponses$;
+    this.overlayVisible$ = this.ui.conversationOverlay$;
   }
 
   ngOnInit(): void {
     this.subscriptions.add(
       this.currentChat$.subscribe((chat) => {
-        if (chat) {
-          this.showAnalysis = false;
-        }
+        if (chat) this.showAnalysis = false;
       })
     );
 
-    this.ui.sidebarOpen$.subscribe((open) => (this.isSidebarOpen = open));
-  }
-  closeCurrentChat(): void {
-    this.chatService.setCurrentChat(null); // Asegúrate que esta función exista en tu servicio
-    this.messageService.clearMessages(); // Si deseas limpiar también los mensajes
-    this.showAnalysis = false;
+    this.subscriptions.add(
+      this.ui.conversationStatus$.subscribe((status) => {
+        this.conversationStatus = status;
+      })
+    );
+
+    this.subscriptions.add(
+      this.ui.sidebarOpen$.subscribe((open) => (this.isSidebarOpen = open))
+    );
   }
 
   ngAfterViewChecked(): void {
-    try {
-      this.scrollToBottom();
-    } catch (err) {
-      console.warn('Error auto-scroll:', err);
+    this.scrollToBottom();
+  }
+
+  scrollToBottom(): void {
+    if (this.messagesContainer?.nativeElement) {
+      this.messagesContainer.nativeElement.scrollTop =
+        this.messagesContainer.nativeElement.scrollHeight;
     }
   }
 
   handleSendMessage(content: string): void {
     const currentChat = this.chatService.getCurrentChatValue();
-    if (currentChat) {
-      this.isLoading = true;
-      this.messageService.sendMessage(currentChat.id, content);
+    if (!currentChat) return;
 
-      // Reset loading after a delay (you might want to use actual response)
-      setTimeout(() => {
-        this.isLoading = false;
-      }, 2000);
-    }
+    this.isLoading = true;
+    this.messageService.sendMessage(currentChat.id, content);
+
+    setTimeout(() => (this.isLoading = false), 2000);
   }
 
-  handleAudioRecording(audioBlob: Blob): void {
+  handleAudioRecording(audio: Blob): void {
     const currentChat = this.chatService.getCurrentChatValue();
-    if (currentChat) {
-      this.isLoading = true;
-      this.messageService.sendVoiceMessage(currentChat.id, audioBlob);
+    if (!currentChat) return;
 
-      // Reset loading after a delay
-      setTimeout(() => {
-        this.isLoading = false;
-      }, 3000);
-    }
+    this.isLoading = true;
+    this.messageService.sendVoiceMessage(currentChat.id, audio);
+
+    setTimeout(() => (this.isLoading = false), 3000);
   }
 
-  scrollToBottom(): void {
-    try {
-      if (this.messagesContainer?.nativeElement) {
-        this.messagesContainer.nativeElement.scrollTop =
-          this.messagesContainer.nativeElement.scrollHeight;
-      }
-    } catch (err) {
-      console.warn('Error scrolling to bottom:', err);
-    }
-  }
   startConversationMode(): void {
     this.overlayMessage = 'Tu turno. Estamos escuchando...';
-    this.ui.showOverlay();
-    // Aquí podrías emitir un evento a ChatInputComponent si quieres iniciar el loop
+    this.ui.setConversationMode(true); // 🔁 Estado global
+    this.ui.showOverlay(); // Mostrar overlay visual
   }
 
-  endConversationMode() {
+  endConversationMode(): void {
+    this.ui.setConversationMode(false); // 🔁 Detiene grabación
+    this.ui.hideOverlay(); // Oculta overlay
+  }
+
+  closeCurrentChat(): void {
+    this.chatService.setCurrentChat(null);
+    this.messageService.clearMessages();
+    this.showAnalysis = false;
+    this.ui.setConversationMode(false);
     this.ui.hideOverlay();
   }
 
@@ -154,11 +165,9 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     return message.id;
   }
 
-  trackByChatId(index: number, chat: Chat): string {
-    return chat.id;
-  }
-
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+    this.ui.setConversationMode(false); // seguridad al salir
+    this.ui.hideOverlay();
   }
 }

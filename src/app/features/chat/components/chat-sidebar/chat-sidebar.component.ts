@@ -87,18 +87,19 @@ export class ChatSidebarComponent implements OnInit {
           this.chatService.selectChat(newChat.id);
           this.messageService.fetchMessages(newChat.id); // 👈 trae los mensajes
 
-          // Esperamos a que se actualicen los mensajes
-          this.messageService.messages$
-            .pipe(
-              filter((msgs) => msgs.length > 0), // 👈 asegura que ya llegaron
-              take(1)
-            )
-            .subscribe((msgs) => {
-              const firstAI = msgs.find((m) => m.sender === 'ai');
-              if (firstAI) {
-                this.messageService.speak(firstAI.content); // ✅ habla
-              }
-            });
+          this.messageService.fetchMessages(newChat.id);
+
+          // Esperar un poco para asegurar que los mensajes hayan sido reemplazados
+          setTimeout(() => {
+            const currentMessages = this.messageService.getMessagesValue(); // 👈 Nuevo método que debes crear
+            const aiMessages = currentMessages.filter(
+              (msg) => msg.chat_id === newChat.id && msg.sender === 'ai'
+            );
+
+            if (aiMessages.length > 0) {
+              this.messageService.speak(aiMessages[0].content); // ✅ solo habla si es del nuevo chat
+            }
+          }, 300); // ajusta el tiempo si lo necesitas
 
           this.isCreatingChat = false;
           this.closeModal();

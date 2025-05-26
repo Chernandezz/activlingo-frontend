@@ -4,13 +4,21 @@ import { Message } from '../../../core/models/message.model';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { generateUUID } from '../../../shared/utils/uuid.util';
+import { AudioRecorderService } from './audio-recorder.service';
 
 @Injectable({ providedIn: 'root' })
 export class MessageService {
   private messagesSubject = new BehaviorSubject<Message[]>([]);
   messages$ = this.messagesSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private audioRecorderService: AudioRecorderService
+  ) {}
+  
+  getMessagesValue(): Message[] {
+    return this.messagesSubject.getValue();
+  }
 
   fetchMessages(chatId: string): void {
     this.http
@@ -23,6 +31,23 @@ export class MessageService {
 
   clearMessages(): void {
     this.messagesSubject.next([]);
+  }
+  conversationActive = false;
+
+  async startConversationLoop(chatId: string): Promise<void> {
+    this.conversationActive = true;
+
+    while (this.conversationActive) {
+      const blob = await this.audioRecorderService.recordUntilSilence();
+      if (!blob) continue; // usuario no habló nada útil
+
+      await this.sendVoiceMessageAndWait(chatId, blob);
+      await this.waitForTTSCompletion();
+    }
+  }
+
+  stopConversationLoop(): void {
+    this.conversationActive = false;
   }
 
   async sendVoiceMessageAndWait(
@@ -110,6 +135,8 @@ export class MessageService {
       });
   }
 
+  private ttsAudio: HTMLAudioElement | null = null;
+
   speak(text: string, onEnd?: () => void): void {
     const url = `${environment.apiUrl}/messages/speak`;
 
@@ -118,15 +145,33 @@ export class MessageService {
         const audio = new Audio();
         const blobUrl = URL.createObjectURL(blob);
         audio.src = blobUrl;
+        this.ttsAudio = audio;
+
         audio
           .play()
           .catch((err) => console.error('❌ Error reproduciendo voz:', err));
-        if (onEnd) audio.addEventListener('ended', onEnd);
+
+        if (onEnd) {
+          audio.addEventListener('ended', () => {
+            this.ttsAudio = null;
+            onEnd();
+          });
+        } else {
+          audio.addEventListener('ended', () => (this.ttsAudio = null));
+        }
       },
       error: (err) => {
         console.error('❌ Error en TTS API:', err);
         if (onEnd) onEnd();
       },
+    });
+  }
+
+  waitForTTSCompletion(): Promise<void> {
+    return new Promise((resolve) => {
+      if (!this.ttsAudio) return resolve();
+
+      this.ttsAudio.addEventListener('ended', () => resolve());
     });
   }
 

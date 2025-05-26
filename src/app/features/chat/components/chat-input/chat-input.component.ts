@@ -1,36 +1,77 @@
-import { Component, EventEmitter, Output, Input } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Output,
+  Input,
+  OnInit,
+  OnDestroy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AudioRecorderService } from '../../services/audio-recorder.service';
 import { MessageService } from '../../services/message.service';
+import { UiService } from '../../../../shared/services/ui.service';
+import { Subscription } from 'rxjs';
+import {
+  faMicrophone,
+  faStop,
+  faPaperPlane,
+  faSpinner,
+  faComments,
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+
 
 @Component({
   selector: 'app-chat-input',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, FontAwesomeModule],
   templateUrl: './chat-input.component.html',
 })
-export class ChatInputComponent {
-  @Output() conversationModeChange = new EventEmitter<boolean>();
-  conversationMode = false;
-  private conversationActive = false;
-
-  overlayVisible = true;
-  message = '';
-  isRecording = false;
-  isProcessing = false;
-  recordingDuration = 0;
-
-  recordingInterval: any;
-
+export class ChatInputComponent implements OnInit, OnDestroy {
+  faMicrophone = faMicrophone;
+  faStop = faStop;
+  faPaperPlane = faPaperPlane;
+  faSpinner = faSpinner;
+  faComments = faComments;
   @Input() chatId!: string;
   @Output() send = new EventEmitter<string>();
   @Output() sendVoice = new EventEmitter<Blob>();
 
+  message = '';
+  isRecording = false;
+  isProcessing = false;
+  recordingDuration = 0;
+  recordingInterval: any;
+
+  private conversationActive = false;
+  private subscriptions = new Subscription();
+
   constructor(
     private audioService: AudioRecorderService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    public uiService: UiService
   ) {}
+
+  conversationMode = false;
+
+  ngOnInit(): void {
+    this.subscriptions.add(
+      this.uiService.conversationMode$.subscribe((isActive) => {
+        this.conversationMode = isActive; // <-- local state
+        if (isActive && !this.conversationActive) {
+          this.startConversationLoop();
+        } else if (!isActive && this.conversationActive) {
+          this.stopConversationLoop();
+        }
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+    this.stopConversationLoop();
+  }
 
   sendMessage(): void {
     const content = this.message.trim();
@@ -40,11 +81,11 @@ export class ChatInputComponent {
     this.message = '';
   }
 
-  async toggleRecording() {
+  async toggleRecording(): Promise<void> {
     if (!this.isRecording) {
-      this.startRecording();
+      await this.startRecording();
     } else {
-      this.stopRecording();
+      await this.stopRecording();
     }
   }
 
@@ -55,7 +96,6 @@ export class ChatInputComponent {
       this.recordingInterval = setInterval(() => {
         this.recordingDuration++;
       }, 1000);
-
       await this.audioService.startRecording();
     } catch (error) {
       console.error('Error starting recording:', error);
@@ -86,6 +126,32 @@ export class ChatInputComponent {
     }
   }
 
+  async startConversationLoop(): Promise<void> {
+    this.conversationActive = true;
+
+    while (this.conversationActive) {
+      const audio = await this.audioService.recordUntilSilence();
+      if (!audio) continue;
+
+      try {
+        await this.messageService.sendVoiceMessageAndWait(this.chatId, audio);
+      } catch (error) {
+        console.error('❌ Error en modo conversación:', error);
+        break;
+      }
+
+      await new Promise((r) => setTimeout(r, 1000));
+    }
+  }
+
+  stopConversationLoop(): void {
+    this.conversationActive = false;
+
+    if (this.isRecording) {
+      this.stopRecording();
+    }
+  }
+
   formatDuration(seconds: number): string {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -102,44 +168,6 @@ export class ChatInputComponent {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       this.sendMessage();
-    }
-  }
-
-  toggleConversationMode(): void {
-    this.conversationMode = !this.conversationMode;
-    this.conversationModeChange.emit(this.conversationMode);
-
-    if (this.conversationMode) {
-      this.startConversationLoop();
-    } else {
-      this.stopConversationLoop();
-    }
-  }
-
-  stopConversationLoop(): void {
-    this.conversationActive = false;
-
-    // Detener grabación si está en curso
-    if (this.isRecording) {
-      this.stopRecording(); // llama al método ya definido
-    }
-  }
-
-  async startConversationLoop(): Promise<void> {
-    this.conversationActive = true;
-
-    while (this.conversationActive) {
-      const audio = await this.audioService.recordUntilSilence();
-      if (!audio) continue;
-
-      try {
-        await this.messageService.sendVoiceMessageAndWait(this.chatId, audio);
-      } catch (error) {
-        console.error('❌ Error en modo conversación:', error);
-        break;
-      }
-
-      await new Promise((r) => setTimeout(r, 1000));
     }
   }
 }
