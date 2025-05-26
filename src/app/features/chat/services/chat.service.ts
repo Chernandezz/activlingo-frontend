@@ -24,6 +24,10 @@ export class ChatService {
     return this.currentChatSubject.getValue();
   }
 
+  setCurrentChat(chat: Chat | null): void {
+    this.currentChatSubject.next(chat);
+  }
+
   fetchChats(userId: string): void {
     this.http
       .get<Chat[]>(`${this.apiUrl}/chats/?user_id=${userId}`)
@@ -49,6 +53,11 @@ export class ChatService {
           this.currentChatSubject.next(newChat);
         })
       );
+  }
+
+  clearChats(): void {
+    this.chatsSubject.next([]);
+    this.currentChatSubject.next(null);
   }
 
   selectChat(chatId: string): void {

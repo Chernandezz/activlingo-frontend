@@ -1,0 +1,52 @@
+<div class="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+  <div class="bg-white rounded-2xl shadow-2xl p-6 w-[90%] max-w-md space-y-6 border border-gray-200">
+
+    <!-- Cancelar -->
+    <div class="flex justify-between items-center mb-12">
+      <h2 class="font-semibold text-lg" >Nueva Conversacion</h2>
+      <button (click)="close()"
+        class="bg-red-100 hover:bg-red-200 text-red-700 text-sm px-4 py-2 rounded-lg font-medium">
+        Cancelar
+      </button>
+    </div>
+
+    <!-- Role input -->
+    <div class="space-y-1">
+      <div class="flex items-center justify-between">
+        <label class="text-sm font-semibold text-gray-800">Con quién vas a tener la conversación</label>
+        <button (click)="generateRandomRole()"
+          class="text-green-700 text-xs bg-green-100 hover:bg-green-200 px-3 py-1 rounded-md font-medium">
+          Aleatorio
+        </button>
+      </div>
+      <input [(ngModel)]="role"
+        class="w-full px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        placeholder="ej: un taxista, un cajero, un astronauta, El presidente..." />
+    </div>
+
+    <!-- Context input -->
+    <div class="space-y-1">
+      <div class="flex items-center justify-between">
+        <label class="text-sm font-semibold text-gray-800">Cuál es el escenario:</label>
+        <button (click)="generateRandomContext()"
+          class="text-green-700 text-xs bg-green-100 hover:bg-green-200 px-3 py-1 rounded-md font-medium">
+          Aleatorio
+        </button>
+      </div>
+      <textarea [(ngModel)]="context" rows="4"
+        class="w-full px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        placeholder="- Me acabe de subir en un taxi en Nueva York
+- Ganamos el campeonato de futbol
+- Estoy pagando mis compras
+* El limite es tu imaginación *"
+></textarea>
+    </div>
+
+    <!-- Start button -->
+    <button (click)="submit()"
+      class="w-full text-center bg-blue-100 hover:bg-blue-200 text-blue-800 font-semibold px-4 py-2 rounded-lg transition-colors duration-200">
+      Iniciar Conversación
+    </button>
+
+  </div>
+</div>

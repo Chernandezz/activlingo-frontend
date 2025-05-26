@@ -4,6 +4,8 @@ import { Router, RouterModule } from '@angular/router';
 import { UiService } from '../../services/ui.service';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faBookOpen, faComments } from '@fortawesome/free-solid-svg-icons';
+import { AuthService } from '../../../core/services/auth.service';
+import { faUser } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-header',
@@ -13,6 +15,7 @@ import { faBookOpen, faComments } from '@fortawesome/free-solid-svg-icons';
   styleUrls: ['./header.component.css'],
 })
 export class HeaderComponent implements OnInit {
+  faUser = faUser;
   userName = 'Cristian';
   showUserMenu = false;
   isMobileSidebarOpen = false;
@@ -26,7 +29,11 @@ export class HeaderComponent implements OnInit {
     chats: 23,
   };
 
-  constructor(public ui: UiService, private router: Router) {}
+  constructor(
+    public ui: UiService,
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {}
 
@@ -61,8 +68,16 @@ export class HeaderComponent implements OnInit {
   }
 
   logout(): void {
-    this.closeUserMenu();
-    console.log('Logging out...');
+    this.authService.logout().subscribe({
+      next: () => {
+        this.closeUserMenu();
+        this.router.navigate(['/auth']);
+      },
+      error: (err) => {
+        console.error('Logout failed:', err);
+        this.closeUserMenu();
+      },
+    });
   }
 
   viewProfile(): void {
