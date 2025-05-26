@@ -67,6 +67,11 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
 
     this.ui.sidebarOpen$.subscribe((open) => (this.isSidebarOpen = open));
   }
+  closeCurrentChat(): void {
+    this.chatService.setCurrentChat(null); // Asegúrate que esta función exista en tu servicio
+    this.messageService.clearMessages(); // Si deseas limpiar también los mensajes
+    this.showAnalysis = false;
+  }
 
   ngAfterViewChecked(): void {
     try {

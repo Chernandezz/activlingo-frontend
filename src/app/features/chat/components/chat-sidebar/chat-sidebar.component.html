@@ -1,97 +1,73 @@
-<!-- chat-sidebar.component.html -->
 <div class="flex flex-col h-full max-h-screen bg-white border-r border-gray-200">
 
-
   <!-- Header Section -->
-  <div class="flex-shrink-0">
-    <!-- Simple Header -->
-    <div class="p-4 border-b border-gray-200 flex justify-between items-center">
-      <h1 class="text-xl font-bold text-gray-900">My chats</h1>
-      <!-- Close sidebar Button -->
-      <button (click)="ui.toggleSidebar()"
-        class="text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-md p-2">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-        </svg>
-      </button>
+  <div class="flex-shrink-0 p-4 border-b border-gray-200 flex justify-between items-center">
+    <h1 class="text-xl font-bold text-gray-900">My chats</h1>
+    <button (click)="ui.toggleSidebar()" class="text-gray-600 hover:text-gray-900 focus:outline-none p-2">
+      <fa-icon [icon]="faTimes" class="w-5 h-5"></fa-icon>
+    </button>
+  </div>
 
-    </div>
+  <!-- Chat List -->
+  <div class="flex-1 overflow-scroll max-h-[calc(100vh-16rem)] overflow-x-hidden">
+    <div class="space-y-0">
+      <div *ngFor="let chat of chats$ | async; trackBy: trackByChat" (click)="selectChat(chat.id)"
+        class="px-4 py-4 cursor-pointer hover:bg-gray-50 transition-colors duration-150 border-b border-gray-100"
+        [class.bg-blue-50]="(currentChat$ | async)?.id === chat.id"
+        [class.border-l-4]="(currentChat$ | async)?.id === chat.id"
+        [class.border-l-blue-500]="(currentChat$ | async)?.id === chat.id">
 
-
-
-    <!-- Chat List -->
-    <div class="flex-1 overflow-scroll max-h-[calc(100vh-16rem)] overflow-x-hidden">
-      <div class="space-y-0">
-        <div *ngFor="let chat of chats$ | async; trackBy: trackByChat" (click)="selectChat(chat.id)"
-          class="px-4 py-4 cursor-pointer hover:bg-gray-50 transition-colors duration-150 border-b border-gray-100"
-          [class.bg-blue-50]="(currentChat$ | async)?.id === chat.id"
-          [class.border-l-4]="(currentChat$ | async)?.id === chat.id"
-          [class.border-l-blue-500]="(currentChat$ | async)?.id === chat.id">
-
-          <div class="flex items-center justify-between">
-            <!-- Chat Title -->
-            <div class="flex-1 min-w-0">
-              <h3 class="text-base font-semibold text-gray-900 truncate mb-1"
-                [class.text-blue-900]="(currentChat$ | async)?.id === chat.id">
-                {{ chat.title }}
-              </h3>
-            </div>
-
-            <!-- Time -->
-            <div class="flex-shrink-0 ml-3">
-              <span class="text-sm text-gray-400" [class.text-blue-500]="(currentChat$ | async)?.id === chat.id">
-                {{ getRelativeTime(chat.created_at) }}
-              </span>
-            </div>
+        <div class="flex items-center justify-between">
+          <div class="flex-1 min-w-0">
+            <h3 class="text-base font-semibold text-gray-900 truncate mb-1"
+              [class.text-blue-900]="(currentChat$ | async)?.id === chat.id">
+              {{ chat.title }}
+            </h3>
           </div>
-        </div>
-
-        <!-- Empty State -->
-        <div *ngIf="(chats$ | async)?.length === 0" class="text-center py-16 px-4">
-          <div class="w-16 h-16 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
-            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
-              </path>
-            </svg>
+          <div class="flex-shrink-0 ml-3">
+            <span class="text-sm text-gray-400" [class.text-blue-500]="(currentChat$ | async)?.id === chat.id">
+              {{ getRelativeTime(chat.created_at) }}
+            </span>
           </div>
-          <h3 class="text-lg font-medium text-gray-900 mb-2">No chats yet</h3>
-          <p class="text-sm text-gray-500 mb-6 max-w-xs mx-auto">
-            Start your first conversation to practice English
-          </p>
         </div>
       </div>
-    </div>
 
-    <!-- Footer Section -->
-    <div class="flex-shrink-0 border-t border-gray-200 bg-gray-50">
-      <!-- Settings -->
-      <div class="px-4 py-3">
-        <div class="flex items-center justify-between mb-4">
-          <span class="text-sm text-gray-700">Hide AI responses</span>
-          <label class="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" [checked]="!hideAIResponses" (change)="toggleAIResponses()" class="sr-only peer">
-            <div
-              class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500">
-            </div>
-          </label>
+      <!-- Empty State -->
+      <div *ngIf="(chats$ | async)?.length === 0" class="text-center py-16 px-4">
+        <div class="w-16 h-16 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
+          <fa-icon [icon]="faTimes" class="text-gray-400 text-2xl"></fa-icon>
         </div>
-
-        <!-- New Chat Button -->
-        <button (click)="createNewChat()" [disabled]="isCreatingChat"
-          class="w-full px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
-          <span *ngIf="!isCreatingChat">+ New Chat</span>
-          <span *ngIf="isCreatingChat" class="flex items-center justify-center">
-            <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
-              viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-              </path>
-            </svg>
-            Creating...
-          </span>
-        </button>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">No chats yet</h3>
+        <p class="text-sm text-gray-500 mb-6 max-w-xs mx-auto">
+          Start your first conversation to practice English
+        </p>
       </div>
     </div>
   </div>
+
+  <!-- Footer Section -->
+  <div class="flex-shrink-0 border-t border-gray-200 bg-gray-50 px-4 py-3">
+    <div class="flex items-center justify-between mb-4">
+      <span class="text-sm text-gray-700">Esconder respuestas de IA</span>
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" [checked]="!hideAIResponses" (change)="toggleAIResponses()" class="sr-only peer">
+        <div
+          class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-green-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all">
+        </div>
+      </label>
+    </div>
+
+    <!-- Nuevo Chat -->
+    <button (click)="openModal()" [disabled]="isCreatingChat"
+      class="w-full px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+      <span *ngIf="!isCreatingChat">+ Nuevo Chat</span>
+      <span *ngIf="isCreatingChat" class="flex items-center justify-center gap-2">
+        <fa-icon [icon]="faSpinner" class="animate-spin"></fa-icon>
+        Creating...
+      </span>
+    </button>
+
+    <!-- Modal para crear chat -->
+    <app-chat-modal *ngIf="showModal" (cancel)="closeModal()" (start)="startNewChat($event)"></app-chat-modal>
+  </div>
+</div>
