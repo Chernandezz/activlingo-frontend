@@ -5,6 +5,7 @@ import { UiService } from '../../services/ui.service';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faBookOpen, faComments } from '@fortawesome/free-solid-svg-icons';
 import { AuthService } from '../../../core/services/auth.service';
+import { faUser } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-header',
@@ -14,6 +15,7 @@ import { AuthService } from '../../../core/services/auth.service';
   styleUrls: ['./header.component.css'],
 })
 export class HeaderComponent implements OnInit {
+  faUser = faUser;
   userName = 'Cristian';
   showUserMenu = false;
   isMobileSidebarOpen = false;
