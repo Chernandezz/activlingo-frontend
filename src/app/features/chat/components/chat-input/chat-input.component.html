@@ -1,8 +1,10 @@
 <!-- chat-input.component.html -->
 <div class="relative">
 
+
+
   <!-- Recording Overlay -->
-  <div *ngIf="isRecording"
+  <div *ngIf="isRecording" (click)="toggleConversationMode()"
     class="absolute -top-16 left-0 right-0 bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-xl p-4 shadow-lg z-20 animate-in slide-in-from-bottom-2 duration-300">
     <div class="flex items-center justify-between">
       <div class="flex items-center space-x-3">
@@ -15,91 +17,108 @@
           <p class="text-xs text-gray-500">{{ formatDuration(recordingDuration) }}</p>
         </div>
       </div>
+    </div>
+  </div>
 
-      <button (click)="toggleRecording()"
-        class="flex items-center space-x-2 px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 text-sm font-medium rounded-lg transition-colors duration-200">
-        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd"
-            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z"
-            clip-rule="evenodd"></path>
+  <div class="flex gap-3">
+    <!-- Botón para iniciar conversación (fuera del overlay) -->
+    <!-- Botón de modo conversación ON/OFF -->
+    <div
+      class="flex gap-1 items-center justify-end text-center p-2 rounded-md font-bold cursor-pointer transition-all duration-300"
+      [ngClass]="{
+    'bg-green-600 text-white': !conversationMode,
+    'bg-red-600 text-white': conversationMode
+  }" (click)="toggleConversationMode()">
+
+      <button [disabled]="isProcessing" class="relative transition-all duration-200 flex-shrink-0 text-white">
+        <!-- Microphone Icon -->
+        <svg *ngIf="!isRecording" class="w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 1a3 3 0 00-3 3v6a3 3 0 006 0V4a3 3 0 00-3-3zM19 10v1a7 7 0 01-14 0v-1M12 17v4m0 0h-4m4 0h4" />
         </svg>
-        <span>Stop</span>
       </button>
+      <span class="text-xs text-white">
+        {{ conversationMode ? 'Stop\nConversation' : 'Conversation\nMode' }}
+      </span>
+
     </div>
-  </div>
 
-  <!-- Main Input Container -->
-  <div
-    class="bg-white border border-gray-200 rounded-2xl shadow-sm focus-within:border-blue-300 focus-within:shadow-md transition-all duration-200">
-    <div class="flex items-end p-3 space-x-3">
+    <!-- Main Input Container -->
+    <div
+      class="w-full bg-white  border border-gray-200 rounded-2xl shadow-sm focus-within:border-blue-300 focus-within:shadow-md transition-all duration-200">
+      <div class="flex items-end p-3 space-x-3">
 
-      <!-- Text Input -->
-      <div class="flex-1 relative">
-        <textarea [(ngModel)]="message" (keydown)="onKeyDown($event)" placeholder="Type your message..." rows="1"
-          class="w-full resize-none border-0 focus:ring-0 focus:outline-none text-gray-900 placeholder-gray-500 bg-transparent max-h-32"
-          [disabled]="isRecording || isProcessing" style="min-height: 24px; line-height: 24px;"></textarea>
+
+
+        <!-- Text Input -->
+        <div class="flex-1 relative">
+          <textarea [(ngModel)]="message" (keydown)="onKeyDown($event)" placeholder="Type your message..." rows="1"
+            class="w-full resize-none border-0 focus:ring-0 focus:outline-none text-gray-900 placeholder-gray-500 bg-transparent max-h-32"
+            [disabled]="isRecording || isProcessing" style="min-height: 24px; line-height: 24px;"></textarea>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center space-x-2">
+
+          <!-- Voice Recording Button -->
+          <button (click)="toggleRecording()" [disabled]="isProcessing"
+            class="relative p-2.5 rounded-full transition-all duration-200 flex-shrink-0"
+            [class.bg-red-500]="isRecording" [class.hover:bg-red-600]="isRecording" [class.text-white]="isRecording"
+            [class.bg-gray-100]="!isRecording" [class.hover:bg-blue-100]="!isRecording && !isProcessing"
+            [class.text-gray-600]="!isRecording" [class.opacity-50]="isProcessing"
+            [class.cursor-not-allowed]="isProcessing">
+
+            <!-- Microphone Icon -->
+            <svg *ngIf="!isRecording" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z">
+              </path>
+            </svg>
+
+            <!-- Stop Icon -->
+            <svg *ngIf="isRecording" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z"
+                clip-rule="evenodd"></path>
+            </svg>
+          </button>
+
+          <!-- Send Button -->
+          <button (click)="sendMessage()" [disabled]="!canSend"
+            class="p-2.5 rounded-full transition-all duration-200 flex-shrink-0" [class.bg-blue-600]="canSend"
+            [class.hover:bg-blue-700]="canSend" [class.text-white]="canSend" [class.shadow-md]="canSend"
+            [class.bg-gray-100]="!canSend" [class.text-gray-400]="!canSend" [class.cursor-not-allowed]="!canSend">
+
+            <!-- Send Icon -->
+            <svg class="w-5 h-5 transform rotate-90" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z">
+              </path>
+            </svg>
+          </button>
+        </div>
       </div>
 
-      <!-- Action Buttons -->
-      <div class="flex items-center space-x-2">
-
-        <!-- Voice Recording Button -->
-        <button (click)="toggleRecording()" [disabled]="isProcessing"
-          class="relative p-2.5 rounded-full transition-all duration-200 flex-shrink-0" [class.bg-red-500]="isRecording"
-          [class.hover:bg-red-600]="isRecording" [class.text-white]="isRecording" [class.bg-gray-100]="!isRecording"
-          [class.hover:bg-blue-100]="!isRecording && !isProcessing" [class.text-gray-600]="!isRecording"
-          [class.opacity-50]="isProcessing" [class.cursor-not-allowed]="isProcessing">
-
-          <!-- Microphone Icon -->
-          <svg *ngIf="!isRecording" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z">
-            </path>
-          </svg>
-
-          <!-- Stop Icon -->
-          <svg *ngIf="isRecording" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd"
-              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z"
-              clip-rule="evenodd"></path>
-          </svg>
-        </button>
-
-        <!-- Send Button -->
-        <button (click)="sendMessage()" [disabled]="!canSend"
-          class="p-2.5 rounded-full transition-all duration-200 flex-shrink-0" [class.bg-blue-600]="canSend"
-          [class.hover:bg-blue-700]="canSend" [class.text-white]="canSend" [class.shadow-md]="canSend"
-          [class.bg-gray-100]="!canSend" [class.text-gray-400]="!canSend" [class.cursor-not-allowed]="!canSend">
-
-          <!-- Send Icon -->
-          <svg class="w-5 h-5 transform rotate-90" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z">
-            </path>
-          </svg>
-        </button>
+      <!-- Character Counter (optional) -->
+      <div *ngIf="message.length > 100" class="px-3 pb-2 text-right">
+        <span class="text-xs text-gray-400">{{ message.length }}/500</span>
       </div>
     </div>
 
-    <!-- Character Counter (optional) -->
-    <div *ngIf="message.length > 100" class="px-3 pb-2 text-right">
-      <span class="text-xs text-gray-400">{{ message.length }}/500</span>
+    <!-- Processing Overlay -->
+    <div *ngIf="isProcessing && !isRecording"
+      class="absolute inset-0 bg-white bg-opacity-80 rounded-2xl flex items-center justify-center z-10">
+      <div class="flex items-center space-x-3">
+        <svg class="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none"
+          viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+          </path>
+        </svg>
+        <span class="text-sm text-gray-600 font-medium">Processing...</span>
+      </div>
     </div>
-  </div>
 
-  <!-- Processing Overlay -->
-  <div *ngIf="isProcessing && !isRecording"
-    class="absolute inset-0 bg-white bg-opacity-80 rounded-2xl flex items-center justify-center z-10">
-    <div class="flex items-center space-x-3">
-      <svg class="animate-spin h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none"
-        viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor"
-          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-        </path>
-      </svg>
-      <span class="text-sm text-gray-600 font-medium">Processing...</span>
-    </div>
   </div>
-
 </div>

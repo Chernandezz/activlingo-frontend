@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { ChatService } from '../../services/chat.service';
 import { Chat } from '../../../../core/models/chat.model';
 import { Observable } from 'rxjs';
+import { UiService } from '../../../../shared/services/ui.service';
+
 
 @Component({
   selector: 'app-chat-sidebar',
@@ -12,22 +14,25 @@ import { Observable } from 'rxjs';
   templateUrl: './chat-sidebar.component.html',
 })
 export class ChatSidebarComponent implements OnInit {
+  isSidebarOpen = false;
   chats$: Observable<Chat[]>;
   currentChat$: Observable<Chat | null>;
   hideAIResponses = false;
   isCreatingChat = false;
 
-  constructor(private chatService: ChatService) {
+  constructor(private chatService: ChatService, public ui: UiService) {
     this.chats$ = this.chatService.chats$;
     this.currentChat$ = this.chatService.currentChat$;
   }
 
   ngOnInit(): void {
-    this.chatService.fetchChats(1);
+    this.chatService.fetchChats('1238c9cd-a894-4e00-a8aa-d0d0cf388488');
+    this.ui.sidebarOpen$.subscribe((open) => (this.isSidebarOpen = open));
   }
 
-  selectChat(chatId: number): void {
+  selectChat(chatId: string): void {
     this.chatService.selectChat(chatId);
+    this.ui.closeSidebar();
   }
 
   createNewChat(): void {
@@ -52,22 +57,19 @@ export class ChatSidebarComponent implements OnInit {
         return;
       }
 
-      this.chatService
-        .createChat(1, {
-          title,
-          role,
-          context,
-        })
-        .subscribe({
-          next: () => {
-            this.isCreatingChat = false;
-          },
-          error: () => {
-            this.isCreatingChat = false;
-          },
-        });
+      const userId = '1238c9cd-a894-4e00-a8aa-d0d0cf388488';
+
+      this.chatService.createChat(userId, { title, role, context }).subscribe({
+        next: () => {
+          this.isCreatingChat = false;
+        },
+        error: () => {
+          this.isCreatingChat = false;
+        },
+      });
     }, 300);
   }
+
 
   toggleAIResponses(): void {
     this.hideAIResponses = !this.hideAIResponses;
@@ -95,7 +97,7 @@ export class ChatSidebarComponent implements OnInit {
     });
   }
 
-  trackByChat(index: number, chat: Chat): number {
+  trackByChat(index: number, chat: Chat): string {
     return chat.id;
   }
 }

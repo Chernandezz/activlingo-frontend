@@ -1,33 +1,34 @@
-// header.component.ts
 import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
+import { UiService } from '../../services/ui.service';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faBookOpen, faComments } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule, FontAwesomeModule],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css'],
 })
 export class HeaderComponent implements OnInit {
-  currentRoute = 'chat';
   userName = 'Cristian';
-  userInitials = 'C';
   showUserMenu = false;
+  isMobileSidebarOpen = false;
 
-  // Simulated user data
+  faBookOpen = faBookOpen;
+  faComments = faComments;
+
   userStats = {
     streak: 5,
     level: 'Intermediate',
     chats: 23,
   };
 
-  constructor() {}
+  constructor(public ui: UiService, private router: Router) {}
 
-  ngOnInit(): void {
-    // Initialize component
-    this.updateCurrentRoute();
-  }
+  ngOnInit(): void {}
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
@@ -47,22 +48,8 @@ export class HeaderComponent implements OnInit {
     }
   }
 
-  updateCurrentRoute(): void {
-    // Detect current route - you can implement this based on your routing
-    // For now, we'll keep it simple
-    this.currentRoute = 'chat';
-  }
-
-  navigateToLearning(): void {
-    this.currentRoute = 'learning';
-    // Implement navigation logic here
-    console.log('Navigate to learning...');
-  }
-
-  navigateToChat(): void {
-    this.currentRoute = 'chat';
-    // Implement navigation logic here
-    console.log('Navigate to chat...');
+  toggleSidebar(): void {
+    this.isMobileSidebarOpen = !this.isMobileSidebarOpen;
   }
 
   toggleUserMenu(): void {
@@ -75,19 +62,16 @@ export class HeaderComponent implements OnInit {
 
   logout(): void {
     this.closeUserMenu();
-    // Implement logout logic
     console.log('Logging out...');
   }
 
   viewProfile(): void {
     this.closeUserMenu();
-    // Navigate to profile
     console.log('View profile...');
   }
 
   viewSettings(): void {
     this.closeUserMenu();
-    // Navigate to settings
     console.log('View settings...');
   }
 
@@ -98,12 +82,5 @@ export class HeaderComponent implements OnInit {
       .join('')
       .toUpperCase()
       .substring(0, 2);
-  }
-
-  getGreeting(): string {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 18) return 'Good afternoon';
-    return 'Good evening';
   }
 }

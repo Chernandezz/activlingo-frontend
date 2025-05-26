@@ -1,8 +1,8 @@
-// chat-input.component.ts
 import { Component, EventEmitter, Output, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AudioRecorderService } from '../../services/audio-recorder.service';
+import { MessageService } from '../../services/message.service';
 
 @Component({
   selector: 'app-chat-input',
@@ -11,17 +11,26 @@ import { AudioRecorderService } from '../../services/audio-recorder.service';
   templateUrl: './chat-input.component.html',
 })
 export class ChatInputComponent {
+  @Output() conversationModeChange = new EventEmitter<boolean>();
+  conversationMode = false;
+  private conversationActive = false;
+
+  overlayVisible = true;
   message = '';
   isRecording = false;
   isProcessing = false;
   recordingDuration = 0;
+
   recordingInterval: any;
 
-  @Input() chatId!: number;
+  @Input() chatId!: string;
   @Output() send = new EventEmitter<string>();
   @Output() sendVoice = new EventEmitter<Blob>();
 
-  constructor(private audioService: AudioRecorderService) {}
+  constructor(
+    private audioService: AudioRecorderService,
+    private messageService: MessageService
+  ) {}
 
   sendMessage(): void {
     const content = this.message.trim();
@@ -43,8 +52,6 @@ export class ChatInputComponent {
     try {
       this.isRecording = true;
       this.recordingDuration = 0;
-
-      // Start recording timer
       this.recordingInterval = setInterval(() => {
         this.recordingDuration++;
       }, 1000);
@@ -95,6 +102,44 @@ export class ChatInputComponent {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       this.sendMessage();
+    }
+  }
+
+  toggleConversationMode(): void {
+    this.conversationMode = !this.conversationMode;
+    this.conversationModeChange.emit(this.conversationMode);
+
+    if (this.conversationMode) {
+      this.startConversationLoop();
+    } else {
+      this.stopConversationLoop();
+    }
+  }
+
+  stopConversationLoop(): void {
+    this.conversationActive = false;
+
+    // Detener grabación si está en curso
+    if (this.isRecording) {
+      this.stopRecording(); // llama al método ya definido
+    }
+  }
+
+  async startConversationLoop(): Promise<void> {
+    this.conversationActive = true;
+
+    while (this.conversationActive) {
+      const audio = await this.audioService.recordUntilSilence();
+      if (!audio) continue;
+
+      try {
+        await this.messageService.sendVoiceMessageAndWait(this.chatId, audio);
+      } catch (error) {
+        console.error('❌ Error en modo conversación:', error);
+        break;
+      }
+
+      await new Promise((r) => setTimeout(r, 1000));
     }
   }
 }

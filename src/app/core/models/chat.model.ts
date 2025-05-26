@@ -1,6 +1,6 @@
 export interface Chat {
-  id: number;
-  user_id: number;
+  id: string;
+  user_id: string;
   title: string;
   language: string;
   level: string;

@@ -2,9 +2,22 @@
 <div class="flex h-screen pt-16">
 
   <!-- Sidebar -->
-  <div class="w-64 lg:w-80 h-full flex-shrink-0">
-    <app-chat-sidebar></app-chat-sidebar>
+  <!-- Sidebar Desktop -->
+  <!-- Sidebar Desktop -->
+  <div class="hidden md:flex w-[25rem] flex-shrink-0 h-full">
+    <app-chat-sidebar class="w-full h-full"></app-chat-sidebar>
   </div>
+
+
+  <!-- Sidebar Mobile -->
+  <div *ngIf="isSidebarOpen" class="fixed inset-0 z-50 flex lg:hidden">
+    <div class="w-[320px] bg-white shadow-xl">
+      <app-chat-sidebar></app-chat-sidebar>
+    </div>
+    <div class="flex-1 bg-black/20" (click)="ui.closeSidebar()"></div>
+  </div>
+
+
 
   <!-- Main Content Area -->
   <div class="flex-grow flex flex-col h-full overflow-hidden">
@@ -21,7 +34,9 @@
           </div>
           <div>
             <h2 class="text-xl font-bold text-gray-900">{{ chat.title }}</h2>
-            <div class="flex items-center space-x-3 mt-1">
+
+            <!-- Language and Message Count -->
+            <div class="flex items-center space-x-3 mt-1 hidden sm:flex">
               <span class="text-sm text-gray-500 flex items-center">
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -81,6 +96,36 @@
         <!-- Messages Container -->
         <div class="flex-grow overflow-y-auto bg-white" #messagesContainer>
 
+          <!-- Conversation Mode Overlay -->
+          <!-- <div *ngIf="overlayVisible$ | async"
+              class="absolute h-full w-full z-40 bg-black/80 flex flex-col items-center justify-center text-white text-center px-4 overflow-hidden">
+            
+              <div class="mb-6">
+                <div class="bg-red-500 w-14 h-14 rounded-full flex items-center justify-center animate-pulse shadow-lg">
+                  <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" />
+                    <path
+                      d="M19 10a1 1 0 00-2 0 5 5 0 01-10 0 1 1 0 00-2 0 7 7 0 0012 4.9V17h-2a1 1 0 000 2h6a1 1 0 000-2h-2v-2.1A7 7 0 0019 10z" />
+                  </svg>
+                </div>
+              </div>
+            
+              <h2 class="text-2xl font-bold mb-2">Modo conversación activado</h2>
+              <p class="text-sm text-gray-300 mb-6">{{ overlayMessage }}</p>
+            
+              <div class="flex space-x-2 justify-center items-center mb-8">
+                <div class="w-2 h-2 bg-white rounded-full animate-bounce"></div>
+                <div class="w-2 h-2 bg-white rounded-full animate-bounce delay-150"></div>
+                <div class="w-2 h-2 bg-white rounded-full animate-bounce delay-300"></div>
+              </div>
+            
+              <button (click)="endConversationMode()"
+                class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-5 rounded-lg shadow-md transition">
+                Terminar conversación
+              </button>
+            </div> -->
+
+
           <!-- Empty State -->
           <div *ngIf="(messages$ | async)?.length === 0" class="flex items-center justify-center h-full px-4">
             <div class="text-center max-w-md">
@@ -127,10 +172,12 @@
 
         </div>
 
+
+
         <!-- Input Section -->
         <div class="bg-white p-4 pb-8 flex-shrink-0">
           <app-chat-input (send)="handleSendMessage($event)" (sendVoice)="handleAudioRecording($event)"
-            [chatId]="(currentChat$ | async)?.id || 0">
+            (conversationModeChange)="startConversationMode()" [chatId]="(currentChat$ | async)?.id || ''">
           </app-chat-input>
         </div>
       </div>
@@ -189,4 +236,5 @@
       </div>
     </div>
   </div>
+
 </div>

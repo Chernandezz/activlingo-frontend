@@ -1,8 +1,7 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { Chat } from '../../../core/models/chat.model';
-import { ChatCreate } from '../../../core/models/chat.model';
+import { Chat, ChatCreate } from '../../../core/models/chat.model';
 import { environment } from '../../../../environments/environment';
 import { MessageService } from './message.service';
 
@@ -13,10 +12,6 @@ export class ChatService {
   private chatsSubject = new BehaviorSubject<Chat[]>([]);
   private currentChatSubject = new BehaviorSubject<Chat | null>(null);
 
-  getCurrentChatValue(): Chat | null {
-    return this.currentChatSubject.getValue();
-  }
-
   chats$ = this.chatsSubject.asObservable();
   currentChat$ = this.currentChatSubject.asObservable();
 
@@ -25,22 +20,28 @@ export class ChatService {
     private messageService: MessageService
   ) {}
 
-  fetchChats(userId: number): void {
+  getCurrentChatValue(): Chat | null {
+    return this.currentChatSubject.getValue();
+  }
+
+  fetchChats(userId: string): void {
     this.http
       .get<Chat[]>(`${this.apiUrl}/chats/?user_id=${userId}`)
       .subscribe((chats) => this.chatsSubject.next(chats));
   }
 
-  createChat(userId: number, chat: ChatCreate): Observable<Chat> {
-    chat = {
-      title: chat.title || 'Nuevo chat',
-      language: 'en',
-      level: 'A1',
-      role: chat.role || 'Usuario',
-      context: chat.context || 'Sin contexto',
-    }
+  createChat(userId: string, chat: ChatCreate): Observable<Chat> {
+    const payload: ChatCreate = {
+      title: chat.title || 'New Chat',
+      language: chat.language || 'en',
+      level: chat.level || 'beginner',
+      role: chat.role || 'Tutor',
+      context:
+        chat.context || 'You are having a conversation to practice English.',
+    };
+
     return this.http
-      .post<Chat>(`${this.apiUrl}/chats/?user_id=${userId}`, chat)
+      .post<Chat>(`${this.apiUrl}/chats/?user_id=${userId}`, payload)
       .pipe(
         tap((newChat) => {
           const current = this.chatsSubject.getValue();
@@ -50,14 +51,14 @@ export class ChatService {
       );
   }
 
-  selectChat(chatId: number): void {
+  selectChat(chatId: string): void {
     this.http.get<Chat>(`${this.apiUrl}/chats/${chatId}`).subscribe((chat) => {
       this.currentChatSubject.next(chat);
       this.messageService.fetchMessages(chatId);
     });
   }
 
-  getChatById(chatId: number): Observable<Chat> {
+  getChatById(chatId: string): Observable<Chat> {
     return this.http.get<Chat>(`${this.apiUrl}/chats/${chatId}`);
   }
 

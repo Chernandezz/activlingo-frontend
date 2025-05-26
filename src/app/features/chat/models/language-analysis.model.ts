@@ -1,6 +1,6 @@
 export interface LanguageAnalysisPoint {
-  id: number;
-  message_id: number;
+  id: string;
+  message_id: string;
   category:
     | 'grammar'
     | 'vocabulary'

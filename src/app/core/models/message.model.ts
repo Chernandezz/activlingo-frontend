@@ -1,6 +1,6 @@
 export interface Message {
-  id: number;
-  chat_id: number;
+  id: string;
+  chat_id: string;
   sender: 'human' | 'ai' | 'system';
   content: string;
   timestamp: string;
