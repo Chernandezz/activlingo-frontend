@@ -3,6 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 import { Message } from '../../../core/models/message.model';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
+import { generateUUID } from '../../../shared/utils/uuid.util';
 
 @Injectable({ providedIn: 'root' })
 export class MessageService {
@@ -45,14 +46,14 @@ export class MessageService {
             this.messagesSubject.next([
               ...current,
               {
-                id: crypto.randomUUID(),
+                id: generateUUID(),
                 chat_id: chatId,
                 sender: 'human',
                 content: res.user_text,
                 timestamp: now,
               },
               {
-                id: crypto.randomUUID(),
+                id: generateUUID(),
                 chat_id: chatId,
                 sender: 'ai',
                 content: res.ai_text,
@@ -87,14 +88,14 @@ export class MessageService {
           this.messagesSubject.next([
             ...current,
             {
-              id: crypto.randomUUID(),
+              id: generateUUID(),
               chat_id: chatId,
               sender: 'human',
               content: res.user_text,
               timestamp: now,
             },
             {
-              id: crypto.randomUUID(),
+              id: generateUUID(),
               chat_id: chatId,
               sender: 'ai',
               content: res.ai_text,
@@ -133,7 +134,7 @@ export class MessageService {
     const currentMessages = this.messagesSubject.getValue();
 
     const humanMessage: Message = {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       chat_id: chatId,
       sender: 'human',
       content,
@@ -141,7 +142,7 @@ export class MessageService {
     };
 
     const aiPlaceholder: Message = {
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       chat_id: chatId,
       sender: 'ai',
       content: '...',
@@ -167,7 +168,5 @@ export class MessageService {
         this.messagesSubject.next(updatedMessages);
         this.speak(response.content);
       });
-      
   }
-  
 }
