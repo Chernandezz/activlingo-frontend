@@ -33,6 +33,8 @@ import { map } from 'rxjs';
   templateUrl: './chat-page.component.html',
 })
 export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
+  public hideAIResponses$!: Observable<boolean>;
+
   isSidebarOpen = false;
   overlayVisible$: Observable<boolean>;
   overlayMessage = 'Tu turno. Estamos escuchando...';
@@ -54,6 +56,7 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     this.currentChat$ = this.chatService.currentChat$;
     this.messages$ = this.messageService.messages$;
     this.overlayVisible$ = this.ui.conversationOverlay$;
+    this.hideAIResponses$ = this.ui.hideAIResponses$;
   }
 
   ngOnInit(): void {
