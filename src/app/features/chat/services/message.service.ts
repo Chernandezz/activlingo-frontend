@@ -165,6 +165,8 @@ export class MessageService {
           .getValue()
           .map((msg) => (msg.id === aiPlaceholder.id ? response : msg));
         this.messagesSubject.next(updatedMessages);
+        this.speak(response.content);
       });
+      
   }
 }
