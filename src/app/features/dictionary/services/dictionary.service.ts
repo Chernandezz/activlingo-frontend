@@ -10,8 +10,6 @@ export class DictionaryService {
 
   constructor(private http: HttpClient) {}
 
-  
-
   getUserWords(userId: string): Observable<WordDefinition[]> {
     return this.http.get<WordDefinition[]>(
       `${this.apiUrl}/dictionary/?user_id=${userId}`
@@ -30,6 +28,12 @@ export class DictionaryService {
     return this.http.post(
       `${this.apiUrl}/dictionary/add?user_id=${userId}`,
       data
+    );
+  }
+
+  searchWord(term: string): Observable<WordDefinition[]> {
+    return this.http.get<WordDefinition[]>(
+      `${this.apiUrl}/dictionary/search?word=${encodeURIComponent(term)}`
     );
   }
 }

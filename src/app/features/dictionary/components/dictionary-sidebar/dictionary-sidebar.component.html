@@ -1,18 +1,25 @@
 <div class="p-4 space-y-4">
-  <!-- Search -->
-  <input type="text" [(ngModel)]="searchTerm" placeholder="Search words..."
+  <!-- Botón para buscar nueva palabra -->
+  <button class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded shadow"
+    (click)="startSearch.emit()">
+    + Nueva Palabra
+  </button>
+
+  <!-- Lista de palabras del usuario -->
+  <div class="border-t border-gray-200 pt-4">
+    <h2 class="text-xl font-semibold text-gray-800">Mis Palabras</h2>
+    <p class="text-sm text-gray-500">Aquí puedes ver y buscar las palabras que has guardado.</p>
+  </div>
+
+  <!-- Buscador local -->
+  <input type="text" [(ngModel)]="searchTerm" placeholder="Buscar palabra..."
     class="w-full px-3 py-2 border rounded shadow-sm focus:outline-none" />
 
-  <!-- Word list -->
+  <!-- Lista -->
   <ul class="space-y-2">
     <li *ngFor="let word of filteredWords" (click)="onSelect(word)"
       class="cursor-pointer hover:bg-gray-100 p-2 rounded">
       {{ word.word }}
     </li>
   </ul>
-
-  <!-- Add word -->
-  <button class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded shadow">
-    + Add Word
-  </button>
 </div>

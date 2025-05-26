@@ -17,6 +17,8 @@ import { Message } from '../../../../core/models/message.model';
   templateUrl: './chat-message.component.html',
 })
 export class ChatMessageComponent implements OnInit, AfterViewInit {
+  @Input() hideAIResponses = false;
+
   @Input() message!: Message;
   @ViewChild('messageContent') messageContent!: ElementRef;
 

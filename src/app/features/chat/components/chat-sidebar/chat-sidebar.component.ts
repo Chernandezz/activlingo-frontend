@@ -9,6 +9,7 @@ import { faTimes, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { ChatModalComponent } from '../chat-modal/chat-modal.component';
 import { MessageService } from '../../services/message.service';
 import { take, filter } from 'rxjs/operators';
+import { AuthService } from '../../../../core/services/auth.service';
 
 
 @Component({
@@ -31,15 +32,26 @@ export class ChatSidebarComponent implements OnInit {
   constructor(
     private chatService: ChatService,
     public ui: UiService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private authService: AuthService
   ) {
     this.chats$ = this.chatService.chats$;
     this.currentChat$ = this.chatService.currentChat$;
   }
 
   ngOnInit(): void {
-    this.chatService.fetchChats('1238c9cd-a894-4e00-a8aa-d0d0cf388488');
+    const userId = this.authService.getCurrentUser;
+
+
+    if (!userId) {
+      console.error('No user ID found. Cannot fetch chats.');
+      return;
+    }
+
+    this.chatService.fetchChats(userId);
     this.ui.sidebarOpen$.subscribe((open) => (this.showModal = false));
+
+    this.ui.hideAIResponses$.subscribe((hide) => (this.hideAIResponses = hide));
   }
 
   selectChat(chatId: string): void {
@@ -56,8 +68,12 @@ export class ChatSidebarComponent implements OnInit {
   }
 
   startNewChat(data: { role: string; context: string }): void {
+    const userId = this.authService.getCurrentUser;
+    if (!userId) {
+      console.error('No user ID found. Cannot create chat.');
+      return;
+    }
     this.isCreatingChat = true;
-    const userId = '1238c9cd-a894-4e00-a8aa-d0d0cf388488';
     const title = data.role;
 
     this.chatService
@@ -96,7 +112,7 @@ export class ChatSidebarComponent implements OnInit {
   }
 
   toggleAIResponses(): void {
-    this.hideAIResponses = !this.hideAIResponses;
+    this.ui.toggleHideAIResponses(); // cambia el estado global
   }
 
   getRelativeTime(dateString: string): string {

@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserDictionaryEntry } from '../../../../core/models/user-dictionary.model';
 import { DictionaryService } from '../../services/dictionary.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import { WordDefinition } from '../../../../core/models/user-dictionary.model';
 
 @Component({
   selector: 'app-dictionary-sidebar',
@@ -11,20 +13,41 @@ import { DictionaryService } from '../../services/dictionary.service';
   templateUrl: './dictionary-sidebar.component.html',
 })
 export class DictionarySidebarComponent implements OnInit {
+  @Output() startSearch = new EventEmitter<void>();
+
+  searchMode = false;
+  searchResults: WordDefinition[] = [];
+
   words: UserDictionaryEntry[] = [];
   searchTerm: string = '';
   @Output() selectWord = new EventEmitter<UserDictionaryEntry>();
 
-  constructor(private dictionaryService: DictionaryService) {}
+  constructor(
+    private dictionaryService: DictionaryService,
+    private authService: AuthService
+  ) {}
+
+  startSearchMode(): void {
+    this.searchMode = true;
+    this.searchTerm = '';
+    this.searchResults = [];
+  }
+
+
 
   ngOnInit(): void {
-    const userId = '1238c9cd-a894-4e00-a8aa-d0d0cf388488';
+    const userId = this.authService.getCurrentUser;
+
+    if (!userId) {
+      console.error('No user ID found. Cannot fetch chats.');
+      return;
+    }
+
     this.dictionaryService.getUserWords(userId).subscribe((entries) => {
       this.words = entries.map((entry) => ({
         ...(entry as Omit<UserDictionaryEntry, 'user_id'>),
         user_id: userId,
       }));
-      
     });
   }
 
