@@ -10,7 +10,8 @@ export interface LoginRequest {
   password: string;
 }
 
-export interface SignupRequest {
+export interface SignUpRequest {
+  name: string;
   email: string;
   password: string;
 }

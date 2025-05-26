@@ -2,23 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-
-export interface AuthResponse {
-  access_token: string;
-  refresh_token: string;
-  expires_in: number;
-  user: any;
-}
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-export interface SignUpRequest {
-  email: string;
-  password: string;
-}
+import { LoginRequest, SignUpRequest, AuthResponse } from '../models/auth.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -67,8 +51,8 @@ export class AuthService {
       );
   }
 
-  get currentUser(): any | null {
-    return this.userSubject.getValue();
+  get getCurrentUser(): string | null {
+    return this.userSubject.getValue()?.id || null;
   }
 
   isLoggedIn(): boolean {

@@ -12,8 +12,12 @@ import { Router } from '@angular/router';
   templateUrl: './auth-page.component.html',
 })
 export class AuthPageComponent {
+  showConfirmationNotice = false;
+
+  name = '';
   email = '';
   password = '';
+  confirmPassword = '';
   isLogin = true;
   isLoading = false;
   message = '';
@@ -26,15 +30,21 @@ export class AuthPageComponent {
   }
 
   submit() {
+    if (!this.isLogin && this.password !== this.confirmPassword) {
+      this.message = 'Passwords do not match';
+      return;
+    }
+
     this.isLoading = true;
+
     if (this.isLogin) {
       this.authService
         .login({ email: this.email, password: this.password })
         .subscribe({
-          next: (res) => {
-            this.message = 'Login successful'; // ✅ login
+          next: () => {
+            this.message = 'Login successful';
             this.isLoading = false;
-            this.router.navigate(['/chat']); // ✅ redirigir
+            this.router.navigate(['/chat']);
           },
           error: (err) => {
             this.message = err.error?.detail || 'Login failed';
@@ -43,11 +53,12 @@ export class AuthPageComponent {
         });
     } else {
       this.authService
-        .signup({ email: this.email, password: this.password })
+        .signup({ name: this.name, email: this.email, password: this.password })
         .subscribe({
-          next: (res) => {
+          next: () => {
             this.message = 'Signup successful';
             this.isLoading = false;
+            this.showConfirmationNotice = true;
             this.toggleMode();
           },
           error: (err) => {
@@ -56,5 +67,9 @@ export class AuthPageComponent {
           },
         });
     }
+  }
+  goToLogin() {
+    this.showConfirmationNotice = false;
+    this.toggleMode();
   }
 }

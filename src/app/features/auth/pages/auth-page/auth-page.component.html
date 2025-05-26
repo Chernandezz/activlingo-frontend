@@ -4,32 +4,63 @@
       {{ isLogin ? 'Login' : 'Sign Up' }}
     </h2>
 
-    <form (ngSubmit)="submit()" class="space-y-4">
+    <!-- Confirmation message after signup -->
+    <div *ngIf="showConfirmationNotice" class="text-center space-y-6">
+      <h2 class="text-2xl font-bold text-gray-800">Check your email</h2>
+      <p class="text-gray-600">
+        We've sent you a confirmation link. Please verify your email to activate your account.
+      </p>
+      <button (click)="goToLogin()"
+        class="bg-blue-600 text-white font-semibold py-2 px-6 rounded hover:bg-blue-700 transition">
+        I’ve confirmed my email – Log In
+      </button>
+    </div>
+
+    <form *ngIf="!showConfirmationNotice" (ngSubmit)="submit()" class="space-y-4">
+      <!-- Name (solo en Sign Up) -->
+      <div *ngIf="!isLogin">
+        <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+        <input [(ngModel)]="name" name="name" id="name" type="text" required
+          class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+      </div>
+    
+      <!-- Email -->
       <div>
         <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
         <input [(ngModel)]="email" name="email" id="email" type="email" required
           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
       </div>
-
+    
+      <!-- Password -->
       <div>
         <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
         <input [(ngModel)]="password" name="password" id="password" type="password" required
           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
       </div>
-
-      <button type="submit"
-        class="w-full bg-blue-600 text-white font-semibold py-2 rounded hover:bg-blue-700 transition">
+    
+      <!-- Confirm Password (solo en Sign Up) -->
+      <div *ngIf="!isLogin">
+        <label for="confirmPassword" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+        <input [(ngModel)]="confirmPassword" name="confirmPassword" id="confirmPassword" type="password" required
+          class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+      </div>
+    
+      <!-- Submit Button -->
+      <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 rounded hover:bg-blue-700 transition">
         {{ isLogin ? 'Login' : 'Sign Up' }}
       </button>
-
+    
+      <!-- Toggle -->
       <p class="text-center text-sm text-gray-600">
         {{ isLogin ? "Don't have an account?" : "Already have an account?" }}
         <button type="button" (click)="toggleMode()" class="text-blue-600 underline ml-1">
           {{ isLogin ? 'Sign up' : 'Login' }}
         </button>
       </p>
-
+    
+      <!-- Error / Success Message -->
       <div *ngIf="message" class="text-center text-sm text-red-500 mt-2">{{ message }}</div>
     </form>
+    
   </div>
 </div>
