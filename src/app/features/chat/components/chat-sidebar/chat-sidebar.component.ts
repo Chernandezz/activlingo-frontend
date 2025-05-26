@@ -68,8 +68,12 @@ export class ChatSidebarComponent implements OnInit {
   }
 
   startNewChat(data: { role: string; context: string }): void {
+    const userId = this.authService.getCurrentUser;
+    if (!userId) {
+      console.error('No user ID found. Cannot create chat.');
+      return;
+    }
     this.isCreatingChat = true;
-    const userId = '1238c9cd-a894-4e00-a8aa-d0d0cf388488';
     const title = data.role;
 
     this.chatService
