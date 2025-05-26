@@ -1,21 +1,29 @@
 <div class="flex h-screen pt-16">
-
-  <!-- Sidebar izquierdo -->
+  <!-- Sidebar -->
   <div class="hidden md:flex w-[25rem] flex-shrink-0 h-full border-r border-gray-200">
-    <app-dictionary-sidebar (selectWord)="onSelectWord($event)"></app-dictionary-sidebar>
+    <app-dictionary-sidebar (selectWord)="onSelectWord($event)" (startSearch)="searchMode = true">
+    </app-dictionary-sidebar>
   </div>
 
-  <!-- Contenido derecho -->
-  <div class="flex-grow flex flex-col h-full overflow-hidden">
-    <ng-container *ngIf="selectedWord; else emptyState">
-      <app-word-details [word]="selectedWord"></app-word-details>
+  <!-- Main Panel -->
+  <div class="flex-grow flex flex-col h-full overflow-hidden p-6">
+    <ng-container *ngIf="searchMode; else wordDetailsView">
+      <app-dictionary-search-panel (selectDefinition)="onSelectWord($event)" (exitSearch)="searchMode = false"
+        (searchCompleted)="onSearchResults($event)">
+      </app-dictionary-search-panel>
     </ng-container>
 
-    <!-- Estado inicial cuando no hay palabra seleccionada -->
-    <ng-template #emptyState>
-      <div class="h-full flex items-center justify-center text-gray-400">
-        <p>Select a word to view its details</p>
-      </div>
+    <!-- Word Details Panel -->
+    <ng-template #wordDetailsView>
+      <ng-container *ngIf="selectedWord; else emptyState">
+        <app-word-details [word]="selectedWord"></app-word-details>
+      </ng-container>
+
+      <ng-template #emptyState>
+        <div class="h-full flex items-center justify-center text-gray-400">
+          <p>Select a word to view its details</p>
+        </div>
+      </ng-template>
     </ng-template>
   </div>
 </div>

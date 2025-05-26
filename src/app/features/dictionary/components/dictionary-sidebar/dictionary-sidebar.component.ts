@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { UserDictionaryEntry } from '../../../../core/models/user-dictionary.model';
 import { DictionaryService } from '../../services/dictionary.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { WordDefinition } from '../../../../core/models/user-dictionary.model';
 
 @Component({
   selector: 'app-dictionary-sidebar',
@@ -12,6 +13,11 @@ import { AuthService } from '../../../../core/services/auth.service';
   templateUrl: './dictionary-sidebar.component.html',
 })
 export class DictionarySidebarComponent implements OnInit {
+  @Output() startSearch = new EventEmitter<void>();
+
+  searchMode = false;
+  searchResults: WordDefinition[] = [];
+
   words: UserDictionaryEntry[] = [];
   searchTerm: string = '';
   @Output() selectWord = new EventEmitter<UserDictionaryEntry>();
@@ -20,6 +26,14 @@ export class DictionarySidebarComponent implements OnInit {
     private dictionaryService: DictionaryService,
     private authService: AuthService
   ) {}
+
+  startSearchMode(): void {
+    this.searchMode = true;
+    this.searchTerm = '';
+    this.searchResults = [];
+  }
+
+
 
   ngOnInit(): void {
     const userId = this.authService.getCurrentUser;
