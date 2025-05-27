@@ -2,7 +2,7 @@
 
   <!-- Header Section -->
   <div class="flex-shrink-0 p-4 border-b border-gray-200 flex justify-between items-center">
-    <h1 class="text-xl font-bold text-gray-900">My chats</h1>
+    <h1 class="text-xl font-bold text-gray-900">Chats</h1>
     <button (click)="ui.toggleSidebar()" class="text-gray-600 hover:text-gray-900 focus:outline-none p-2">
       <fa-icon [icon]="faTimes" class="w-5 h-5"></fa-icon>
     </button>
@@ -19,7 +19,7 @@
 
         <div class="flex items-center justify-between">
           <div class="flex-1 min-w-0">
-            <h3 class="text-base font-semibold text-gray-900 truncate mb-1"
+            <h3 class="text-base font-semibold text-gray-900 truncate mb-1 capitalize"
               [class.text-blue-900]="(currentChat$ | async)?.id === chat.id">
               {{ chat.title }}
             </h3>

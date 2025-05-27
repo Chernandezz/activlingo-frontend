@@ -29,28 +29,19 @@
         <!-- Chat Info -->
         <div class="flex items-center space-x-4">
           <div
-            class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-md">
+            class="hidden sm:flex w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-md">
             {{ chat.title.charAt(0).toUpperCase() }}
           </div>
-          <div class="flex items-center gap-4">
-            <h2 class="text-xl font-bold text-gray-900">{{ chat.title }}</h2>
-            <span class="text-sm text-gray-400">•</span>
-            <span class="text-sm text-gray-500 flex items-center">
-              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
-                </path>
-              </svg>
-              {{ (getMessageCount() | async) || 0 }} Mensajes
-            </span>
-          </div>
+          <h2 class="hidden sm:flex text-xl font-bold text-gray-900">{{ chat.title }}</h2>
+          
+
         </div>
 
         <!-- Action Buttons -->
         <div class="flex items-center space-x-3">
           <!-- Analysis Toggle Button -->
           <button (click)="toggleAnalysisView()"
-            class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 border"
+            class="hidden sm:flex inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 border"
             [class.bg-blue-600]="showAnalysis" [class.text-white]="showAnalysis" [class.border-blue-600]="showAnalysis"
             [class.shadow-md]="showAnalysis" [class.bg-white]="!showAnalysis" [class.text-blue-600]="!showAnalysis"
             [class.border-blue-200]="!showAnalysis" [class.hover:bg-blue-50]="!showAnalysis">
@@ -60,14 +51,6 @@
               </path>
             </svg>
             {{ showAnalysis ? 'Regresar al Chat' : 'Analizar Chat' }}
-          </button>
-        
-          <!-- Menu Button -->
-          <button class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-            </svg>
           </button>
         
           <!-- Close Chat Button -->
@@ -165,17 +148,10 @@
             <app-chat-message *ngFor="let message of messages$ | async; trackBy: trackByMessage" [message]="message"
               [hideAIResponses]="(hideAIResponses$ | async) ?? false">
             </app-chat-message>
-          
 
-
-          
-            
           </div>
 
-
         </div>
-
-
 
         <!-- Input Section -->
         <div class="bg-white p-4 pb-8 flex-shrink-0">
@@ -184,7 +160,6 @@
           </app-chat-input>
         </div>
       </div>
-
       <!-- Analysis View -->
       <div *ngIf="showAnalysis && (currentChat$ | async) as chat" class="flex-grow overflow-y-auto">
         <app-chat-analysis [chatId]="chat.id" class="min-h-full"></app-chat-analysis>

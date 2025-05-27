@@ -146,10 +146,6 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     return icons[language?.toLowerCase()] || '🌐';
   }
 
-  getMessageCount(): Observable<number> {
-    return this.messages$.pipe(map((messages) => messages.length));
-  }
-
   trackByMessage(index: number, message: Message): string {
     return message.id;
   }
