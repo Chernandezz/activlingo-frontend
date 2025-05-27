@@ -186,8 +186,8 @@
       </div>
 
       <!-- Analysis View -->
-      <div *ngIf="showAnalysis && (currentChat$ | async) as chat" class="flex-grow overflow-hidden">
-        <app-chat-analysis [chatId]="chat.id" class="h-full"></app-chat-analysis>
+      <div *ngIf="showAnalysis && (currentChat$ | async) as chat" class="flex-grow overflow-y-auto">
+        <app-chat-analysis [chatId]="chat.id" class="min-h-full"></app-chat-analysis>
       </div>
 
       <!-- No Chat Selected -->
