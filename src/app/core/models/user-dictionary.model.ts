@@ -5,6 +5,7 @@ export interface WordDefinition {
   source?: string;
   example?: string;
   created_at?: string;
+  added: boolean;
   id?: string;
   usage_count?: number;
   chat_count?: number;

@@ -5,6 +5,7 @@ import { UserDictionaryEntry } from '../../../../core/models/user-dictionary.mod
 import { DictionaryService } from '../../services/dictionary.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { WordDefinition } from '../../../../core/models/user-dictionary.model';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-dictionary-sidebar',
@@ -14,6 +15,7 @@ import { WordDefinition } from '../../../../core/models/user-dictionary.model';
 })
 export class DictionarySidebarComponent implements OnInit {
   @Output() startSearch = new EventEmitter<void>();
+  private subscription = new Subscription();
 
   searchMode = false;
   searchResults: WordDefinition[] = [];
@@ -21,7 +23,7 @@ export class DictionarySidebarComponent implements OnInit {
   words: UserDictionaryEntry[] = [];
   searchTerm: string = '';
   @Output() selectWord = new EventEmitter<UserDictionaryEntry>();
-
+  
   constructor(
     private dictionaryService: DictionaryService,
     private authService: AuthService
@@ -33,22 +35,28 @@ export class DictionarySidebarComponent implements OnInit {
     this.searchResults = [];
   }
 
-
-
   ngOnInit(): void {
     const userId = this.authService.getCurrentUser;
+    if (!userId) return;
 
-    if (!userId) {
-      console.error('No user ID found. Cannot fetch chats.');
-      return;
-    }
+    const loadWords = () => {
+      this.dictionaryService.getUserWords(userId).subscribe((entries) => {
+        this.words = entries.map((entry) => ({
+          ...(entry as Omit<UserDictionaryEntry, 'user_id'>),
+          user_id: userId,
+        }));
+      });
+    };
 
-    this.dictionaryService.getUserWords(userId).subscribe((entries) => {
-      this.words = entries.map((entry) => ({
-        ...(entry as Omit<UserDictionaryEntry, 'user_id'>),
-        user_id: userId,
-      }));
-    });
+    loadWords();
+
+    this.subscription.add(
+      this.dictionaryService.refreshWords$.subscribe(() => loadWords())
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 
   onSelect(word: UserDictionaryEntry): void {

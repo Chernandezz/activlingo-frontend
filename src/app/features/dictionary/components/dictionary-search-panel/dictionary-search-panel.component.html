@@ -1,20 +1,37 @@
-<div class="space-y-4">
+<div class="space-y-6">
+  <!-- Search Input -->
   <div class="flex items-center gap-4">
-    <input type="text" [(ngModel)]="searchTerm" placeholder="Search word..."
-      class="flex-grow px-4 py-2 border rounded shadow-sm focus:outline-none" />
-    <button (click)="searchWord()" class="bg-blue-600 text-white px-4 py-2 rounded shadow">Buscar</button>
-    <button (click)="closeSearch()" class="text-sm text-red-500 underline">Cancelar</button>
+    <input type="text" [(ngModel)]="searchTerm" placeholder="Buscar palabra..."
+      class="flex-grow px-4 py-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+    <button (click)="searchWord()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow">
+      Buscar
+    </button>
+    <button (click)="closeSearch()" class="text-sm text-red-500 underline">
+      Cancelar
+    </button>
   </div>
 
-  <div *ngIf="results.length === 0 && searchTerm" class="text-sm text-gray-400">
-    No results found.
+  <!-- Resultados -->
+  <div *ngIf="loading" class="text-sm text-gray-500">Buscando definiciones...</div>
+
+  <div *ngIf="results.length === 0 && !loading && searchTerm" class="text-sm text-gray-400">
+    No se encontraron resultados.
   </div>
 
-  <ul *ngIf="results.length > 0" class="space-y-4">
-    <li *ngFor="let def of results" class="p-4 bg-gray-50 rounded shadow">
-      <p class="font-semibold text-gray-700">{{ def.meaning }}</p>
-      <p class="text-sm italic text-gray-500 mt-1">{{ def.example }}</p>
-      <!-- El botón se maneja en dictionary-page, así que no se pone aquí -->
-    </li>
-  </ul>
+  <div *ngFor="let def of results" class="p-4 bg-white border rounded shadow space-y-2">
+    <p class="text-md font-semibold text-gray-800">
+      {{ def.meaning }}
+    </p>
+    <p class="text-sm italic text-gray-500">"{{ def.example }}"</p>
+    <p class="text-xs text-gray-400">
+      {{ def.part_of_speech }} • Fuente: {{ def.source }}
+    </p>
+
+    <button (click)="addDefinitionToDictionary(def)" [disabled]="def.added" [ngClass]="{
+        'bg-green-600 hover:bg-green-700': !def.added,
+        'bg-gray-300 cursor-not-allowed': def.added
+      }" class="mt-2 px-4 py-1 text-white text-sm rounded shadow">
+      {{ def.added ? 'Agregado' : 'Agregar al diccionario' }}
+    </button>
+  </div>
 </div>

@@ -1,39 +1,41 @@
-<div class="p-6 space-y-4">
-  <!-- Word header -->
-  <div class="flex items-center justify-between">
-    <h2 class="text-2xl font-bold text-gray-800">{{ word.word }}</h2>
-    <button class="text-blue-600 hover:underline">More Info</button>
+<div class="p-6 bg-white rounded-xl shadow-lg space-y-8">
+  <!-- Header -->
+  <div class="flex items-center justify-between border-b pb-4">
+    <h2 class="text-3xl font-bold text-gray-900 capitalize">{{ word.word }}</h2>
+    <button class="text-blue-600 hover:text-blue-800 font-medium focus:outline-none">Aprender Mas</button>
   </div>
 
-  <!-- Stats -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-    <div class="bg-gray-50 p-4 rounded shadow text-center">
-      <div class="text-lg font-semibold">27</div>
-      <div class="text-sm text-gray-500">Uses in chats</div>
+  <!-- Statistics Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="flex flex-col items-center bg-indigo-50 p-4 rounded-lg shadow-inner">
+      <div class="text-sm text-gray-500">Veces usada en <span class="font-bold text-indigo-600">5</span> chats</div>
+      <div class="text-2xl font-bold text-indigo-600 mt-1">45</div>
     </div>
-    <div class="bg-gray-50 p-4 rounded shadow text-center">
-      <div class="text-lg font-semibold">Formal</div>
-      <div class="text-sm text-gray-500">Register</div>
+    <div class="flex flex-col items-center bg-teal-50 p-4 rounded-lg shadow-inner">
+      <div class="text-sm text-gray-500">Tipo de palabra</div>
+      <div class="text-2xl font-bold text-teal-600 mt-1">Verbo</div>
     </div>
-    <div class="bg-gray-50 p-4 rounded shadow text-center">
-      <div class="text-lg font-semibold">Very common</div>
-      <div class="text-sm text-gray-500">Usage</div>
+    <div class="flex flex-col items-center bg-yellow-50 p-4 rounded-lg shadow-inner">
+      <div class="text-sm text-gray-500">Uso</div>
+      <div class="text-2xl font-bold text-yellow-600 mt-1">Formal</div>
     </div>
-    <div class="bg-gray-50 p-4 rounded shadow text-center">
-      <div class="text-lg font-semibold">{{ word.part_of_speech }}</div>
-      <div class="text-sm text-gray-500">Type</div>
+    <div class="flex flex-col items-center bg-pink-50 p-4 rounded-lg shadow-inner">
+      <div class="text-sm text-gray-500">Frecuencia</div>
+      <div class="text-2xl font-bold text-pink-600 mt-1">Muy comun</div>
     </div>
   </div>
 
-  <!-- Meaning -->
-  <div>
-    <h3 class="text-lg font-semibold">Meaning</h3>
-    <p class="text-gray-700">{{ word.meaning }}</p>
-  </div>
+  <!-- Meaning Section -->
+  <section class="space-y-2">
+    <h3 class="text-xl font-semibold text-gray-800">Significado</h3>
+    <p class="text-gray-700 leading-relaxed">{{ word.meaning }}</p>
+  </section>
 
-  <!-- Example -->
-  <div *ngIf="word.example">
-    <h3 class="text-lg font-semibold">Example</h3>
-    <p class="text-gray-600 italic">"{{ word.example }}"</p>
-  </div>
+  <!-- Example Section -->
+  <section *ngIf="word.example" class="space-y-2">
+    <h3 class="text-xl font-semibold text-gray-800">Ejemplo</h3>
+    <blockquote class="border-l-4 border-blue-200 italic pl-4 text-gray-600">
+      "{{ word.example }}"
+    </blockquote>
+  </section>
 </div>

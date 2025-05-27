@@ -18,7 +18,7 @@
   <!-- Lista -->
   <ul class="space-y-2">
     <li *ngFor="let word of filteredWords" (click)="onSelect(word)"
-      class="cursor-pointer hover:bg-gray-100 p-2 rounded">
+      class="cursor-pointer hover:bg-gray-100 p-2 rounded capitalize">
       {{ word.word }}
     </li>
   </ul>
