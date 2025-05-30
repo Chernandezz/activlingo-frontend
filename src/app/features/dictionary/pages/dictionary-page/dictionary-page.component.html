@@ -1,30 +1,96 @@
-<div class="flex h-[calc(100vh-4rem)] overflow-hidden">
-  <!-- Sidebar -->
-  <div class="w-full md:w-[22rem] border-r border-gray-200 bg-gray-50 flex flex-col">
-    <app-dictionary-sidebar [words]="words" (selectWord)="onSelectWord($event)" (startSearch)="searchMode = true"
-      (filterChanged)="onFilterChange($event)"></app-dictionary-sidebar>
+<!-- dictionary-page.component.html -->
+<div class="flex flex-col h-[calc(100vh-4rem)] bg-gray-50">
+  <!-- Mobile Header -->
+  <div class="md:hidden bg-white shadow-sm p-4 flex justify-between items-center">
+    <h1 class="text-xl font-semibold">Mi Diccionario</h1>
+    <button (click)="searchMode.set(true)" class="btn btn-primary btn-sm">
+      <i class="fas fa-search mr-2"></i> Buscar
+    </button>
   </div>
 
-  <!-- Main Panel -->
-  <div class="flex-1 flex flex-col h-full overflow-hidden bg-white">
-    <div class="p-6 flex-grow overflow-y-auto">
-      <!-- Si está en modo búsqueda, mostrar panel de búsqueda -->
-      <ng-container *ngIf="searchMode; else wordDetailsView">
-        <app-dictionary-search-panel (exitSearch)="searchMode = false"
-          (searchCompleted)="onSearchResults($event)"></app-dictionary-search-panel>
-      </ng-container>
+  <div class="flex flex-1 overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="hidden md:flex w-80 border-r border-gray-200 bg-white flex-col">
+      <app-dictionary-sidebar [words]="words()" [activeFilter]="filter()" [activeCount]="activeWordCount()"
+        [passiveCount]="passiveWordCount()" [loading]="isLoading()" (selectWord)="onSelectWord($event)"
+        (startSearch)="searchMode.set(true)" (filterChanged)="onFilterChange($event)">
+      </app-dictionary-sidebar>
+    </aside>
 
-      <!-- Detalles de palabra -->
-      <ng-template #wordDetailsView>
-        <ng-container *ngIf="selectedWord; else emptyState">
-          <app-word-details [word]="selectedWord"></app-word-details>
-        </ng-container>
-        <ng-template #emptyState>
-          <div class="h-full flex items-center justify-center text-gray-400">
-            <p>Selecciona una palabra para ver sus detalles</p>
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col overflow-hidden bg-white">
+      <!-- Header -->
+      <div class="border-b border-gray-200 p-4 flex justify-between items-center">
+        <h2 class="text-lg font-medium">
+          @if (selectedWord()) {
+          <span class="capitalize">{{ selectedWord()?.word }}</span>
+          } @else {
+          Mis Palabras {{ filter() === 'active' ? 'Activas' : 'Pasivas' }}
+          }
+        </h2>
+        <div class="flex gap-2">
+          <button (click)="searchMode.set(true)" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-plus mr-2"></i> Nueva Palabra
+          </button>
+        </div>
+      </div>
+
+      <!-- Content Area -->
+      <div class="flex-1 overflow-auto p-4 md:p-6">
+        @if (searchMode()) {
+        <app-dictionary-search-panel (exitSearch)="searchMode.set(false)" (searchCompleted)="onSearchResults($event)">
+        </app-dictionary-search-panel>
+        } @else {
+        @if (selectedWord()) {
+        <app-word-details [word]="selectedWord()!" (back)="selectedWord.set(null)">
+        </app-word-details>
+        } @else {
+        @if (isLoading()) {
+        <div class="flex justify-center items-center h-64">
+          <app-loading-spinner></app-loading-spinner>
+        </div>
+        } @else {
+        @if (words().length > 0) {
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          @for (word of words(); track trackByWordId($index, word)) {
+          <div (click)="onSelectWord(word)" class="card cursor-pointer hover:shadow-md transition-shadow">
+            <div class="card-body">
+              <h3 class="card-title capitalize">{{ word.word }}</h3>
+              <p class="text-sm text-gray-600 line-clamp-2">{{ word.meaning }}</p>
+              <div class="mt-2 flex justify-between items-center">
+                <span class="badge badge-{{ word.status === 'active' ? 'success' : 'warning' }}">
+                  {{ word.status === 'active' ? 'Activa' : 'Pasiva' }}
+                </span>
+                <span class="text-xs text-gray-500">
+                  Usada {{ word.usage_count || 0 }} veces
+                </span>
+              </div>
+            </div>
           </div>
-        </ng-template>
-      </ng-template>
-    </div>
+          }
+        </div>
+        } @else {
+        <div class="flex flex-col items-center justify-center h-64 text-center">
+          <i class="fas fa-book-open text-4xl text-gray-300 mb-4"></i>
+          <h3 class="text-lg font-medium text-gray-500">
+            No hay palabras {{ filter() === 'active' ? 'activas' : 'pasivas' }}
+          </h3>
+          <p class="text-gray-400 mb-4">
+            @if (filter() === 'active') {
+            Usa más tus palabras pasivas para activarlas
+            } @else {
+            Agrega nuevas palabras para empezar
+            }
+          </p>
+          <button (click)="searchMode.set(true)" class="btn btn-primary">
+            <i class="fas fa-plus mr-2"></i> Agregar Palabra
+          </button>
+        </div>
+        }
+        }
+        }
+        }
+      </div>
+    </main>
   </div>
 </div>
