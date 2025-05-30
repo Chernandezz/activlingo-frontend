@@ -1,29 +1,30 @@
-<div class="flex h-screen pt-16">
+<div class="flex h-[calc(100vh-4rem)] overflow-hidden">
   <!-- Sidebar -->
-  <div class="hidden md:flex w-[25rem] flex-shrink-0 h-full border-r border-gray-200">
-    <app-dictionary-sidebar (selectWord)="onSelectWord($event)" (startSearch)="searchMode = true">
-    </app-dictionary-sidebar>
+  <div class="w-full md:w-[22rem] border-r border-gray-200 bg-gray-50 flex flex-col">
+    <app-dictionary-sidebar [words]="words" (selectWord)="onSelectWord($event)" (startSearch)="searchMode = true"
+      (filterChanged)="onFilterChange($event)"></app-dictionary-sidebar>
   </div>
 
   <!-- Main Panel -->
-  <div class="flex-grow flex flex-col h-full overflow-hidden p-6">
-    <ng-container *ngIf="searchMode; else wordDetailsView">
-      <app-dictionary-search-panel (selectDefinition)="onSelectWord($event)" (exitSearch)="searchMode = false"
-        (searchCompleted)="onSearchResults($event)">
-      </app-dictionary-search-panel>
-    </ng-container>
-
-    <!-- Word Details Panel -->
-    <ng-template #wordDetailsView>
-      <ng-container *ngIf="selectedWord; else emptyState">
-        <app-word-details [word]="selectedWord"></app-word-details>
+  <div class="flex-1 flex flex-col h-full overflow-hidden bg-white">
+    <div class="p-6 flex-grow overflow-y-auto">
+      <!-- Si está en modo búsqueda, mostrar panel de búsqueda -->
+      <ng-container *ngIf="searchMode; else wordDetailsView">
+        <app-dictionary-search-panel (exitSearch)="searchMode = false"
+          (searchCompleted)="onSearchResults($event)"></app-dictionary-search-panel>
       </ng-container>
 
-      <ng-template #emptyState>
-        <div class="h-full flex items-center justify-center text-gray-400">
-          <p>Select a word to view its details</p>
-        </div>
+      <!-- Detalles de palabra -->
+      <ng-template #wordDetailsView>
+        <ng-container *ngIf="selectedWord; else emptyState">
+          <app-word-details [word]="selectedWord"></app-word-details>
+        </ng-container>
+        <ng-template #emptyState>
+          <div class="h-full flex items-center justify-center text-gray-400">
+            <p>Selecciona una palabra para ver sus detalles</p>
+          </div>
+        </ng-template>
       </ng-template>
-    </ng-template>
+    </div>
   </div>
 </div>

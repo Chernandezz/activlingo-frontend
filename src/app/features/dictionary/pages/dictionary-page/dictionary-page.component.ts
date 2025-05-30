@@ -1,11 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DictionarySidebarComponent } from '../../components/dictionary-sidebar/dictionary-sidebar.component';
 import { WordDetailsComponent } from '../../components/word-details/word-details.component';
-import { WordDefinition } from '../../../../core/models/user-dictionary.model';
+import { DictionarySearchPanelComponent } from '../../components/dictionary-search-panel/dictionary-search-panel.component';
 import { DictionaryService } from '../../services/dictionary.service';
 import { AuthService } from '../../../../core/services/auth.service';
-import { DictionarySearchPanelComponent } from '../../components/dictionary-search-panel/dictionary-search-panel.component';
+import {
+  UserDictionaryEntry,
+  WordDefinition,
+} from '../../../../core/models/user-dictionary.model';
 
 @Component({
   selector: 'app-dictionary-page',
@@ -18,40 +21,47 @@ import { DictionarySearchPanelComponent } from '../../components/dictionary-sear
   ],
   templateUrl: './dictionary-page.component.html',
 })
-export class DictionaryPageComponent {
+export class DictionaryPageComponent implements OnInit {
   searchMode = false;
-  searchResults: WordDefinition[] = [];
-  searchTerm: string = '';
+  selectedWord: UserDictionaryEntry | null = null;
+  filter: 'active' | 'passive' = 'active';
+
+  words: UserDictionaryEntry[] = [];
 
   constructor(
     private dictionaryService: DictionaryService,
     private authService: AuthService
   ) {}
 
-  onSearchResults(results: WordDefinition[]) {
-    this.searchResults = results;
+  ngOnInit(): void {
+    this.loadWords();
+    this.dictionaryService.refreshWords$.subscribe(() => this.loadWords());
   }
 
-  selectedWord: any = null;
+  get userId(): string | null {
+    return this.authService.getCurrentUser;
+  }
 
-  onSelectWord(word: any) {
+  loadWords(): void {
+    if (!this.userId) return;
+    this.dictionaryService
+      .getWordsByStatus(this.userId, this.filter)
+      .subscribe((entries) => {
+        this.words = entries;
+      });
+  }
+
+  onSearchResults(results: WordDefinition[]): void {
+    this.searchMode = false;
+  }
+
+  onSelectWord(word: UserDictionaryEntry): void {
     this.selectedWord = word;
   }
 
-  addToDictionary(definition: WordDefinition): void {
-    const userId = this.authService.getCurrentUser;
-    if (!userId) return;
-
-    const payload = {
-      word: this.searchTerm,
-      meaning: definition.meaning,
-      example: definition.example,
-      part_of_speech: definition.part_of_speech,
-      source: definition.source,
-    };
-
-    this.dictionaryService.addWord(userId, payload).subscribe(() => {
-      this.searchMode = false;
-    });
+  onFilterChange(filter: 'active' | 'passive'): void {
+    this.filter = filter;
+    this.selectedWord = null;
+    this.loadWords();
   }
 }
