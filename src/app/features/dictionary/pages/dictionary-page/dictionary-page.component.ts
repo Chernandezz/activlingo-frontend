@@ -1,5 +1,3 @@
-// dictionary-page.component.ts
-
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DictionarySidebarComponent } from '../../components/dictionary-sidebar/dictionary-sidebar.component';
@@ -72,19 +70,25 @@ export class DictionaryPageComponent implements OnInit {
         this.words.set(words);
         this.isLoading.set(false);
       },
-      error: () => this.isLoading.set(false),
+      error: () => {
+        this.isLoading.set(false);
+        // Opcional: Mostrar mensaje de error al usuario
+      },
     });
   }
 
   onSearchResults(results: WordDefinition[]): void {
     this.searchMode.set(false);
-    // Opcional: manejar resultados si es necesario
+    // Aquí puedes manejar los resultados si es necesario
+    // Por ejemplo, mostrar un toast de éxito
   }
 
   onSelectWord(word: UserDictionaryEntry): void {
     this.selectedWord.set(word);
     // Registrar visualización como uso
-    this.dictionaryService.logWordUsage(word.id, 'view-details').subscribe();
+    this.dictionaryService.logWordUsage(word.id, 'view-details').subscribe({
+      error: (err) => console.error('Error logging word usage:', err),
+    });
   }
 
   onFilterChange(filter: WordStatus): void {
@@ -94,6 +98,6 @@ export class DictionaryPageComponent implements OnInit {
   }
 
   trackByWordId(index: number, word: UserDictionaryEntry): string {
-    return 'asdfasdf';
+    return word.id; // Usar el ID real en lugar de 'asdfasdf'
   }
 }

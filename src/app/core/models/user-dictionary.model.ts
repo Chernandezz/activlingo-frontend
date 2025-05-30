@@ -29,8 +29,10 @@ export interface WordDefinition {
   register?: WordRegister;
   added?: boolean; // Solo para UI
 }
+export type WordStatus = 'active' | 'passive';
 
 export interface UserDictionaryEntry extends WordDefinition {
+  id: string;
   user_id: string;
   created_at: string;
   updated_at?: string;
