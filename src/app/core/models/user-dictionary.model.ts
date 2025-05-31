@@ -29,7 +29,7 @@ export interface WordDefinition {
   register?: WordRegister;
   added?: boolean; // Solo para UI
 }
-export type WordStatus = 'active' | 'passive';
+export type WordStatus = 'active' | 'passive' | 'all';
 
 export interface UserDictionaryEntry extends WordDefinition {
   id: string;

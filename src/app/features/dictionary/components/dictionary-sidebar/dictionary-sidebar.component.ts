@@ -45,6 +45,9 @@ export class DictionarySidebarComponent {
   // Estado local
   searchTerm = signal('');
   selectedFilter = signal<WordStatus>('active');
+  totalWords = computed(() => {
+    return this.passiveCount + this.activeCount;
+  });
 
   // Palabras filtradas computadas
   filteredWords = computed(() => {
