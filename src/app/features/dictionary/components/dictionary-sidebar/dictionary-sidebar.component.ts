@@ -46,22 +46,9 @@ export class DictionarySidebarComponent {
   // Estado local
   searchTerm = signal('');
   selectedFilter = signal<WordStatus>('active');
-  totalWords = computed(() => {
-    return this.passiveCount + this.activeCount;
-  });
-
-  // Palabras filtradas computadas
-  filteredWords = computed(() => {
-    return this.words.filter(
-      (word) =>
-        word.word.toLowerCase().includes(this.searchTerm().toLowerCase()) &&
-        word.status === this.selectedFilter()
-    );
-  });
 
   // Manejar cambio de filtro
   onFilterSelect(filter: WordStatus): void {
-    this.selectedFilter.set(filter);
     this.filterChanged.emit(filter);
   }
 

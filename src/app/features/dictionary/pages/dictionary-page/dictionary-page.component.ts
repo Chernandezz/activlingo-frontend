@@ -34,7 +34,7 @@ export class DictionaryPageComponent implements OnInit {
   // Estados reactivos con signals
   searchMode = signal(false);
   selectedWord = signal<UserDictionaryEntry | null>(null);
-  filter = signal<WordStatus>('active');
+  filter = signal<'all' | WordStatus>('all');
   words = signal<UserDictionaryEntry[]>([]);
   isLoading = signal(false);
 
@@ -43,15 +43,20 @@ export class DictionaryPageComponent implements OnInit {
     () => this.words().filter((w) => w.status === 'active').length
   );
 
-  filteredWords = computed(() =>
-    this.words().filter((w) => w.status === this.filter())
-  );
+  filteredWords = computed(() => {
+    const selected = this.filter();
+    return this.words().filter((word) =>
+      selected === 'all' ? true : word.status === selected
+    );
+  });
 
   passiveWordCount = computed(
     () => this.words().filter((w) => w.status === 'passive').length
   );
 
-  totalWordCount = computed(() => this.words().length);
+  totalWordCount = computed(
+    () => this.passiveWordCount() + this.activeWordCount()
+  );
 
   get userId(): string | null {
     return this.authService.currentUserId;
@@ -81,7 +86,6 @@ export class DictionaryPageComponent implements OnInit {
       },
       error: () => {
         this.isLoading.set(false);
-        // Opcional: Mostrar mensaje de error al usuario
       },
     });
   }
@@ -100,11 +104,9 @@ export class DictionaryPageComponent implements OnInit {
     });
   }
 
-  onFilterChange(filter: WordStatus): void {
-    console.log('Filter changed to:', filter);
+  onFilterChange(filter: 'all' | WordStatus): void {
     this.filter.set(filter);
     this.selectedWord.set(null);
-    this.loadWords();
   }
 
   trackByWordId(index: number, word: UserDictionaryEntry): string {

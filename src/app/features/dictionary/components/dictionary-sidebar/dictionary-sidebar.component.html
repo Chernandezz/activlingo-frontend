@@ -15,24 +15,15 @@
 
     <!-- Filtros -->
     <div class="rounded-md shadow-sm">
-      <button type="button" (click)="onFilterSelect('all')" [class]="{
-              'bg-blue-600 text-white': selectedFilter() === 'active',
-              'bg-gray-100 text-gray-700 hover:bg-gray-50': selectedFilter() !== 'active'
-            }" class="py-2 px-3 text-sm font-medium rounded-l-md border border-gray-300 w-full">
+      <button type="button" (click)="onFilterSelect('all')"  class="py-2 px-3 text-sm font-medium rounded-l-md border border-gray-300 w-full">
         Todas ({{ totalCount }})
       </button>
       <div>
         
-        <button type="button" (click)="onFilterSelect('active')" [class]="{
-                  'bg-blue-600 text-white': selectedFilter() === 'active',
-                  'bg-gray-100 text-gray-700 hover:bg-gray-50': selectedFilter() !== 'active'
-                }" class="flex-1 py-2 px-3 text-sm font-medium rounded-l-md border border-gray-300">
+        <button type="button" (click)="onFilterSelect('active')"  class="flex-1 py-2 px-3 text-sm font-medium rounded-l-md border border-gray-300">
           Activas ({{ activeCount }})
         </button>
-        <button type="button" (click)="onFilterSelect('passive')" [class]="{
-                  'bg-blue-600 text-white': selectedFilter() === 'passive',
-                  'bg-gray-100 text-gray-700 hover:bg-gray-50': selectedFilter() !== 'passive'
-                }" class="flex-2 py-2 px-3 text-sm font-medium rounded-r-md border border-gray-300">
+        <button type="button" (click)="onFilterSelect('passive')" class="flex-2 py-2 px-3 text-sm font-medium rounded-r-md border border-gray-300">
           Pasivas ({{ passiveCount }})
         </button>
       </div>
@@ -57,9 +48,9 @@
       <fa-icon [icon]="icons.spinner" spin class="text-blue-500 text-2xl"></fa-icon>
     </div>
     } @else {
-    @if (filteredWords().length > 0) {
+    @if (words.length > 0) {
     <ul class="divide-y divide-gray-200">
-      @for (word of filteredWords(); track trackByWordId($index, word)) {
+      @for (word of words; track trackByWordId($index, word)) {
       <li (click)="onSelect(word)" class="px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors">
         <div class="flex items-center justify-between">
           <span class="text-sm font-medium text-gray-900 capitalize">{{ word.word }}</span>
