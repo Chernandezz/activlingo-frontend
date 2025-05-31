@@ -9,6 +9,7 @@ import { generateUUID } from '../../../shared/utils/uuid.util';
 export class MessageService {
   private messagesSubject = new BehaviorSubject<Message[]>([]);
   messages$ = this.messagesSubject.asObservable();
+  userId = localStorage.getItem('current_user_id');
 
   constructor(private http: HttpClient) {}
 
@@ -160,6 +161,7 @@ export class MessageService {
         chat_id: chatId,
         sender: 'human',
         content,
+        user_id: this.userId,
       })
       .subscribe((response) => {
         const updatedMessages = this.messagesSubject
