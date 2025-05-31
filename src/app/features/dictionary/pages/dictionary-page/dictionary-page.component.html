@@ -51,22 +51,24 @@
         } @else {
         @if (words().length > 0) {
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          @for (word of words(); track trackByWordId($index, word)) {
-          <div (click)="onSelectWord(word)" class="card cursor-pointer hover:shadow-md transition-shadow">
-            <div class="card-body">
-              <h3 class="card-title capitalize">{{ word.word }}</h3>
-              <p class="text-sm text-gray-600 line-clamp-2">{{ word.meaning }}</p>
-              <div class="mt-2 flex justify-between items-center">
-                <span class="badge badge-{{ word.status === 'active' ? 'success' : 'warning' }}">
-                  {{ word.status === 'active' ? 'Activa' : 'Pasiva' }}
-                </span>
-                <span class="text-xs text-gray-500">
-                  Usada {{ word.usage_count || 0 }} veces
-                </span>
-              </div>
+          @for (word of filteredWords(); track trackByWordId($index, word)) {
+          <div (click)="onSelectWord(word)"
+            class="bg-white p-4 rounded-2xl shadow-sm hover:shadow-md border border-gray-200 cursor-pointer transition-all duration-200">
+            <h3 class="text-lg font-semibold text-gray-800 capitalize mb-1">{{ word.word }}</h3>
+            <p class="text-sm text-gray-600 line-clamp-2 min-h-[40px]">{{ word.meaning }}</p>
+            <div class="mt-4 flex justify-between items-center">
+              <span class="text-xs font-medium px-2 py-1 rounded-full"
+                [class]="word.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'">
+                {{ word.status === 'active' ? 'Activa' : 'Pasiva' }}
+              </span>
+              <span class="text-xs text-gray-400">
+                Usada {{ word.usage_count || 0 }} veces
+              </span>
             </div>
           </div>
           }
+          
+          
         </div>
         } @else {
         <div class="flex flex-col items-center justify-center h-64 text-center">

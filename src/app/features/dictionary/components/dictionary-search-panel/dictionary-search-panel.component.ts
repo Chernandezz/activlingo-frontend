@@ -42,15 +42,28 @@ export class DictionarySearchPanelComponent {
     this.loading.set(true);
     this.searchPerformed.set(true);
 
+    // Obtener definiciones y palabras del usuario al mismo tiempo
     this.dictionaryService.searchWord(term).subscribe({
       next: (definitions) => {
-        this.results.set(
-          definitions.map((def) => ({
-            ...def,
-            added: false, // Inicializar estado added
-          }))
-        );
-        this.loading.set(false);
+        this.dictionaryService.getUserWords().subscribe({
+          next: (userWords) => {
+            const resultsWithFlags = definitions.map((def) => {
+              const alreadyExists = userWords.some(
+                (w) =>
+                  w.word.toLowerCase() === term.toLowerCase() &&
+                  w.meaning.trim() === def.meaning.trim()
+              );
+              return { ...def, added: alreadyExists };
+            });
+
+            this.results.set(resultsWithFlags);
+            this.loading.set(false);
+          },
+          error: () => {
+            this.results.set([]);
+            this.loading.set(false);
+          },
+        });
       },
       error: () => {
         this.results.set([]);

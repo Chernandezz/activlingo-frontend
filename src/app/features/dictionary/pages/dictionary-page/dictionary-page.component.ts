@@ -43,6 +43,10 @@ export class DictionaryPageComponent implements OnInit {
     () => this.words().filter((w) => w.status === 'active').length
   );
 
+  filteredWords = computed(() =>
+    this.words().filter((w) => w.status === this.filter())
+  );
+
   passiveWordCount = computed(
     () => this.words().filter((w) => w.status === 'passive').length
   );
@@ -68,7 +72,7 @@ export class DictionaryPageComponent implements OnInit {
     if (!this.userId) return;
 
     this.isLoading.set(true);
-    this.dictionaryService.getUserWords(this.filter()).subscribe({
+    this.dictionaryService.getUserWords().subscribe({
       next: (words) => {
         this.words.set(words);
         this.isLoading.set(false);
@@ -95,6 +99,7 @@ export class DictionaryPageComponent implements OnInit {
   }
 
   onFilterChange(filter: WordStatus): void {
+    console.log('Filter changed to:', filter);
     this.filter.set(filter);
     this.selectedWord.set(null);
     this.loadWords();

@@ -35,20 +35,18 @@ export class DictionaryService {
   private cache = new Map<string, WordDefinition[]>();
 
   // Obtener todas las palabras del usuario
-  getUserWords(
-    status?: 'active' | 'passive'
-  ): Observable<UserDictionaryEntry[]> {
+  getUserWords(): Observable<UserDictionaryEntry[]> {
     const userId = this.authService.currentUserId;
     if (!userId) throw new Error('User not authenticated');
 
     let url = `${this.baseUrl}/?user_id=${userId}`;
-    if (status) url += `&status=${status}`;
 
     return this.http.get<UserDictionaryEntry[]>(url).pipe(
       tap((words) => this.cacheUserWords(words)),
       shareReplay(1)
     );
   }
+
 
   // Buscar definiciones de una palabra
   searchWord(
