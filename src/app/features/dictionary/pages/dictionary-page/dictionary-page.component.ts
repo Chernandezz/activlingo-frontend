@@ -51,6 +51,8 @@ export class DictionaryPageComponent implements OnInit {
     () => this.words().filter((w) => w.status === 'passive').length
   );
 
+  totalWordCount = computed(() => this.words().length);
+
   get userId(): string | null {
     return this.authService.currentUserId;
   }

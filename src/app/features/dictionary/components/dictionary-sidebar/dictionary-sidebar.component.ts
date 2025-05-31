@@ -35,6 +35,7 @@ export class DictionarySidebarComponent {
   @Input() activeFilter: WordStatus = 'active';
   @Input() activeCount: number = 0;
   @Input() passiveCount: number = 0;
+  @Input() totalCount: number = 0;
   @Input() loading: boolean = false;
 
   // Outputs
