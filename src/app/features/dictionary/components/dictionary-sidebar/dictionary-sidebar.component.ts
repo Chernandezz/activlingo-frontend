@@ -1,37 +1,72 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  computed,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { UserDictionaryEntry } from '../../../../core/models/user-dictionary.model';
+import {
+  UserDictionaryEntry,
+  WordStatus,
+} from '../../../../core/models/user-dictionary.model';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faSearch, faPlus, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-dictionary-sidebar',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, FontAwesomeModule],
   templateUrl: './dictionary-sidebar.component.html',
 })
 export class DictionarySidebarComponent {
+  // Iconos
+  icons = {
+    search: faSearch,
+    plus: faPlus,
+    spinner: faSpinner,
+  };
+
+  // Inputs
   @Input() words: UserDictionaryEntry[] = [];
+  @Input() activeFilter: WordStatus = 'active';
+  @Input() activeCount: number = 0;
+  @Input() passiveCount: number = 0;
+  @Input() loading: boolean = false;
+
+  // Outputs
   @Output() selectWord = new EventEmitter<UserDictionaryEntry>();
   @Output() startSearch = new EventEmitter<void>();
-  @Output() filterChanged = new EventEmitter<'active' | 'passive'>();
+  @Output() filterChanged = new EventEmitter<WordStatus>();
 
-  onFilterSelect(f: 'active' | 'passive') {
-    this.filter = f;
-    this.filterChanged.emit(f);
+  // Estado local
+  searchTerm = signal('');
+  selectedFilter = signal<WordStatus>('active');
+
+  // Palabras filtradas computadas
+  filteredWords = computed(() => {
+    return this.words.filter(
+      (word) =>
+        word.word.toLowerCase().includes(this.searchTerm().toLowerCase()) &&
+        word.status === this.selectedFilter()
+    );
+  });
+
+  // Manejar cambio de filtro
+  onFilterSelect(filter: WordStatus): void {
+    this.selectedFilter.set(filter);
+    this.filterChanged.emit(filter);
   }
 
-  filter: 'active' | 'passive' = 'active';
-  searchTerm: string = '';
-
+  // Seleccionar palabra
   onSelect(word: UserDictionaryEntry): void {
     this.selectWord.emit(word);
   }
 
-  get filteredWords(): UserDictionaryEntry[] {
-    return this.words.filter(
-      (w) =>
-        w.word.toLowerCase().includes(this.searchTerm.toLowerCase()) &&
-        w.status === this.filter
-    );
+  // TrackBy function
+  trackByWordId(index: number, word: UserDictionaryEntry): string {
+    return word.id;
   }
 }

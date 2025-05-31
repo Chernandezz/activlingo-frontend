@@ -38,7 +38,7 @@ export class DictionaryService {
   getUserWords(
     status?: 'active' | 'passive'
   ): Observable<UserDictionaryEntry[]> {
-    const userId = this.authService.getCurrentUser;
+    const userId = this.authService.currentUserId;
     if (!userId) throw new Error('User not authenticated');
 
     let url = `${this.baseUrl}/?user_id=${userId}`;
@@ -79,12 +79,21 @@ export class DictionaryService {
 
   // Añadir nueva palabra al diccionario
   addWord(wordData: WordCreateDto): Observable<UserDictionaryEntry> {
-    const userId = this.authService.getCurrentUser;
+    const userId = this.authService.currentUserId;
     if (!userId) throw new Error('User not authenticated');
 
+    const payload = {
+      ...wordData,
+      status: 'passive', // Asegurar que siempre tenga status
+      usage_count: 1, // Inicializar contador
+      created_at: new Date().toISOString(),
+    };
+
     return this.http
-      .post<UserDictionaryEntry>(`${this.baseUrl}/?user_id=${userId}`, wordData)
-      .pipe(tap(() => this._refresh$.next()));
+      .post<UserDictionaryEntry>(`${this.baseUrl}/?user_id=${userId}`, payload)
+      .pipe(
+        tap(() => this._refresh$.next()) // Disparar actualización
+      );
   }
 
   // Actualizar palabra existente
@@ -92,7 +101,7 @@ export class DictionaryService {
     wordId: string,
     updates: WordUpdateDto
   ): Observable<UserDictionaryEntry> {
-    const userId = this.authService.getCurrentUser;
+    const userId = this.authService.currentUserId;
     if (!userId) throw new Error('User not authenticated');
 
     return this.http
@@ -105,7 +114,7 @@ export class DictionaryService {
 
   // Eliminar palabra
   deleteWord(wordId: string): Observable<void> {
-    const userId = this.authService.getCurrentUser;
+    const userId = this.authService.currentUserId;
     if (!userId) throw new Error('User not authenticated');
 
     return this.http
@@ -115,7 +124,7 @@ export class DictionaryService {
 
   // Registrar uso de palabra en un chat
   logWordUsage(wordId: string, context: string = 'chat'): Observable<void> {
-    const userId = this.authService.getCurrentUser;
+    const userId = this.authService.currentUserId;
     if (!userId) throw new Error('User not authenticated');
 
     return this.http.post<void>(

@@ -26,7 +26,6 @@ import { LoadingSpinnerComponent } from '../../../../shared/components/loading-s
     LoadingSpinnerComponent,
   ],
   templateUrl: './dictionary-page.component.html',
-  styleUrls: ['./dictionary-page.component.scss'],
 })
 export class DictionaryPageComponent implements OnInit {
   private dictionaryService = inject(DictionaryService);
@@ -49,9 +48,13 @@ export class DictionaryPageComponent implements OnInit {
   );
 
   get userId(): string | null {
-    return this.authService.getCurrentUser;
+    return this.authService.currentUserId;
   }
-
+  handleWordAdded(): void {
+    this.loadWords(); // Recargar las palabras
+    this.searchMode.set(false); // Cerrar el panel de búsqueda
+    // Opcional: Mostrar notificación
+  }
   ngOnInit(): void {
     this.loadWords();
 

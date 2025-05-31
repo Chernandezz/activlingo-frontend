@@ -11,7 +11,6 @@ import { MessageService } from '../../services/message.service';
 import { take, filter } from 'rxjs/operators';
 import { AuthService } from '../../../../core/services/auth.service';
 
-
 @Component({
   selector: 'app-chat-sidebar',
   standalone: true,
@@ -40,8 +39,7 @@ export class ChatSidebarComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const userId = this.authService.getCurrentUser;
-
+    const userId = this.authService.currentUserId;
 
     if (!userId) {
       console.error('No user ID found. Cannot fetch chats.');
@@ -68,7 +66,7 @@ export class ChatSidebarComponent implements OnInit {
   }
 
   startNewChat(data: { role: string; context: string }): void {
-    const userId = this.authService.getCurrentUser;
+    const userId = this.authService.currentUserId;
     if (!userId) {
       console.error('No user ID found. Cannot create chat.');
       return;

@@ -1,37 +1,69 @@
-<div class="space-y-6">
-  <!-- Search Input -->
-  <div class="flex items-center gap-4">
-    <input type="text" [(ngModel)]="searchTerm" placeholder="Buscar palabra..."
-      class="flex-grow px-4 py-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-    <button (click)="searchWord()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow">
-      Buscar
+<!-- dictionary-search-panel.component.html -->
+<div class="bg-white rounded-lg shadow-lg p-6 max-w-2xl mx-auto">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-xl font-semibold text-gray-800">Agregar Nueva Palabra</h2>
+    <button (click)="closeSearch()" class="text-gray-500 hover:text-gray-700 transition-colors">
+      <fa-icon [icon]="icons.close" size="lg"></fa-icon>
     </button>
-    <button (click)="closeSearch()" class="text-sm text-red-500 underline">
-      Cancelar
+  </div>
+
+  <!-- Search Input -->
+  <div class="relative mb-6">
+    <input type="text" [(ngModel)]="searchTerm" (keyup.enter)="searchWord()"
+      placeholder="Escribe una palabra para buscar..."
+      class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+    <button (click)="searchWord()" [disabled]="!searchTerm() || loading()"
+      class="absolute right-2 top-2 btn btn-primary btn-sm">
+      Buscar
     </button>
   </div>
 
   <!-- Resultados -->
-  <div *ngIf="loading" class="text-sm text-gray-500">Buscando definiciones...</div>
-
-  <div *ngIf="results.length === 0 && !loading && searchTerm" class="text-sm text-gray-400">
-    No se encontraron resultados.
+  @if (loading()) {
+  <div class="flex justify-center items-center py-8">
+    <span class="loading loading-spinner loading-lg text-blue-500"></span>
   </div>
-
-  <div *ngFor="let def of results" class="p-4 bg-white border rounded shadow space-y-2">
-    <p class="text-md font-semibold text-gray-800">
-      {{ def.meaning }}
-    </p>
-    <p class="text-sm italic text-gray-500">"{{ def.example }}"</p>
-    <p class="text-xs text-gray-400">
-      {{ def.part_of_speech }} • Fuente: {{ def.source }}
-    </p>
-
-    <button (click)="addDefinitionToDictionary(def)" [disabled]="def.added" [ngClass]="{
-        'bg-green-600 hover:bg-green-700': !def.added,
-        'bg-gray-300 cursor-not-allowed': def.added
-      }" class="mt-2 px-4 py-1 text-white text-sm rounded shadow">
-      {{ def.added ? 'Agregado' : 'Agregar al diccionario' }}
-    </button>
+  } @else {
+  @if (searchPerformed() && results().length === 0) {
+  <div class="text-center py-8 text-gray-500">
+    No se encontraron definiciones para "{{ searchTerm() }}"
   </div>
+  } @else {
+  <div class="space-y-4">
+    @for (def of results(); track trackByMeaning($index, def)) {
+    <div class="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
+      <div class="flex justify-between items-start">
+        <div>
+          <h3 class="font-medium text-gray-800">{{ def.meaning }}</h3>
+          @if (def.example) {
+          <p class="mt-1 text-sm italic text-gray-600">"{{ def.example }}"</p>
+          }
+          <div class="mt-2 flex items-center gap-2">
+            <span class="badge badge-info badge-sm">
+              {{ def.part_of_speech }}
+            </span>
+            @if (def.is_idiomatic) {
+            <span class="badge badge-warning badge-sm">Idiom</span>
+            }
+          </div>
+        </div>
+        <button (click)="addDefinitionToDictionary(def)" [disabled]="def.added" class="btn btn-sm gap-2" [ngClass]="{
+                  'btn-success': !def.added,
+                  'btn-disabled': def.added
+                }">
+          @if (def.added) {
+          <fa-icon [icon]="icons.added"></fa-icon>
+          Agregada
+          } @else {
+          <fa-icon [icon]="icons.add"></fa-icon>
+          Agregar
+          }
+        </button>
+      </div>
+    </div>
+    }
+  </div>
+  }
+  }
 </div>

@@ -38,9 +38,8 @@
       <!-- Content Area -->
       <div class="flex-1 overflow-auto p-4 md:p-6">
         @if (searchMode()) {
-        <app-dictionary-search-panel (exitSearch)="searchMode.set(false)" (searchCompleted)="onSearchResults($event)">
-        </app-dictionary-search-panel>
-        } @else {
+        <app-dictionary-search-panel (exitSearch)="searchMode.set(false)" (wordAdded)="handleWordAdded()">
+        </app-dictionary-search-panel>       } @else {
         @if (selectedWord()) {
         <app-word-details [word]="selectedWord()!" (back)="selectedWord.set(null)">
         </app-word-details>
