@@ -1,16 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ChatService } from '../../services/chat.service';
 import { Chat } from '../../../../core/models/chat.model';
-import { Observable } from 'rxjs';
-import { UiService } from '../../../../shared/services/ui.service';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faTimes, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { ChatModalComponent } from '../chat-modal/chat-modal.component';
-import { MessageService } from '../../services/message.service';
-import { take, filter } from 'rxjs/operators';
-import { AuthService } from '../../../../core/services/auth.service';
-
 
 @Component({
   selector: 'app-chat-sidebar',
@@ -18,102 +11,22 @@ import { AuthService } from '../../../../core/services/auth.service';
   imports: [CommonModule, FontAwesomeModule, ChatModalComponent],
   templateUrl: './chat-sidebar.component.html',
 })
-export class ChatSidebarComponent implements OnInit {
+export class ChatSidebarComponent {
   faTimes = faTimes;
   faSpinner = faSpinner;
 
-  chats$: Observable<Chat[]>;
-  currentChat$: Observable<Chat | null>;
+  @Input() chats: Chat[] = [];
+  @Input() currentChatId: string | null = null;
+  @Input() hideAIResponses: boolean = false;
+  @Input() isCreatingChat: boolean = false;
+  @Input() showModal: boolean = false;
 
-  hideAIResponses = false;
-  isCreatingChat = false;
-  showModal = false;
-
-  constructor(
-    private chatService: ChatService,
-    public ui: UiService,
-    private messageService: MessageService,
-    private authService: AuthService
-  ) {
-    this.chats$ = this.chatService.chats$;
-    this.currentChat$ = this.chatService.currentChat$;
-  }
-
-  ngOnInit(): void {
-    const userId = this.authService.getCurrentUser;
-
-
-    if (!userId) {
-      console.error('No user ID found. Cannot fetch chats.');
-      return;
-    }
-
-    this.chatService.fetchChats(userId);
-    this.ui.sidebarOpen$.subscribe((open) => (this.showModal = false));
-
-    this.ui.hideAIResponses$.subscribe((hide) => (this.hideAIResponses = hide));
-  }
-
-  selectChat(chatId: string): void {
-    this.chatService.selectChat(chatId);
-    this.ui.closeSidebar();
-  }
-
-  openModal(): void {
-    this.showModal = true;
-  }
-
-  closeModal(): void {
-    this.showModal = false;
-  }
-
-  startNewChat(data: { role: string; context: string }): void {
-    const userId = this.authService.getCurrentUser;
-    if (!userId) {
-      console.error('No user ID found. Cannot create chat.');
-      return;
-    }
-    this.isCreatingChat = true;
-    const title = data.role;
-
-    this.chatService
-      .createChat(userId, {
-        title,
-        role: data.role,
-        context: data.context,
-      })
-      .subscribe({
-        next: (newChat) => {
-          this.chatService.selectChat(newChat.id);
-          this.messageService.fetchMessages(newChat.id); // 👈 trae los mensajes
-
-          // Esperamos a que se actualicen los mensajes
-          this.messageService.messages$
-            .pipe(
-              filter((msgs) => msgs.length > 0), // 👈 asegura que ya llegaron
-              take(1)
-            )
-            .subscribe((msgs) => {
-              const firstAI = msgs.find((m) => m.sender === 'ai');
-              if (firstAI) {
-                this.messageService.speak(firstAI.content); // ✅ habla
-              }
-            });
-
-          this.isCreatingChat = false;
-          this.closeModal();
-          this.ui.closeSidebar();
-        },
-        error: () => {
-          this.isCreatingChat = false;
-          this.closeModal();
-        },
-      });
-  }
-
-  toggleAIResponses(): void {
-    this.ui.toggleHideAIResponses(); // cambia el estado global
-  }
+  @Output() toggleSidebar = new EventEmitter<void>();
+  @Output() select = new EventEmitter<string>();
+  @Output() startChat = new EventEmitter<{ role: string; context: string }>();
+  @Output() toggleAI = new EventEmitter<void>();
+  @Output() openModal = new EventEmitter<void>();
+  @Output() closeModal = new EventEmitter<void>();
 
   getRelativeTime(dateString: string): string {
     const date = new Date(dateString);

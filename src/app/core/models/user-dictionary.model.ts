@@ -1,45 +1,63 @@
+// dictionary.model.ts
+
+export type PartOfSpeech =
+  | 'noun'
+  | 'verb'
+  | 'adjective'
+  | 'adverb'
+  | 'phrasal_verb'
+  | 'idiom'
+  | 'expression'
+  | 'collocation';
+
+export type WordFrequency = 'very_common' | 'common' | 'uncommon' | 'rare';
+
+export type WordRegister = 'formal' | 'informal' | 'neutral' | 'slang';
+
 export interface WordDefinition {
+  id?: string;
   word: string;
   meaning: string;
-  part_of_speech?: string;
+  part_of_speech?: PartOfSpeech;
   source?: string;
   example?: string;
-  created_at?: string;
-  id?: string;
-  usage_count?: number;
-  chat_count?: number;
-  frequency_level?: 'very common' | 'common' | 'rare';
-  formality?: 'formal' | 'informal' | 'neutral';
-  type?:
-    | 'phrasal verb'
-    | 'verb'
-    | 'noun'
-    | 'idiom'
-    | 'collocation'
-    | 'expression';
+  synonyms?: string[];
+  antonyms?: string[];
+  usage_context?: string; // e.g. "business", "travel"
+  is_idiomatic?: boolean;
+  frequency?: WordFrequency;
+  register?: WordRegister;
+  added?: boolean; // Solo para UI
 }
+export type WordStatus = 'active' | 'passive' | 'all';
 
-
-export interface UserDictionaryEntry {
+export interface UserDictionaryEntry extends WordDefinition {
   id: string;
   user_id: string;
+  created_at: string;
+  updated_at?: string;
+  status: 'active' | 'passive';
+  usage_count: number;
+  last_used_at?: string;
+  last_used_context?: string;
+  difficulty?: number; // 1-5 scale
+  tags?: string[];
+}
+
+export interface WordCreateDto {
   word: string;
   meaning: string;
-  part_of_speech?: string;
-  source?: string;
+  part_of_speech?: PartOfSpeech;
   example?: string;
-  created_at: string;
+  source?: string;
+  usage_context?: string;
+  is_idiomatic?: boolean;
+}
 
-  // Campos adicionales útiles para la vista extendida
-  usage_count?: number; // e.g. 27
-  chat_count?: number; // e.g. 7
-  register?: 'formal' | 'informal' | 'neutral'; // Nivel de formalidad
-  frequency?: 'rare' | 'common' | 'very_common';
-  category?:
-    | 'phrasal_verb'
-    | 'idiom'
-    | 'collocation'
-    | 'expression'
-    | 'vocabulary'
-    | 'grammar';
+export interface WordUpdateDto {
+  meaning?: string;
+  example?: string;
+  status?: 'active' | 'passive';
+  difficulty?: number;
+  tags?: string[];
 }

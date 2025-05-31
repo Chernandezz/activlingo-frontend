@@ -2,7 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { LoginRequest, SignUpRequest, AuthResponse } from '../models/auth.model';
+import {
+  LoginRequest,
+  SignUpRequest,
+  AuthResponse,
+} from '../models/auth.model';
 import { ChatService } from '../../features/chat/services/chat.service';
 import { MessageService } from '../../features/chat/services/message.service';
 
@@ -13,7 +17,11 @@ export class AuthService {
   private userSubject = new BehaviorSubject<any | null>(null);
   user$ = this.userSubject.asObservable();
 
-  constructor(private http: HttpClient, private chatService: ChatService, private messageService: MessageService) {
+  constructor(
+    private http: HttpClient,
+    private chatService: ChatService,
+    private messageService: MessageService
+  ) {
     const token = localStorage.getItem('access_token');
     if (token && !this.isTokenExpired(token)) {
       const payload = JSON.parse(atob(token.split('.')[1]));
@@ -61,14 +69,13 @@ export class AuthService {
           localStorage.removeItem('refresh_token');
           this.userSubject.next(null);
 
-
           this.chatService.clearChats();
           this.messageService.clearMessages();
         })
       );
   }
 
-  get getCurrentUser(): string | null {
+  get currentUserId(): string | null {
     return this.userSubject.getValue()?.id || null;
   }
 

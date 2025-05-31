@@ -1,63 +1,64 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  computed,
+  signal,
+  OnInit,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { UserDictionaryEntry } from '../../../../core/models/user-dictionary.model';
-import { DictionaryService } from '../../services/dictionary.service';
-import { AuthService } from '../../../../core/services/auth.service';
-import { WordDefinition } from '../../../../core/models/user-dictionary.model';
+import {
+  UserDictionaryEntry,
+  WordStatus,
+} from '../../../../core/models/user-dictionary.model';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faSearch, faPlus, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-dictionary-sidebar',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, FontAwesomeModule],
   templateUrl: './dictionary-sidebar.component.html',
 })
-export class DictionarySidebarComponent implements OnInit {
-  @Output() startSearch = new EventEmitter<void>();
+export class DictionarySidebarComponent {
+  // Iconos
+  icons = {
+    search: faSearch,
+    plus: faPlus,
+    spinner: faSpinner,
+  };
 
-  searchMode = false;
-  searchResults: WordDefinition[] = [];
+  // Inputs
+  @Input() words: UserDictionaryEntry[] = [];
+  @Input() activeFilter: 'all' | WordStatus = 'all';
+  @Input() activeCount: number = 0;
+  @Input() passiveCount: number = 0;
+  @Input() totalCount: number = 0;
+  @Input() loading: boolean = false;
 
-  words: UserDictionaryEntry[] = [];
-  searchTerm: string = '';
+  // Outputs
   @Output() selectWord = new EventEmitter<UserDictionaryEntry>();
+  @Output() startSearch = new EventEmitter<void>();
+  @Output() filterChanged = new EventEmitter<WordStatus>();
 
-  constructor(
-    private dictionaryService: DictionaryService,
-    private authService: AuthService
-  ) {}
+  // Estado local
+  searchTerm = signal('');
+  selectedFilter = signal<WordStatus>('active');
 
-  startSearchMode(): void {
-    this.searchMode = true;
-    this.searchTerm = '';
-    this.searchResults = [];
+  // Manejar cambio de filtro
+  onFilterSelect(filter: WordStatus): void {
+    this.filterChanged.emit(filter);
   }
 
-
-
-  ngOnInit(): void {
-    const userId = this.authService.getCurrentUser;
-
-    if (!userId) {
-      console.error('No user ID found. Cannot fetch chats.');
-      return;
-    }
-
-    this.dictionaryService.getUserWords(userId).subscribe((entries) => {
-      this.words = entries.map((entry) => ({
-        ...(entry as Omit<UserDictionaryEntry, 'user_id'>),
-        user_id: userId,
-      }));
-    });
-  }
-
+  // Seleccionar palabra
   onSelect(word: UserDictionaryEntry): void {
     this.selectWord.emit(word);
   }
 
-  get filteredWords(): UserDictionaryEntry[] {
-    return this.words.filter((w) =>
-      w.word.toLowerCase().includes(this.searchTerm.toLowerCase())
-    );
+  // TrackBy function
+  trackByWordId(index: number, word: UserDictionaryEntry): string {
+    return word.id;
   }
 }
