@@ -32,7 +32,7 @@ export class DictionarySidebarComponent {
 
   // Inputs
   @Input() words: UserDictionaryEntry[] = [];
-  @Input() activeFilter: WordStatus = 'active';
+  @Input() activeFilter: 'all' | WordStatus = 'all';
   @Input() activeCount: number = 0;
   @Input() passiveCount: number = 0;
   @Input() totalCount: number = 0;

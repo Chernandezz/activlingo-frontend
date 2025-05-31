@@ -1,4 +1,3 @@
-<!-- dictionary-sidebar.component.html -->
 <div class="h-full flex flex-col bg-white border-r border-gray-200">
   <!-- Header -->
   <div class="p-4 border-b border-gray-200">
@@ -7,27 +6,39 @@
 
   <!-- Controles -->
   <div class="p-4 space-y-4 border-b border-gray-200">
-    <!-- Botón de búsqueda -->
+    <!-- Botón Nueva Palabra -->
     <button (click)="startSearch.emit()" class="w-full btn btn-primary" [disabled]="loading">
       <fa-icon [icon]="icons.plus" class="mr-2"></fa-icon>
       Nueva Palabra
     </button>
 
     <!-- Filtros -->
-    <div class="rounded-md shadow-sm">
-      <button type="button" (click)="onFilterSelect('all')"  class="py-2 px-3 text-sm font-medium rounded-l-md border border-gray-300 w-full">
+    <div class="space-y-2">
+      <button type="button" (click)="onFilterSelect('all')"
+        class="w-full py-2 px-3 text-sm font-medium rounded-md border border-gray-300" [ngClass]="{
+                'bg-blue-600 text-white': activeFilter === 'all',
+                'bg-gray-100 text-gray-700 hover:bg-gray-50': activeFilter !== 'all'
+              }">
         Todas ({{ totalCount }})
       </button>
-      <div>
-        
-        <button type="button" (click)="onFilterSelect('active')"  class="flex-1 py-2 px-3 text-sm font-medium rounded-l-md border border-gray-300">
+
+      <div class="flex gap-2">
+        <button type="button" (click)="onFilterSelect('active')"
+          class="w-full py-2 px-3 text-sm font-medium rounded-md border border-gray-300" [ngClass]="{
+                  'bg-blue-600 text-white': activeFilter === 'active',
+                  'bg-gray-100 text-gray-700 hover:bg-gray-50': activeFilter !== 'active'
+                }">
           Activas ({{ activeCount }})
         </button>
-        <button type="button" (click)="onFilterSelect('passive')" class="flex-2 py-2 px-3 text-sm font-medium rounded-r-md border border-gray-300">
+
+        <button type="button" (click)="onFilterSelect('passive')"
+          class="w-full py-2 px-3 text-sm font-medium rounded-md border border-gray-300" [ngClass]="{
+                  'bg-blue-600 text-white': activeFilter === 'passive',
+                  'bg-gray-100 text-gray-700 hover:bg-gray-50': activeFilter !== 'passive'
+                }">
           Pasivas ({{ passiveCount }})
         </button>
       </div>
-      
     </div>
 
     <!-- Buscador -->
@@ -47,17 +58,16 @@
     <div class="flex justify-center items-center h-full">
       <fa-icon [icon]="icons.spinner" spin class="text-blue-500 text-2xl"></fa-icon>
     </div>
-    } @else {
-    @if (words.length > 0) {
+    } @else if (words.length > 0) {
     <ul class="divide-y divide-gray-200">
       @for (word of words; track trackByWordId($index, word)) {
       <li (click)="onSelect(word)" class="px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors">
         <div class="flex items-center justify-between">
           <span class="text-sm font-medium text-gray-900 capitalize">{{ word.word }}</span>
           <span [class]="{
-                    'bg-green-100 text-green-800': word.status === 'active',
-                    'bg-yellow-100 text-yellow-800': word.status === 'passive'
-                  }" class="px-2 py-0.5 text-xs font-medium rounded-full">
+                        'bg-green-100 text-green-800': word.status === 'active',
+                        'bg-yellow-100 text-yellow-800': word.status === 'passive'
+                      }" class="px-2 py-0.5 text-xs font-medium rounded-full">
             {{ word.status === 'active' ? 'Activa' : 'Pasiva' }}
           </span>
         </div>
@@ -70,10 +80,9 @@
       @if (searchTerm()) {
       <p>No se encontraron palabras que coincidan con "{{ searchTerm() }}"</p>
       } @else {
-      <p>No hay palabras {{ selectedFilter() === 'active' ? 'activas' : 'pasivas' }}</p>
+      <p>No hay palabras {{ activeFilter === 'active' ? 'activas' : activeFilter === 'passive' ? 'pasivas' : '' }}</p>
       }
     </div>
-    }
     }
   </div>
 </div>
