@@ -11,7 +11,7 @@
   <div class="flex flex-1 overflow-hidden">
     <!-- Sidebar -->
     <aside class="hidden md:flex w-80 border-r border-gray-200 bg-white flex-col">
-      <app-dictionary-sidebar [words]="words()" [activeFilter]="filter()" [activeCount]="activeWordCount()"
+      <app-dictionary-sidebar [words]="filteredWords()" [activeFilter]="filter()" [activeCount]="activeWordCount()"
         [passiveCount]="passiveWordCount()" [totalCount]="totalWordCount()" [loading]="isLoading()"
         (selectWord)="onSelectWord($event)" (startSearch)="searchMode.set(true)"
         (filterChanged)="onFilterChange($event)">
