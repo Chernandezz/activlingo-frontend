@@ -9,66 +9,52 @@
       (toggleAI)="ui.toggleHideAIResponses()" (openModal)="openModal()" (closeModal)="closeModal()"
       class="w-full h-full"></app-chat-sidebar>
   </div>
-  
+
   <!-- Sidebar Mobile -->
   <div *ngIf="isSidebarOpen" class="fixed inset-0 z-50 flex lg:hidden">
     <div class="w-[320px] bg-white shadow-xl">
       <app-chat-sidebar [chats]="(chats$ | async) ?? []" [currentChatId]="currentChatId"
-        [hideAIResponses]="(hideAIResponses$ | async) ?? false" [isCreatingChat]="isCreatingChat" [showModal]="showModal"
-        (toggleSidebar)="ui.toggleSidebar()" (select)="handleSelectChat($event)" (startChat)="handleStartNewChat($event)"
-        (toggleAI)="ui.toggleHideAIResponses()" (openModal)="openModal()" (closeModal)="closeModal()"></app-chat-sidebar>
+        [hideAIResponses]="(hideAIResponses$ | async) ?? false" [isCreatingChat]="isCreatingChat"
+        [showModal]="showModal" (toggleSidebar)="ui.toggleSidebar()" (select)="handleSelectChat($event)"
+        (startChat)="handleStartNewChat($event)" (toggleAI)="ui.toggleHideAIResponses()" (openModal)="openModal()"
+        (closeModal)="closeModal()"></app-chat-sidebar>
     </div>
     <div class="flex-1 bg-black/20" (click)="ui.closeSidebar()"></div>
   </div>
 
 
   <!-- Main Content Area -->
-  <div class="flex-grow flex flex-col h-full overflow-hidden">
+  <div class="flex-grow flex flex-col h-full overflow-hidden position-relative">
 
     <!-- Chat Header -->
-    <div *ngIf="currentChat$ | async as chat" class="bg-white border-b border-gray-200 p-4 flex-shrink-0 shadow-sm">
-      <div class="flex items-center justify-between">
+    <div *ngIf="currentChat$ | async" class="bg-transparent p-4 flex items-center justify-end z-10 pointer-events-none">
+      <div
+        class="pointer-events-auto flex gap-2 items-center shadow-lg backdrop-blur-md bg-white/80 border border-gray-200 px-4 py-2 rounded-full">
+        <!-- Botón Analizar Chat -->
+        <button (click)="toggleAnalysisView()"
+          class="inline-flex items-center gap-2 text-sm font-semibold px-3 py-1.5 rounded-full border transition"
+          [ngClass]=" showAnalysis ? 'bg-blue-600 text-white border-blue-600'
+          : 'bg-green-600 text-white border-green-600 hover:bg-green-700'">
+          <svg class=" w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+            </path>
+          </svg>
+          {{ showAnalysis ? 'Regresar' : 'Analizar Chat' }}
+        </button>
 
-        <!-- Chat Info -->
-        <div class="flex items-center space-x-4">
-          <div
-            class="hidden sm:flex w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-md">
-            {{ chat.title.charAt(0).toUpperCase() }}
-          </div>
-          <h2 class="hidden sm:flex text-xl font-bold text-gray-900">{{ chat.title }}</h2>
-          
-
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="flex items-center space-x-3">
-          <!-- Analysis Toggle Button -->
-          <button (click)="toggleAnalysisView()"
-            class="hidden sm:flex inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 border"
-            [class.bg-blue-600]="showAnalysis" [class.text-white]="showAnalysis" [class.border-blue-600]="showAnalysis"
-            [class.shadow-md]="showAnalysis" [class.bg-white]="!showAnalysis" [class.text-blue-600]="!showAnalysis"
-            [class.border-blue-200]="!showAnalysis" [class.hover:bg-blue-50]="!showAnalysis">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
-              </path>
-            </svg>
-            {{ showAnalysis ? 'Regresar al Chat' : 'Analizar Chat' }}
-          </button>
-        
-          <!-- Close Chat Button -->
-          <button (click)="closeCurrentChat()"
-            class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200"
-            title="Cerrar chat">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-
+        <!-- Botón Cerrar -->
+        <button (click)="closeCurrentChat()"
+          class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition" title="Cerrar chat">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
     </div>
+
+
+
 
     <!-- Main Content -->
     <div class="flex-grow flex flex-col overflow-hidden">

@@ -1,5 +1,5 @@
 export interface Message {
-  user_i?: string;
+  user_id?: string | null; // Optional for system messages
   id: string;
   chat_id: string;
   sender: 'human' | 'ai' | 'system';

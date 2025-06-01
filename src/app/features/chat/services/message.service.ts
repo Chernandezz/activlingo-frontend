@@ -33,6 +33,8 @@ export class MessageService {
     return new Promise<void>((resolve, reject) => {
       const formData = new FormData();
       formData.append('file', audioBlob, 'audio.webm');
+      formData.append('user_id', this.userId!);
+
 
       this.http
         .post<{ user_text: string; ai_text: string }>(
@@ -52,6 +54,7 @@ export class MessageService {
                 sender: 'human',
                 content: res.user_text,
                 timestamp: now,
+                user_id: this.userId,
               },
               {
                 id: generateUUID(),
@@ -59,6 +62,7 @@ export class MessageService {
                 sender: 'ai',
                 content: res.ai_text,
                 timestamp: now,
+                user_id: this.userId,
               },
             ]);
 
@@ -75,6 +79,8 @@ export class MessageService {
   sendVoiceMessage(chatId: string, audioBlob: Blob): void {
     const formData = new FormData();
     formData.append('file', audioBlob, 'audio.webm');
+    formData.append('user_id', this.userId!);
+
 
     this.http
       .post<{ user_text: string; ai_text: string }>(
@@ -94,6 +100,7 @@ export class MessageService {
               sender: 'human',
               content: res.user_text,
               timestamp: now,
+              user_id: this.userId,
             },
             {
               id: generateUUID(),
@@ -101,6 +108,7 @@ export class MessageService {
               sender: 'ai',
               content: res.ai_text,
               timestamp: now,
+              user_id: this.userId,
             },
           ]);
           this.speak(res.ai_text);
