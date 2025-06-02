@@ -1,6 +1,4 @@
-<!-- chat-page.component.html -->
 <div class="flex h-full">
-
   <!-- Sidebar Desktop -->
   <div class="hidden md:flex w-[25rem] flex-shrink-0 h-full">
     <app-chat-sidebar [chats]="(chats$ | async) ?? []" [currentChatId]="currentChatId"
@@ -22,28 +20,24 @@
     <div class="flex-1 bg-black/20" (click)="ui.closeSidebar()"></div>
   </div>
 
-
-  <!-- Main Content Area -->
+  <!-- Main Content -->
   <div class="flex-grow flex flex-col h-full overflow-hidden position-relative">
-
     <!-- Chat Header -->
     <div *ngIf="currentChat$ | async" class="bg-transparent p-4 flex items-center justify-end z-10 pointer-events-none">
       <div
         class="pointer-events-auto flex gap-2 items-center shadow-lg backdrop-blur-md bg-white/80 border border-gray-200 px-4 py-2 rounded-full">
-        <!-- Botón Analizar Chat -->
         <button (click)="toggleAnalysisView()"
           class="inline-flex items-center gap-2 text-sm font-semibold px-3 py-1.5 rounded-full border transition"
-          [ngClass]=" showAnalysis ? 'bg-blue-600 text-white border-blue-600'
-          : 'bg-green-600 text-white border-green-600 hover:bg-green-700'">
-          <svg class=" w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          [ngClass]="showAnalysis
+            ? 'bg-blue-600 text-white border-blue-600'
+            : 'bg-green-600 text-white border-green-600 hover:bg-green-700'">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round"
-              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
-            </path>
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
           </svg>
           {{ showAnalysis ? 'Regresar' : 'Analizar Chat' }}
         </button>
 
-        <!-- Botón Cerrar -->
         <button (click)="closeCurrentChat()"
           class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition" title="Cerrar chat">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -53,155 +47,54 @@
       </div>
     </div>
 
-
-
-
-    <!-- Main Content -->
     <div class="flex-grow flex flex-col overflow-hidden">
-
       <!-- Chat Messages View -->
       <div *ngIf="!showAnalysis && (currentChat$ | async)" class="flex-grow flex flex-col overflow-hidden">
-
-        <!-- Messages Container -->
         <div class="flex-grow overflow-y-auto bg-white h-100" #messagesContainer>
-
-          <!-- Conversation Mode Overlay -->
-          <!-- <div *ngIf="overlayVisible$ | async"
-              class="absolute h-full w-full z-40 bg-black/80 flex flex-col items-center justify-center text-white text-center px-4 overflow-hidden">
-            
-              <div class="mb-6">
-                <div class="bg-red-500 w-14 h-14 rounded-full flex items-center justify-center animate-pulse shadow-lg">
-                  <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" />
-                    <path
-                      d="M19 10a1 1 0 00-2 0 5 5 0 01-10 0 1 1 0 00-2 0 7 7 0 0012 4.9V17h-2a1 1 0 000 2h6a1 1 0 000-2h-2v-2.1A7 7 0 0019 10z" />
-                  </svg>
-                </div>
-              </div>
-            
-              <h2 class="text-2xl font-bold mb-2">Modo conversación activado</h2>
-              <p class="text-sm text-gray-300 mb-6">{{ overlayMessage }}</p>
-            
-              <div class="flex space-x-2 justify-center items-center mb-8">
-                <div class="w-2 h-2 bg-white rounded-full animate-bounce"></div>
-                <div class="w-2 h-2 bg-white rounded-full animate-bounce delay-150"></div>
-                <div class="w-2 h-2 bg-white rounded-full animate-bounce delay-300"></div>
-              </div>
-            
-              <button (click)="endConversationMode()"
-                class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-5 rounded-lg shadow-md transition">
-                Terminar conversación
-              </button>
-            </div> -->
-
-
-          <!-- Empty State -->
           <div *ngIf="(messages$ | async)?.length === 0" class="flex items-center justify-center h-full px-4">
             <div class="text-center max-w-md">
-              <div
-                class="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-blue-100 to-indigo-200 rounded-full flex items-center justify-center">
-                <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
-                  </path>
-                </svg>
-              </div>
               <h3 class="text-lg font-semibold text-gray-900 mb-2">Start your conversation</h3>
               <p class="text-gray-500 text-sm mb-6">
                 Begin practicing your English conversation skills. Type a message or use voice recording below.
               </p>
-              <div class="flex items-center justify-center space-x-4 text-xs text-gray-400">
-                <span class="flex items-center">
-                  <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                      clip-rule="evenodd"></path>
-                  </svg>
-                  Type or speak
-                </span>
-                <span>•</span>
-                <span class="flex items-center">
-                  <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd"
-                      d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                      clip-rule="evenodd"></path>
-                  </svg>
-                  Get analysis
-                </span>
-              </div>
             </div>
           </div>
 
-          <!-- Messages List -->
           <div *ngIf="(messages$ | async)?.length! > 0" class="px-4 py-6 space-y-4 overflow-y-hidden">
             <app-chat-message *ngFor="let message of messages$ | async; trackBy: trackByMessage" [message]="message"
-              [hideAIResponses]="(hideAIResponses$ | async) ?? false">
-            </app-chat-message>
-
+              [hideAIResponses]="(hideAIResponses$ | async) ?? false"></app-chat-message>
           </div>
-
         </div>
 
-        <!-- Input Section -->
+        <!-- OVERLAY -->
+        <app-conversation-overlay *ngIf="overlayVisible$ | async" [message]="overlayMessage"
+          [isNaturalMode]="isNaturalMode" (close)="endConversationMode()" (toggleMode)="toggleConversationMode()"
+          (sendVoice)="handleAudioRecording($event)"></app-conversation-overlay>
+
+        <!-- Chat Input -->
         <div class="bg-white p-4 flex-shrink-0">
-          <app-chat-input (send)="handleSendMessage($event)" (sendVoice)="handleAudioRecording($event)"
-            (conversationModeChange)="startConversationMode()" [chatId]="(currentChat$ | async)?.id || ''">
-          </app-chat-input>
+          <app-chat-input [message]="message" [isRecording]="isRecording" [isProcessing]="isProcessing"
+            [recordingDuration]="recordingDuration" (messageChange)="message = $event"
+            (send)="handleSendMessage(message)" (sendVoice)="handleAudioRecording($event)"
+            (openOverlay)="startConversationMode()"></app-chat-input>
         </div>
       </div>
+
       <!-- Analysis View -->
-      <div *ngIf="showAnalysis && (currentChat$ | async) as chat" class="flex-grow overflow-y-scroll h-100">
-        <app-chat-analysis [chatId]="chat.id" class="min-h-full"></app-chat-analysis>
+      <div *ngIf="showAnalysis && chatForAnalysis" class="flex-grow overflow-y-scroll h-100">
+        <app-chat-analysis [chatId]="chatForAnalysis.id" class="min-h-full"></app-chat-analysis>
       </div>
 
       <!-- No Chat Selected -->
       <div *ngIf="!(currentChat$ | async)" class="flex-grow flex items-center justify-center bg-white">
         <div class="text-center max-w-md px-8">
-          <div
-            class="w-20 h-20 mx-auto mb-8 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
-            <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
-              </path>
-            </svg>
-          </div>
-
           <h2 class="text-2xl font-bold text-gray-900 mb-4">Welcome to Activlingo</h2>
           <p class="text-gray-500 mb-8 leading-relaxed">
             Select an existing conversation from the sidebar or create a new one to start practicing your English
             conversation skills.
           </p>
-
-          <div class="space-y-4">
-            <div class="flex items-center text-sm text-gray-600 bg-gray-50 rounded-lg p-3">
-              <svg class="w-5 h-5 mr-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z">
-                </path>
-              </svg>
-              <span>Start conversations on any topic</span>
-            </div>
-
-            <div class="flex items-center text-sm text-gray-600 bg-gray-50 rounded-lg p-3">
-              <svg class="w-5 h-5 mr-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z">
-                </path>
-              </svg>
-              <span>Use voice messages for better practice</span>
-            </div>
-
-            <div class="flex items-center text-sm text-gray-600 bg-gray-50 rounded-lg p-3">
-              <svg class="w-5 h-5 mr-3 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
-                </path>
-              </svg>
-              <span>Get personalized analysis and feedback</span>
-            </div>
-          </div>
         </div>
       </div>
     </div>
   </div>
-
 </div>

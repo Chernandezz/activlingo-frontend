@@ -1,8 +1,6 @@
 import { Component, EventEmitter, Output, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AudioRecorderService } from '../../services/audio-recorder.service';
-import { MessageService } from '../../services/message.service';
 
 @Component({
   selector: 'app-chat-input',
@@ -11,78 +9,21 @@ import { MessageService } from '../../services/message.service';
   templateUrl: './chat-input.component.html',
 })
 export class ChatInputComponent {
-  @Output() conversationModeChange = new EventEmitter<boolean>();
-  conversationMode = false;
-  private conversationActive = false;
+  @Input() message: string = '';
+  @Input() isRecording: boolean = false;
+  @Input() isProcessing: boolean = false;
+  @Input() recordingDuration: number = 0;
 
-  overlayVisible = true;
-  message = '';
-  isRecording = false;
-  isProcessing = false;
-  recordingDuration = 0;
-
-  recordingInterval: any;
-
-  @Input() chatId!: string;
-  @Output() send = new EventEmitter<string>();
+  @Output() messageChange = new EventEmitter<string>();
+  @Output() send = new EventEmitter<void>();
+  @Output() toggleRecording = new EventEmitter<void>();
+  @Output() openOverlay = new EventEmitter<void>();
   @Output() sendVoice = new EventEmitter<Blob>();
 
-  constructor(
-    private audioService: AudioRecorderService,
-    private messageService: MessageService
-  ) {}
-
-  sendMessage(): void {
-    const content = this.message.trim();
-    if (!content || this.isProcessing || this.isRecording) return;
-
-    this.send.emit(content);
-    this.message = '';
-  }
-
-  async toggleRecording() {
-    if (!this.isRecording) {
-      this.startRecording();
-    } else {
-      this.stopRecording();
-    }
-  }
-
-  private async startRecording() {
-    try {
-      this.isRecording = true;
-      this.recordingDuration = 0;
-      this.recordingInterval = setInterval(() => {
-        this.recordingDuration++;
-      }, 1000);
-
-      await this.audioService.startRecording();
-    } catch (error) {
-      console.error('Error starting recording:', error);
-      this.isRecording = false;
-      this.clearRecordingTimer();
-    }
-  }
-
-  private async stopRecording() {
-    try {
-      this.isRecording = false;
-      this.isProcessing = true;
-      this.clearRecordingTimer();
-
-      const audio = await this.audioService.stopRecording();
-      this.sendVoice.emit(audio);
-    } catch (error) {
-      console.error('Error stopping recording:', error);
-    } finally {
-      this.isProcessing = false;
-    }
-  }
-
-  private clearRecordingTimer() {
-    if (this.recordingInterval) {
-      clearInterval(this.recordingInterval);
-      this.recordingInterval = null;
+  onKeyDown(event: KeyboardEvent): void {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      this.send.emit();
     }
   }
 
@@ -92,54 +33,13 @@ export class ChatInputComponent {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   }
 
+  handleTextChange(value: string): void {
+    this.messageChange.emit(value);
+  }
+
   get canSend(): boolean {
     return (
-      this.message.trim().length > 0 && !this.isProcessing && !this.isRecording
+      this.message.trim().length > 0 && !this.isRecording && !this.isProcessing
     );
-  }
-
-  onKeyDown(event: KeyboardEvent): void {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-      this.sendMessage();
-    }
-  }
-
-  toggleConversationMode(): void {
-    this.conversationMode = !this.conversationMode;
-    this.conversationModeChange.emit(this.conversationMode);
-
-    if (this.conversationMode) {
-      this.startConversationLoop();
-    } else {
-      this.stopConversationLoop();
-    }
-  }
-
-  stopConversationLoop(): void {
-    this.conversationActive = false;
-
-    // Detener grabación si está en curso
-    if (this.isRecording) {
-      this.stopRecording(); // llama al método ya definido
-    }
-  }
-
-  async startConversationLoop(): Promise<void> {
-    this.conversationActive = true;
-
-    while (this.conversationActive) {
-      const audio = await this.audioService.recordUntilSilence();
-      if (!audio) continue;
-
-      try {
-        await this.messageService.sendVoiceMessageAndWait(this.chatId, audio);
-      } catch (error) {
-        console.error('❌ Error en modo conversación:', error);
-        break;
-      }
-
-      await new Promise((r) => setTimeout(r, 1000));
-    }
   }
 }

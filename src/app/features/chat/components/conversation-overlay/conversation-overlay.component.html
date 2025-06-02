@@ -1,0 +1,16 @@
+<div class="fixed inset-0 bg-black/90 z-50 flex flex-col items-center justify-center text-white px-6">
+  <div class="mb-6 text-center">
+    <button (click)="toggleMode.emit()" class="mb-4 px-4 py-2 bg-white text-black rounded-full">
+      {{ isNaturalMode ? 'Modo manual' : 'Modo natural' }}
+    </button>
+
+    <div class="text-2xl font-bold mb-2">Modo conversación activado</div>
+    <p class="text-sm text-gray-300">{{ message }}</p>
+  </div>
+
+  <!-- Botón principal -->
+  <button (click)="emitDummyAudio()">🎤</button>
+
+  <!-- Cerrar -->
+  <button (click)="close.emit()" class="mt-10 text-sm underline text-gray-400">Terminar conversación</button>
+</div>

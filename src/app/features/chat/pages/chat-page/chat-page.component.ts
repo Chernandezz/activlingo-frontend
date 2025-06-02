@@ -21,6 +21,7 @@ import { ChatSidebarComponent } from '../../components/chat-sidebar/chat-sidebar
 import { ChatMessageComponent } from '../../components/chat-message/chat-message.component';
 import { ChatInputComponent } from '../../components/chat-input/chat-input.component';
 import { ChatAnalysisComponent } from '../../../analysis/components/chat-analysis/chat-analysis.component';
+import { ConversationOverlayComponent } from '../../components/conversation-overlay/conversation-overlay.component';
 
 @Component({
   selector: 'app-chat-page',
@@ -31,6 +32,7 @@ import { ChatAnalysisComponent } from '../../../analysis/components/chat-analysi
     ChatMessageComponent,
     ChatInputComponent,
     ChatAnalysisComponent,
+    ConversationOverlayComponent,
   ],
   templateUrl: './chat-page.component.html',
 })
@@ -43,6 +45,7 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
   messages$: Observable<Message[]>;
   overlayVisible$: Observable<boolean>;
   hideAIResponses$: Observable<boolean>;
+  chatForAnalysis: Chat | null = null;
 
   // Estado UI
   currentChatId: string | null = null;
@@ -52,6 +55,11 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
   showAnalysis = false;
   isLoading = false;
   overlayMessage = 'Tu turno. Estamos escuchando...';
+  isNaturalMode = false;
+  message = '';
+  isRecording = false;
+  isProcessing = false;
+  recordingDuration = 0;
 
   private subscriptions = new Subscription();
 
@@ -77,7 +85,7 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     this.subscriptions.add(
       this.currentChat$.subscribe((chat) => {
         this.currentChatId = chat?.id ?? null;
-        this.showAnalysis = false;
+        this.chatForAnalysis = chat;
       })
     );
 
@@ -119,6 +127,13 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     }
   }
 
+  // 👇 Este es el nuevo método para grabación desde el overlay
+  handleManualRecording(): void {
+    console.log('🔴 Grabación manual iniciada desde el overlay');
+    // Aquí llamas a tu lógica de grabación. Por ahora puedes usar console.log para test.
+    // Más adelante puedes vincular esto con tu servicio de grabación de audio.
+  }
+
   handleSelectChat(chatId: string): void {
     this.chatService.selectChat(chatId);
     this.ui.closeSidebar();
@@ -140,7 +155,6 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
           this.chatService.selectChat(newChat.id);
           this.messageService.fetchMessages(newChat.id);
 
-
           this.messageService.messages$
             .pipe(
               map((msgs) => msgs.find((m) => m.sender === 'ai')),
@@ -149,7 +163,6 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
             .subscribe((firstAI) => {
               if (firstAI) this.messageService.speak(firstAI.content);
             });
-
 
           this.isCreatingChat = false;
           this.showModal = false;
@@ -179,6 +192,10 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
 
   endConversationMode(): void {
     this.ui.hideOverlay();
+  }
+
+  toggleConversationMode(): void {
+    this.isNaturalMode = !this.isNaturalMode;
   }
 
   openModal(): void {
