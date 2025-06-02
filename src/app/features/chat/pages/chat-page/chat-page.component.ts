@@ -22,6 +22,8 @@ import { ChatMessageComponent } from '../../components/chat-message/chat-message
 import { ChatInputComponent } from '../../components/chat-input/chat-input.component';
 import { ChatAnalysisComponent } from '../../../analysis/components/chat-analysis/chat-analysis.component';
 import { ConversationOverlayComponent } from '../../components/conversation-overlay/conversation-overlay.component';
+import { Task } from '../../../../core/models/task';
+import { TaskService } from '../../services/tasks.service';
 
 @Component({
   selector: 'app-chat-page',
@@ -46,6 +48,7 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
   overlayVisible$: Observable<boolean>;
   hideAIResponses$: Observable<boolean>;
   chatForAnalysis: Chat | null = null;
+  tasks$: Observable<Task[]>;
 
   // Estado UI
   currentChatId: string | null = null;
@@ -60,6 +63,7 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
   isRecording = false;
   isProcessing = false;
   recordingDuration = 0;
+  tasksList: { description: string; completed: boolean }[] = [];
 
   private subscriptions = new Subscription();
 
@@ -67,13 +71,15 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     private chatService: ChatService,
     private messageService: MessageService,
     public ui: UiService,
-    private authService: AuthService
+    private authService: AuthService,
+    private taskService: TaskService
   ) {
     this.chats$ = this.chatService.chats$;
     this.currentChat$ = this.chatService.currentChat$;
     this.messages$ = this.messageService.messages$;
     this.overlayVisible$ = this.ui.conversationOverlay$;
     this.hideAIResponses$ = this.ui.hideAIResponses$;
+    this.tasks$ = this.taskService.tasks$;
   }
 
   ngOnInit(): void {
@@ -91,6 +97,18 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
 
     this.subscriptions.add(
       this.ui.sidebarOpen$.subscribe((open) => (this.isSidebarOpen = open))
+    );
+
+    this.subscriptions.add(
+      this.taskService.tasks$.subscribe((tasks) => {
+        this.tasksList = tasks.map((t) => ({
+          description: t.description,
+          completed: t.completed ?? false,
+        }));
+
+        
+        
+      })
     );
   }
 

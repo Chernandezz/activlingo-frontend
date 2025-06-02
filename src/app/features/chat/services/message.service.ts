@@ -4,6 +4,7 @@ import { Message } from '../../../core/models/message.model';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { generateUUID } from '../../../shared/utils/uuid.util';
+import { TaskService } from './tasks.service';
 
 @Injectable({ providedIn: 'root' })
 export class MessageService {
@@ -11,7 +12,7 @@ export class MessageService {
   messages$ = this.messagesSubject.asObservable();
   userId = localStorage.getItem('current_user_id');
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private taskService: TaskService) {}
 
   fetchMessages(chatId: string): void {
     this.http
@@ -34,7 +35,6 @@ export class MessageService {
       const formData = new FormData();
       formData.append('file', audioBlob, 'audio.webm');
       formData.append('user_id', this.userId!);
-
 
       this.http
         .post<{ user_text: string; ai_text: string }>(
@@ -80,7 +80,6 @@ export class MessageService {
     const formData = new FormData();
     formData.append('file', audioBlob, 'audio.webm');
     formData.append('user_id', this.userId!);
-
 
     this.http
       .post<{ user_text: string; ai_text: string }>(
@@ -165,7 +164,11 @@ export class MessageService {
     ]);
 
     this.http
-      .post<Message>(`${environment.apiUrl}/messages/`, {
+      .post<{
+        message: Message;
+        human_message: Message;
+        completed_tasks: any[];
+      }>(`${environment.apiUrl}/messages/`, {
         chat_id: chatId,
         sender: 'human',
         content,
@@ -174,9 +177,17 @@ export class MessageService {
       .subscribe((response) => {
         const updatedMessages = this.messagesSubject
           .getValue()
-          .map((msg) => (msg.id === aiPlaceholder.id ? response : msg));
+          .map((msg) => (msg.id === aiPlaceholder.id ? response.message : msg));
+
         this.messagesSubject.next(updatedMessages);
-        this.speak(response.content);
+        this.speak(response.message.content);
+
+        if (response.completed_tasks?.length) {
+          console.log('🎯 Completed tasks:', response.completed_tasks);
+          response.completed_tasks.forEach((taskId) => {
+            this.taskService.updateTaskCompleted(taskId);
+          });
+        }
       });
   }
 }

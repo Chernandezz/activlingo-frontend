@@ -67,9 +67,11 @@
         </div>
 
         <!-- OVERLAY -->
-        <app-conversation-overlay *ngIf="overlayVisible$ | async" [message]="overlayMessage"
-          [isNaturalMode]="isNaturalMode" (close)="endConversationMode()" (toggleMode)="toggleConversationMode()"
-          (sendVoice)="handleAudioRecording($event)"></app-conversation-overlay>
+        <app-conversation-overlay *ngIf="overlayVisible$ | async" [message]="overlayMessage" [isNaturalMode]="isNaturalMode"
+          [tasks]="tasksList" (close)="endConversationMode()" (toggleMode)="toggleConversationMode()"
+          (sendVoice)="handleAudioRecording($event)">
+        </app-conversation-overlay>
+      
 
         <!-- Chat Input -->
         <div class="bg-white p-4 flex-shrink-0">

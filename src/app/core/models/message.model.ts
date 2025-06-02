@@ -7,4 +7,5 @@ export interface Message {
   timestamp: string;
   isVoice?: boolean;
   audioBase64?: string;
+  completed_tasks?: string[];
 }

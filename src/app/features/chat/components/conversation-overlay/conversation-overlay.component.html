@@ -1,16 +1,57 @@
-<div class="fixed inset-0 bg-black/90 z-50 flex flex-col items-center justify-center text-white px-6">
-  <div class="mb-6 text-center">
-    <button (click)="toggleMode.emit()" class="mb-4 px-4 py-2 bg-white text-black rounded-full">
-      {{ isNaturalMode ? 'Modo manual' : 'Modo natural' }}
+<div class="fixed inset-0 bg-black/90 z-50 text-white px-4 py-6 flex flex-col md:flex-row gap-6 overflow-auto">
+  <!-- Left Panel: Mode & Recorder -->
+  <div class="w-full md:w-1/2 flex flex-col items-center justify-start gap-6">
+    <div class="text-center">
+      <button (click)="toggleMode.emit()"
+        class="mb-3 px-6 py-2 bg-white text-black rounded-full shadow-md hover:bg-gray-200 transition">
+        {{ isNaturalMode ? 'Modo manual' : 'Modo hands-free' }}
+      </button>
+      <h2 class="text-3xl font-bold">Modo conversación activado</h2>
+      <p class="text-sm text-gray-300 mt-2">{{ message }}</p>
+    </div>
+
+    <!-- Mic Button -->
+    <button (click)="emitDummyAudio()"
+      class="bg-green-500 hover:bg-green-600 transition w-20 h-20 rounded-full flex items-center justify-center text-4xl shadow-lg">
+      <i class="fas fa-microphone"></i>
     </button>
 
-    <div class="text-2xl font-bold mb-2">Modo conversación activado</div>
-    <p class="text-sm text-gray-300">{{ message }}</p>
+    <!-- End Conversation -->
+    <button (click)="close.emit()" class="text-sm underline text-gray-400 hover:text-white mt-4">
+      Terminar conversación
+    </button>
   </div>
 
-  <!-- Botón principal -->
-  <button (click)="emitDummyAudio()">🎤</button>
+  <!-- Right Panel: Tasks & Words -->
+  <div class="w-full md:w-1/2 flex flex-col gap-8">
+    <!-- Tasks -->
+    <div>
+      <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+        <i class="fas fa-list-check text-green-400"></i>
+        Tareas a completar
+      </h3>
+      <ul class="space-y-3">
+        <li *ngFor="let task of tasks"
+          class="flex gap-3 items-start p-4 bg-white text-black rounded-xl shadow-md border-l-4 border-green-500 transition-all duration-300"
+          [ngClass]="{ 'line-through text-green-600 bg-green-100 border-green-300 animate-pulse': task.completed }">
+          <i class="fas fa-check-circle pt-1 text-green-500" *ngIf="task.completed"></i>
+          <span class="text-sm leading-snug">{{ task.description }}</span>
+        </li>
+      </ul>
+    </div>
 
-  <!-- Cerrar -->
-  <button (click)="close.emit()" class="mt-10 text-sm underline text-gray-400">Terminar conversación</button>
+    <!-- Recommended Words -->
+    <div>
+      <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+        <i class="fas fa-lightbulb text-yellow-300"></i>
+        Palabras recomendadas
+      </h3>
+      <div class="flex flex-wrap gap-2">
+        <span *ngFor="let word of ['team', 'match', 'exciting', 'win', 'favorite']"
+          class="flex items-center gap-1 px-3 py-1 rounded-full text-sm bg-yellow-400/20 text-yellow-300 border border-yellow-300">
+          <i class="fas fa-star text-xs"></i> {{ word }}
+        </span>
+      </div>
+    </div>
+  </div>
 </div>
