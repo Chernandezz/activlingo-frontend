@@ -36,8 +36,13 @@ export class MessageService {
       formData.append('file', audioBlob, 'audio.webm');
       formData.append('user_id', this.userId!);
 
+      // Cambiamos la firma para “esperar” returned shape: { user_text, ai_text, completed_tasks }
       this.http
-        .post<{ user_text: string; ai_text: string }>(
+        .post<{
+          user_text: string;
+          ai_text: string;
+          completed_tasks: string[]; // lista de IDs de tareas completadas
+        }>(
           `${environment.apiUrl}/messages/transcribe-audio/?chat_id=${chatId}`,
           formData
         )
@@ -46,26 +51,35 @@ export class MessageService {
             const now = new Date().toISOString();
             const current = this.messagesSubject.getValue();
 
-            this.messagesSubject.next([
-              ...current,
-              {
-                id: generateUUID(),
-                chat_id: chatId,
-                sender: 'human',
-                content: res.user_text,
-                timestamp: now,
-                user_id: this.userId,
-              },
-              {
-                id: generateUUID(),
-                chat_id: chatId,
-                sender: 'ai',
-                content: res.ai_text,
-                timestamp: now,
-                user_id: this.userId,
-              },
-            ]);
+            // 1) Insertamos el mensaje humano (transcripción)
+            const humanMsg: Message = {
+              id: generateUUID(),
+              chat_id: chatId,
+              sender: 'human',
+              content: res.user_text,
+              timestamp: now,
+              user_id: this.userId!,
+            };
+            // 2) Insertamos el placeholder/response de la IA
+            const aiMsg: Message = {
+              id: generateUUID(),
+              chat_id: chatId,
+              sender: 'ai',
+              content: res.ai_text,
+              timestamp: now,
+              user_id: this.userId!,
+            };
 
+            this.messagesSubject.next([...current, humanMsg, aiMsg]);
+
+            // 3) Si vienen completed_tasks, actualizamos TaskService
+            if (res.completed_tasks && res.completed_tasks.length) {
+              res.completed_tasks.forEach((taskId) => {
+                this.taskService.updateTaskCompleted(taskId);
+              });
+            }
+
+            // 4) Reproducimos TTS y cuando termine, resolvemos la promesa
             this.speak(res.ai_text, () => resolve());
           },
           error: (err) => {
