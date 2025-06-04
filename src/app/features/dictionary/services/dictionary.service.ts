@@ -47,34 +47,41 @@ export class DictionaryService {
     );
   }
 
-
   // Buscar definiciones de una palabra
   searchWord(
     term: string,
     useCache: boolean = true
   ): Observable<WordDefinition[]> {
-    const cached = this.cache.get(term.toLowerCase());
-    if (useCache && cached) return of(cached);
+    const key = term.toLowerCase();
+    if (useCache && this.cache.has(key)) {
+      return of(this.cache.get(key)!);
+    }
 
     return this.http
       .get<WordDefinition[]>(
         `${this.baseUrl}/search?word=${encodeURIComponent(term)}`
       )
       .pipe(
-        tap((definitions) => this.cache.set(term.toLowerCase(), definitions)),
+        tap((defs) => this.cache.set(key, defs)),
         shareReplay(1)
       );
   }
 
-  // Búsqueda con debounce para autocompletado
+  // 2) Método que devuelva un Observable<WordDefinition[]> con debounce:
   searchSuggestions(term$: Observable<string>): Observable<WordDefinition[]> {
     return term$.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-      switchMap((term) => (term.length > 2 ? this.searchWord(term) : of([])))
+      debounceTime(300), // Esperar 300 ms tras la última tecla
+      distinctUntilChanged(), // Solo continúa si cambió el término
+      switchMap((term) => {
+        if (term.length < 2) {
+          // Si el usuario no ha escrito al menos 2 caracteres, devolvemos array vacío
+          return of<WordDefinition[]>([]);
+        }
+        // Llamamos a searchWord → al backend FastAPI → WordsAPI
+        return this.searchWord(term);
+      })
     );
   }
-
   // Añadir nueva palabra al diccionario
   addWord(wordData: WordCreateDto): Observable<UserDictionaryEntry> {
     const userId = this.authService.currentUserId;
