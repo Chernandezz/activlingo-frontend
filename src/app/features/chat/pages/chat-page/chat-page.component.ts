@@ -21,6 +21,10 @@ import { ChatSidebarComponent } from '../../components/chat-sidebar/chat-sidebar
 import { ChatMessageComponent } from '../../components/chat-message/chat-message.component';
 import { ChatInputComponent } from '../../components/chat-input/chat-input.component';
 import { ChatAnalysisComponent } from '../../../analysis/components/chat-analysis/chat-analysis.component';
+import { ConversationOverlayComponent } from '../../components/conversation-overlay/conversation-overlay.component';
+import { Task } from '../../../../core/models/task';
+import { TaskService } from '../../services/tasks.service';
+import { AudioRecorderService } from '../../services/audio-recorder.service';
 
 @Component({
   selector: 'app-chat-page',
@@ -31,6 +35,7 @@ import { ChatAnalysisComponent } from '../../../analysis/components/chat-analysi
     ChatMessageComponent,
     ChatInputComponent,
     ChatAnalysisComponent,
+    ConversationOverlayComponent,
   ],
   templateUrl: './chat-page.component.html',
 })
@@ -43,6 +48,8 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
   messages$: Observable<Message[]>;
   overlayVisible$: Observable<boolean>;
   hideAIResponses$: Observable<boolean>;
+  chatForAnalysis: Chat | null = null;
+  tasks$: Observable<Task[]>;
 
   // Estado UI
   currentChatId: string | null = null;
@@ -51,7 +58,15 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
   showModal = false;
   showAnalysis = false;
   isLoading = false;
+  isRecordingManual = false;
+  isProcessing = false;
   overlayMessage = 'Tu turno. Estamos escuchando...';
+
+  isNaturalMode = false;
+  message = '';
+  isRecording = false;
+  recordingDuration = 0;
+  tasksList: { description: string; completed: boolean }[] = [];
 
   private subscriptions = new Subscription();
 
@@ -59,13 +74,16 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     private chatService: ChatService,
     private messageService: MessageService,
     public ui: UiService,
-    private authService: AuthService
+    private authService: AuthService,
+    private taskService: TaskService,
+    private audioRecorder: AudioRecorderService
   ) {
     this.chats$ = this.chatService.chats$;
     this.currentChat$ = this.chatService.currentChat$;
     this.messages$ = this.messageService.messages$;
     this.overlayVisible$ = this.ui.conversationOverlay$;
     this.hideAIResponses$ = this.ui.hideAIResponses$;
+    this.tasks$ = this.taskService.tasks$;
   }
 
   ngOnInit(): void {
@@ -77,12 +95,21 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     this.subscriptions.add(
       this.currentChat$.subscribe((chat) => {
         this.currentChatId = chat?.id ?? null;
-        this.showAnalysis = false;
+        this.chatForAnalysis = chat;
       })
     );
 
     this.subscriptions.add(
       this.ui.sidebarOpen$.subscribe((open) => (this.isSidebarOpen = open))
+    );
+
+    this.subscriptions.add(
+      this.taskService.tasks$.subscribe((tasks) => {
+        this.tasksList = tasks.map((t) => ({
+          description: t.description,
+          completed: t.completed ?? false,
+        }));
+      })
     );
   }
 
@@ -110,12 +137,50 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     }
   }
 
-  handleAudioRecording(audioBlob: Blob): void {
+  handleAudioRecording(audioBlob: Blob): Promise<void> {
     const currentChat = this.chatService.getCurrentChatValue();
-    if (currentChat) {
-      this.isLoading = true;
-      this.messageService.sendVoiceMessage(currentChat.id, audioBlob);
-      setTimeout(() => (this.isLoading = false), 3000);
+    if (!currentChat) return Promise.resolve();
+
+    this.isLoading = true;
+    // Llamamos a la versión que “espera” la respuesta de la IA
+    return this.messageService
+      .sendVoiceMessageAndWait(currentChat.id, audioBlob)
+      .then(() => {
+        this.isLoading = false;
+      })
+      .catch((err) => {
+        console.error('Error enviando voz:', err);
+        this.isLoading = false;
+      });
+  }
+
+  // chat-page.component.ts (fragmento ajustado)
+  async handleManualRecording(): Promise<void> {
+    if (!this.isRecordingManual) {
+      // 1) Usuario inicia grabación
+      this.isRecordingManual = true;
+      this.isProcessing = false;
+      this.overlayMessage = 'Grabando... presiona de nuevo para detener';
+
+      setTimeout(async () => {
+        await this.audioRecorder.startRecording();
+      }, 300);
+    } else {
+      // 2) Usuario detiene grabación
+      this.isRecordingManual = false;
+      this.isProcessing = true;
+      this.overlayMessage = 'Procesando...';
+
+      // Detener la grabación y obtener el blob
+      const audioBlob = await this.audioRecorder.stopRecording();
+      if (audioBlob) {
+        // Esperamos a que la IA realmente termine de procesar
+        await this.handleAudioRecording(audioBlob);
+      }
+
+      // Ahora que la IA ya respondió, reestablecemos el flag
+      this.isProcessing = false;
+      this.overlayMessage = 'Tu turno. Estamos escuchando...';
     }
   }
 
@@ -139,17 +204,9 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
         next: (newChat) => {
           this.chatService.selectChat(newChat.id);
           this.messageService.fetchMessages(newChat.id);
-
-
-          this.messageService.messages$
-            .pipe(
-              map((msgs) => msgs.find((m) => m.sender === 'ai')),
-              take(1)
-            )
-            .subscribe((firstAI) => {
-              if (firstAI) this.messageService.speak(firstAI.content);
-            });
-
+          if (newChat.initial_message) {
+            this.messageService.speak(newChat.initial_message);
+          }
 
           this.isCreatingChat = false;
           this.showModal = false;
@@ -179,6 +236,10 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
 
   endConversationMode(): void {
     this.ui.hideOverlay();
+  }
+
+  toggleConversationMode(): void {
+    this.isNaturalMode = !this.isNaturalMode;
   }
 
   openModal(): void {

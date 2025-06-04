@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { Chat, ChatCreate } from '../../../core/models/chat.model';
 import { environment } from '../../../../environments/environment';
 import { MessageService } from './message.service';
+import { TaskService } from './tasks.service';
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
@@ -17,7 +18,8 @@ export class ChatService {
 
   constructor(
     private http: HttpClient,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private taskService: TaskService
   ) {}
 
   getCurrentChatValue(): Chat | null {
@@ -51,6 +53,11 @@ export class ChatService {
           const current = this.chatsSubject.getValue();
           this.chatsSubject.next([newChat, ...current]);
           this.currentChatSubject.next(newChat);
+
+          // ✅ Guardar tareas si vienen en el response
+          if (newChat.tasks) {
+            this.taskService.setTasks(newChat.tasks);
+          }
         })
       );
   }
@@ -64,6 +71,12 @@ export class ChatService {
     this.http.get<Chat>(`${this.apiUrl}/chats/${chatId}`).subscribe((chat) => {
       this.currentChatSubject.next(chat);
       this.messageService.fetchMessages(chatId);
+
+      if (chat.tasks) {
+        this.taskService.setTasks(chat.tasks);
+      } else {
+        this.taskService.clear();
+      }
     });
   }
 

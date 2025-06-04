@@ -16,13 +16,18 @@ export class ChatAnalysisComponent implements OnChanges {
   expandedPoints = new Set<string>();
 
   constructor(private analysisService: AnalysisService) {}
-
+  
   ngOnChanges(): void {
+    console.log('🔍 Analyzing chatId:', this.chatId); // ✅ Debug
     this.expandedPoints.clear();
+
     if (this.chatId) {
       this.analysisService
         .getAnalysisPointsForChat(this.chatId)
-        .subscribe((points) => (this.points = points));
+        .subscribe((points) => {
+          console.log('📊 Analysis points received:', points); // ✅ Debug
+          this.points = points;
+        });
     } else {
       this.points = [];
     }
