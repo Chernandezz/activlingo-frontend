@@ -53,6 +53,8 @@ export class ConversationOverlayComponent {
   @Input() message: string = 'Tu turno. Estamos escuchando...';
   @Input() isNaturalMode: boolean = false;
   @Input() tasks: OverlayTask[] = [];
+  @Input() isRecordingManual: boolean = false;
+  @Input() isProcessing: boolean = false;
 
   // Ahora recibimos RecommendedWord[] en lugar de string[]
   @Input() recommendedWords: RecommendedWord[] = [
@@ -97,6 +99,7 @@ export class ConversationOverlayComponent {
   @Output() wordSelected = new EventEmitter<string>();
 
   // Declaramos todos los íconos que vamos a usar mediante FontAwesomeModule
+  
   faMicrophone = faMicrophone;
   faHandPaper = faHandPaper;
   faMicrochip = faMicrochip;

@@ -58,13 +58,13 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
   showModal = false;
   showAnalysis = false;
   isLoading = false;
-  overlayMessage = 'Tu turno. Estamos escuchando...';
   isRecordingManual = false;
+  isProcessing = false;
+  overlayMessage = 'Tu turno. Estamos escuchando...';
 
   isNaturalMode = false;
   message = '';
   isRecording = false;
-  isProcessing = false;
   recordingDuration = 0;
   tasksList: { description: string; completed: boolean }[] = [];
 
@@ -137,25 +137,49 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     }
   }
 
-  handleAudioRecording(audioBlob: Blob): void {
+  handleAudioRecording(audioBlob: Blob): Promise<void> {
     const currentChat = this.chatService.getCurrentChatValue();
-    if (currentChat) {
-      this.isLoading = true;
-      this.messageService.sendVoiceMessage(currentChat.id, audioBlob);
-      setTimeout(() => (this.isLoading = false), 3000);
-    }
+    if (!currentChat) return Promise.resolve();
+
+    this.isLoading = true;
+    // Llamamos a la versión que “espera” la respuesta de la IA
+    return this.messageService
+      .sendVoiceMessageAndWait(currentChat.id, audioBlob)
+      .then(() => {
+        this.isLoading = false;
+      })
+      .catch((err) => {
+        console.error('Error enviando voz:', err);
+        this.isLoading = false;
+      });
   }
 
+  // chat-page.component.ts (fragmento ajustado)
   async handleManualRecording(): Promise<void> {
     if (!this.isRecordingManual) {
+      // 1) Usuario inicia grabación
       this.isRecordingManual = true;
-      await this.audioRecorder.startRecording();
+      this.isProcessing = false;
       this.overlayMessage = 'Grabando... presiona de nuevo para detener';
+
+      setTimeout(async () => {
+        await this.audioRecorder.startRecording();
+      }, 300);
     } else {
+      // 2) Usuario detiene grabación
       this.isRecordingManual = false;
+      this.isProcessing = true;
       this.overlayMessage = 'Procesando...';
+
+      // Detener la grabación y obtener el blob
       const audioBlob = await this.audioRecorder.stopRecording();
-      if (audioBlob) this.handleAudioRecording(audioBlob);
+      if (audioBlob) {
+        // Esperamos a que la IA realmente termine de procesar
+        await this.handleAudioRecording(audioBlob);
+      }
+
+      // Ahora que la IA ya respondió, reestablecemos el flag
+      this.isProcessing = false;
       this.overlayMessage = 'Tu turno. Estamos escuchando...';
     }
   }

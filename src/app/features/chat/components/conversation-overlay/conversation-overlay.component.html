@@ -46,12 +46,22 @@
           <div class="absolute w-24 h-24 rounded-full bg-blue-400/30 animate-ping-slow"></div>
           <div class="absolute w-32 h-32 rounded-full bg-indigo-400/20 animate-ping-slower"></div>
         </div>
-        <button (click)="startRecording.emit()"
-          class="relative flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-4xl font-black rounded-full shadow-2xl transition-transform transform hover:scale-110 active:scale-95">
-
+      
+        <!-- Si NO está procesando, dibujamos el micrófono -->
+        <button *ngIf="!isProcessing" (click)="startRecording.emit()" [ngClass]="{
+                  'bg-red-600 hover:bg-red-700': isRecordingManual,
+                  'bg-gradient-to-r from-blue-600 to-indigo-600 hover:scale-110': !isRecordingManual
+                }"
+          class="relative flex items-center justify-center w-20 h-20 text-white text-4xl font-black rounded-full shadow-2xl transition-transform transform active:scale-95">
           <fa-icon [icon]="faMicrophone"></fa-icon>
         </button>
-      </div>
+      
+        <!-- Si está procesando, dibujamos el ícono de IA -->
+        <button *ngIf="isProcessing"
+          class="relative flex items-center justify-center w-20 h-20 bg-gray-200 text-gray-700 text-4xl font-black rounded-full shadow-inner">
+          <!-- Ícono de IA (faMicrochip) -->
+          <fa-icon [icon]="faMicrochip" class="animate-pulse"></fa-icon>
+        </button></div>
 
       <!-- Mensaje de Estado y Loading -->
       <div class="w-full space-y-4">
