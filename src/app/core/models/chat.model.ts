@@ -8,6 +8,7 @@ export interface Chat {
   level: string;
   created_at: string;
   tasks?: Task[];
+  initial_message?: string;
 }
 
 

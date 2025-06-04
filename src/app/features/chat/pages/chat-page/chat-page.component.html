@@ -69,7 +69,7 @@
         <!-- OVERLAY -->
         <app-conversation-overlay *ngIf="overlayVisible$ | async" [message]="overlayMessage" [isNaturalMode]="isNaturalMode"
           [tasks]="tasksList" (close)="endConversationMode()" (toggleMode)="toggleConversationMode()"
-          (sendVoice)="handleAudioRecording($event)">
+          (sendVoice)="handleAudioRecording($event)" (startRecording)="handleManualRecording()">
         </app-conversation-overlay>
       
 

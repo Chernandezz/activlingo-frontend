@@ -24,6 +24,7 @@ import { ChatAnalysisComponent } from '../../../analysis/components/chat-analysi
 import { ConversationOverlayComponent } from '../../components/conversation-overlay/conversation-overlay.component';
 import { Task } from '../../../../core/models/task';
 import { TaskService } from '../../services/tasks.service';
+import { AudioRecorderService } from '../../services/audio-recorder.service';
 
 @Component({
   selector: 'app-chat-page',
@@ -58,6 +59,8 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
   showAnalysis = false;
   isLoading = false;
   overlayMessage = 'Tu turno. Estamos escuchando...';
+  isRecordingManual = false;
+
   isNaturalMode = false;
   message = '';
   isRecording = false;
@@ -72,7 +75,8 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     private messageService: MessageService,
     public ui: UiService,
     private authService: AuthService,
-    private taskService: TaskService
+    private taskService: TaskService,
+    private audioRecorder: AudioRecorderService
   ) {
     this.chats$ = this.chatService.chats$;
     this.currentChat$ = this.chatService.currentChat$;
@@ -105,9 +109,6 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
           description: t.description,
           completed: t.completed ?? false,
         }));
-
-        
-        
       })
     );
   }
@@ -145,11 +146,18 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     }
   }
 
-  // 👇 Este es el nuevo método para grabación desde el overlay
-  handleManualRecording(): void {
-    console.log('🔴 Grabación manual iniciada desde el overlay');
-    // Aquí llamas a tu lógica de grabación. Por ahora puedes usar console.log para test.
-    // Más adelante puedes vincular esto con tu servicio de grabación de audio.
+  async handleManualRecording(): Promise<void> {
+    if (!this.isRecordingManual) {
+      this.isRecordingManual = true;
+      await this.audioRecorder.startRecording();
+      this.overlayMessage = 'Grabando... presiona de nuevo para detener';
+    } else {
+      this.isRecordingManual = false;
+      this.overlayMessage = 'Procesando...';
+      const audioBlob = await this.audioRecorder.stopRecording();
+      if (audioBlob) this.handleAudioRecording(audioBlob);
+      this.overlayMessage = 'Tu turno. Estamos escuchando...';
+    }
   }
 
   handleSelectChat(chatId: string): void {
@@ -172,15 +180,9 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
         next: (newChat) => {
           this.chatService.selectChat(newChat.id);
           this.messageService.fetchMessages(newChat.id);
-
-          this.messageService.messages$
-            .pipe(
-              map((msgs) => msgs.find((m) => m.sender === 'ai')),
-              take(1)
-            )
-            .subscribe((firstAI) => {
-              if (firstAI) this.messageService.speak(firstAI.content);
-            });
+          if (newChat.initial_message) {
+            this.messageService.speak(newChat.initial_message);
+          }
 
           this.isCreatingChat = false;
           this.showModal = false;

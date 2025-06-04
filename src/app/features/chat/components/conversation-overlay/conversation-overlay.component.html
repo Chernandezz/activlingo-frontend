@@ -46,7 +46,7 @@
           <div class="absolute w-24 h-24 rounded-full bg-blue-400/30 animate-ping-slow"></div>
           <div class="absolute w-32 h-32 rounded-full bg-indigo-400/20 animate-ping-slower"></div>
         </div>
-        <button (click)="emitDummyAudio()"
+        <button (click)="startRecording.emit()"
           class="relative flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-4xl font-black rounded-full shadow-2xl transition-transform transform hover:scale-110 active:scale-95">
 
           <fa-icon [icon]="faMicrophone"></fa-icon>
