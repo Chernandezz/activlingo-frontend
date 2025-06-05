@@ -30,13 +30,13 @@ export class ChatService {
     this.currentChatSubject.next(chat);
   }
 
-  fetchChats(userId: string): void {
+  fetchChats(): void {
     this.http
-      .get<Chat[]>(`${this.apiUrl}/chats/?user_id=${userId}`)
+      .get<Chat[]>(`${this.apiUrl}/chats/`)
       .subscribe((chats) => this.chatsSubject.next(chats));
   }
 
-  createChat(userId: string, chat: ChatCreate): Observable<Chat> {
+  createChat(chat: ChatCreate): Observable<Chat> {
     const payload: ChatCreate = {
       title: chat.title || 'New Chat',
       language: chat.language || 'en',
@@ -46,20 +46,17 @@ export class ChatService {
         chat.context || 'You are having a conversation to practice English.',
     };
 
-    return this.http
-      .post<Chat>(`${this.apiUrl}/chats/?user_id=${userId}`, payload)
-      .pipe(
-        tap((newChat) => {
-          const current = this.chatsSubject.getValue();
-          this.chatsSubject.next([newChat, ...current]);
-          this.currentChatSubject.next(newChat);
+    return this.http.post<Chat>(`${this.apiUrl}/chats/`, payload).pipe(
+      tap((newChat) => {
+        const current = this.chatsSubject.getValue();
+        this.chatsSubject.next([newChat, ...current]);
+        this.currentChatSubject.next(newChat);
 
-          // ✅ Guardar tareas si vienen en el response
-          if (newChat.tasks) {
-            this.taskService.setTasks(newChat.tasks);
-          }
-        })
-      );
+        if (newChat.tasks) {
+          this.taskService.setTasks(newChat.tasks);
+        }
+      })
+    );
   }
 
   clearChats(): void {

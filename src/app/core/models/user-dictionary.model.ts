@@ -10,7 +10,6 @@ export type PartOfSpeech =
   | 'expression'
   | 'collocation';
 
-export type WordFrequency = 'very_common' | 'common' | 'uncommon' | 'rare';
 
 export type WordRegister = 'formal' | 'informal' | 'neutral' | 'slang';
 
@@ -21,11 +20,12 @@ export interface WordDefinition {
   part_of_speech?: PartOfSpeech;
   source?: string;
   example?: string;
+
   synonyms?: string[];
   antonyms?: string[];
   usage_context?: string; // e.g. "business", "travel"
   is_idiomatic?: boolean;
-  frequency?: WordFrequency;
+  frequency?: number;
   register?: WordRegister;
   added?: boolean; // Solo para UI
 }

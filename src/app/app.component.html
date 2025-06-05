@@ -1,5 +1,10 @@
-<app-header class="fixed top-0 left-0 w-full z-50"></app-header>
+<!-- src/app/app.component.html -->
 
-<div class="pt-16 h-screen flex flex-col">
+<!-- 1) Header: solo se muestra si NO estamos en /auth -->
+<app-header *ngIf="!router.url.startsWith('/auth')" class="fixed top-0 left-0 w-full z-50">
+</app-header>
+
+<!-- 2) Contenedor principal: le aplicamos pt-16 solo cuando NO estemos en /auth -->
+<div [ngClass]="{ 'pt-16': !router.url.startsWith('/auth') }" class="h-screen flex flex-col">
   <router-outlet></router-outlet>
 </div>

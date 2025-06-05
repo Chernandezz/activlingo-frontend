@@ -87,10 +87,7 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
   }
 
   ngOnInit(): void {
-    const userId = this.authService.currentUserId;
-    if (userId) {
-      this.chatService.fetchChats(userId);
-    }
+    this.chatService.fetchChats();
 
     this.subscriptions.add(
       this.currentChat$.subscribe((chat) => {
@@ -190,12 +187,10 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
   }
 
   handleStartNewChat(data: { role: string; context: string }): void {
-    const userId = this.authService.currentUserId;
-    if (!userId) return;
 
     this.isCreatingChat = true;
     this.chatService
-      .createChat(userId, {
+      .createChat({
         title: data.role,
         role: data.role,
         context: data.context,

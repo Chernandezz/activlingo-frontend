@@ -10,7 +10,6 @@ import { TaskService } from './tasks.service';
 export class MessageService {
   private messagesSubject = new BehaviorSubject<Message[]>([]);
   messages$ = this.messagesSubject.asObservable();
-  userId = localStorage.getItem('current_user_id');
 
   constructor(private http: HttpClient, private taskService: TaskService) {}
 
@@ -34,14 +33,12 @@ export class MessageService {
     return new Promise<void>((resolve, reject) => {
       const formData = new FormData();
       formData.append('file', audioBlob, 'audio.webm');
-      formData.append('user_id', this.userId!);
 
-      // Cambiamos la firma para “esperar” returned shape: { user_text, ai_text, completed_tasks }
       this.http
         .post<{
           user_text: string;
           ai_text: string;
-          completed_tasks: string[]; // lista de IDs de tareas completadas
+          completed_tasks: string[];
         }>(
           `${environment.apiUrl}/messages/transcribe-audio/?chat_id=${chatId}`,
           formData
@@ -51,35 +48,29 @@ export class MessageService {
             const now = new Date().toISOString();
             const current = this.messagesSubject.getValue();
 
-            // 1) Insertamos el mensaje humano (transcripción)
             const humanMsg: Message = {
               id: generateUUID(),
               chat_id: chatId,
               sender: 'human',
               content: res.user_text,
               timestamp: now,
-              user_id: this.userId!,
             };
-            // 2) Insertamos el placeholder/response de la IA
             const aiMsg: Message = {
               id: generateUUID(),
               chat_id: chatId,
               sender: 'ai',
               content: res.ai_text,
               timestamp: now,
-              user_id: this.userId!,
             };
 
             this.messagesSubject.next([...current, humanMsg, aiMsg]);
 
-            // 3) Si vienen completed_tasks, actualizamos TaskService
-            if (res.completed_tasks && res.completed_tasks.length) {
-              res.completed_tasks.forEach((taskId) => {
-                this.taskService.updateTaskCompleted(taskId);
-              });
+            if (res.completed_tasks?.length) {
+              res.completed_tasks.forEach((taskId) =>
+                this.taskService.updateTaskCompleted(taskId)
+              );
             }
 
-            // 4) Reproducimos TTS y cuando termine, resolvemos la promesa
             this.speak(res.ai_text, () => resolve());
           },
           error: (err) => {
@@ -93,7 +84,6 @@ export class MessageService {
   sendVoiceMessage(chatId: string, audioBlob: Blob): void {
     const formData = new FormData();
     formData.append('file', audioBlob, 'audio.webm');
-    formData.append('user_id', this.userId!);
 
     this.http
       .post<{ user_text: string; ai_text: string }>(
@@ -113,7 +103,6 @@ export class MessageService {
               sender: 'human',
               content: res.user_text,
               timestamp: now,
-              user_id: this.userId,
             },
             {
               id: generateUUID(),
@@ -121,7 +110,6 @@ export class MessageService {
               sender: 'ai',
               content: res.ai_text,
               timestamp: now,
-              user_id: this.userId,
             },
           ]);
           this.speak(res.ai_text);
@@ -186,7 +174,6 @@ export class MessageService {
         chat_id: chatId,
         sender: 'human',
         content,
-        user_id: this.userId,
       })
       .subscribe((response) => {
         const updatedMessages = this.messagesSubject
