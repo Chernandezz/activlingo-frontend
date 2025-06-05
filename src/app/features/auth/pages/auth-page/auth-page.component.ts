@@ -20,7 +20,7 @@ export class AuthPageComponent {
   email = '';
   password = '';
   confirmPassword = '';
-  isLogin = true;
+  isLogin = false;
   isLoading = false;
   message = '';
 

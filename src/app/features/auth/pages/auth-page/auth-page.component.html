@@ -9,7 +9,7 @@
   <div class="w-full max-w-md bg-white rounded-xl shadow-xl p-8">
     <!-- Título de Login / Registro -->
     <h2 class="text-3xl font-semibold text-gray-800 text-center mb-6">
-      {{ isLogin ? 'Login' : 'Sign Up' }}
+      {{ isLogin ? 'Ingresar' : 'Registrarse' }}
     </h2>
 
     <!-- Mensaje de confirmación después de registrarse -->
@@ -20,7 +20,7 @@
       </p>
       <button (click)="goToLogin()"
         class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg shadow-md hover:bg-indigo-700 hover:shadow-lg transition-all">
-        I’ve confirmed my email – Log In
+        I've confirmed my email - Log In
       </button>
     </div>
 
@@ -28,53 +28,53 @@
     <form *ngIf="!showConfirmationNotice" (ngSubmit)="submit()" class="space-y-5">
       <!-- Nombre (solo en Sign Up) -->
       <div *ngIf="!isLogin">
-        <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-        <input [(ngModel)]="name" name="name" id="name" type="text" required placeholder="Your full name"
-          class="mt-1 block w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition" />
+        <label for="name" class="block text-sm font-medium text-gray-700">Nombre</label>
+        <input [(ngModel)]="name" name="name" id="name" type="text" required placeholder="Santiago Gómez"
+          class="mt-1 block w-full  placeholder-gray-400 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition" />
       </div>
 
       <!-- Email -->
       <div>
         <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-        <input [(ngModel)]="email" name="email" id="email" type="email" required placeholder="you@example.com"
-          class="mt-1 block w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition" />
+        <input [(ngModel)]="email" name="email" id="email" type="email" required placeholder="email@ejemplo.com"
+          class="mt-1 block w-full border placeholder-gray-400 border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition" />
       </div>
 
       <!-- Password -->
       <div>
-        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+        <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
         <input [(ngModel)]="password" name="password" id="password" type="password" required placeholder="••••••••"
-          class="mt-1 block w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition" />
+          class="mt-1 block w-full placeholder-gray-400 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition" />
 
         <!-- Solo cuando estamos en Login -->
         <div *ngIf="isLogin" class="mt-2 text-right">
           <button type="button" (click)="sendResetPasswordEmail()"
             class="text-sm text-indigo-600 underline hover:text-indigo-800 transition">
-            Forgot your password?
+            Olvidaste tu contraseña?
           </button>
         </div>
       </div>
 
       <!-- Confirm Password (solo en Sign Up) -->
       <div *ngIf="!isLogin">
-        <label for="confirmPassword" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+        <label for="confirmPassword" class="block text-sm font-medium text-gray-700">Confirmar contraseña</label>
         <input [(ngModel)]="confirmPassword" name="confirmPassword" id="confirmPassword" type="password" required
           placeholder="••••••••"
-          class="mt-1 block w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition" />
+          class="mt-1 block w-full placeholder-gray-400 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition" />
       </div>
 
       <!-- Botón Enviar -->
       <button type="submit"
         class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg shadow-md hover:bg-indigo-700 hover:shadow-lg transition-all">
-        {{ isLogin ? 'Login' : 'Sign Up' }}
+        {{ isLogin ? 'Ingresar' : 'Enviar' }}
       </button>
 
       <!-- Toggle entre Login y SignUp -->
       <p class="text-center text-sm text-gray-600">
-        {{ isLogin ? "Don't have an account?" : "Already have an account?" }}
+        {{ isLogin ? "No tienes cuenta?" : "Ya tienes una cuenta?" }}
         <button type="button" (click)="toggleMode()"
           class="ml-1 text-indigo-600 underline hover:text-indigo-800 transition">
-          {{ isLogin ? 'Sign up' : 'Login' }}
+          {{ isLogin ? 'Registrate' : 'Ingresar' }}
         </button>
       </p>
 
