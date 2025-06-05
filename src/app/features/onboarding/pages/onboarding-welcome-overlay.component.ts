@@ -60,7 +60,6 @@ export class OnboardingWelcomeOverlayComponent implements OnInit {
   /** (Opcional) Si quisieras iniciar la trial explícitamente   */
   startFreeTrial() {
     localStorage.setItem('onboarding_seen', 'true');
-    this.router.navigate(['/chats']);
     // Como el trial ya arrancó cuando se creó el usuario, no necesitas otra llamada al backend
   }
 }

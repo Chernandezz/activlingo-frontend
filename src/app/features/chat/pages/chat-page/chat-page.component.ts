@@ -53,7 +53,7 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
   hideAIResponses$: Observable<boolean>;
   chatForAnalysis: Chat | null = null;
   tasks$: Observable<Task[]>;
-  showOnboarding = false;
+  showOnboarding = false; // Para mostrar el overlay de bienvenida
 
   // Estado UI
   currentChatId: string | null = null;
@@ -105,7 +105,6 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
       .pipe(take(1))
       .subscribe((res) => {
         if (res.trial_active && !res.is_subscribed) {
-          console.log(res);
           this.showOnboarding = true;
         }
       });
