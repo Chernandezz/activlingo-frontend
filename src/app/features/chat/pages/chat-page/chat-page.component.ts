@@ -16,6 +16,7 @@ import { ChatService } from '../../services/chat.service';
 import { MessageService } from '../../services/message.service';
 import { UiService } from '../../../../shared/services/ui.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { OnboardingWelcomeOverlayComponent } from '../../../onboarding/pages/onboarding-welcome-overlay.component';
 
 import { ChatSidebarComponent } from '../../components/chat-sidebar/chat-sidebar.component';
 import { ChatMessageComponent } from '../../components/chat-message/chat-message.component';
@@ -25,6 +26,7 @@ import { ConversationOverlayComponent } from '../../components/conversation-over
 import { Task } from '../../../../core/models/task';
 import { TaskService } from '../../services/tasks.service';
 import { AudioRecorderService } from '../../services/audio-recorder.service';
+import { UserService } from '../../../../core/services/user.service';
 
 @Component({
   selector: 'app-chat-page',
@@ -36,6 +38,7 @@ import { AudioRecorderService } from '../../services/audio-recorder.service';
     ChatInputComponent,
     ChatAnalysisComponent,
     ConversationOverlayComponent,
+    OnboardingWelcomeOverlayComponent,
   ],
   templateUrl: './chat-page.component.html',
 })
@@ -50,6 +53,7 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
   hideAIResponses$: Observable<boolean>;
   chatForAnalysis: Chat | null = null;
   tasks$: Observable<Task[]>;
+  showOnboarding = false;
 
   // Estado UI
   currentChatId: string | null = null;
@@ -74,7 +78,7 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     private chatService: ChatService,
     private messageService: MessageService,
     public ui: UiService,
-    private authService: AuthService,
+    private userService: UserService,
     private taskService: TaskService,
     private audioRecorder: AudioRecorderService
   ) {
@@ -88,6 +92,23 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
 
   ngOnInit(): void {
     this.chatService.fetchChats();
+
+    // 1) Solo mostramos el overlay si aún no lo vio el usuario
+    const alreadySeen = localStorage.getItem('onboarding_seen');
+    if (!alreadySeen) {
+      this.showOnboarding = true;
+    }
+
+    // 2) También comprobamos trial_active e is_subscribed
+    this.userService
+      .getTrialInfo()
+      .pipe(take(1))
+      .subscribe((res) => {
+        if (res.trial_active && !res.is_subscribed) {
+          console.log(res);
+          this.showOnboarding = true;
+        }
+      });
 
     this.subscriptions.add(
       this.currentChat$.subscribe((chat) => {
@@ -108,6 +129,11 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
         }));
       })
     );
+  }
+
+  closeOnboarding(): void {
+    this.showOnboarding = false;
+    localStorage.setItem('onboarding_seen', 'true');
   }
 
   ngAfterViewChecked(): void {
@@ -187,7 +213,6 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
   }
 
   handleStartNewChat(data: { role: string; context: string }): void {
-
     this.isCreatingChat = true;
     this.chatService
       .createChat({

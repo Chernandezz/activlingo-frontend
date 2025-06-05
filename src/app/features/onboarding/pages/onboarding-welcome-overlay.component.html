@@ -1,0 +1,77 @@
+<!-- onboarding-welcome-overlay.component.html -->
+<!-- Fondo semitransparente + blur: ocupa toda la pantalla -->
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+  <!-- Tarjeta principal: fondo blanco, bordes redondeados, sombra grande -->
+  <div
+    class="relative bg-white rounded-2xl shadow-2xl max-w-lg w-[90%] md:w-[500px] lg:w-[550px] p-8 sm:p-10 animate-fadeIn">
+    <!-- Botón para cerrar -->
+    <button (click)="handleClose()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition"
+      title="Cerrar">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+
+    <!-- Título y breve descripción -->
+    <h1 class="text-3xl sm:text-4xl font-bold text-indigo-700 mb-4 text-center">
+      🎉 ¡Bienvenido a Activlingo!
+    </h1>
+    <p class="text-gray-700 text-center mb-6">
+      Aprende inglés conversacional con IA en tiempo real.
+      Práctica, feedback instantáneo y seguimiento de tu progreso.
+    </p>
+
+    <!-- Sección de prueba gratuita -->
+    <div
+      class="flex flex-col sm:flex-row items-center justify-between mb-6 px-4 py-3 bg-indigo-50 rounded-lg border border-indigo-100">
+      <div class="text-indigo-800 text-center sm:text-left">
+        <span class="font-semibold">Prueba gratuita</span><br />
+        <span class="text-lg">3 días completos</span>
+      </div>
+      <div class="mt-3 sm:mt-0">
+        <button (click)="startFreeTrial()"
+          class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-indigo-700 transition">
+          Iniciar mi prueba
+        </button>
+      </div>
+    </div>
+
+    <!-- Sección de precios y suscripción -->
+    <div class="mb-6 px-4 py-6 bg-white rounded-lg border border-gray-200 shadow-sm">
+      <h2 class="text-xl font-semibold text-gray-800 mb-2 text-center">Planes de Suscripción</h2>
+
+      <!-- Ejemplo de plan “Mensual” -->
+      <div class="flex flex-col sm:flex-row items-center justify-between">
+        <div>
+          <p class="font-medium text-gray-700">Mensual</p>
+          <p class="text-2xl font-bold text-gray-900 mt-1">$9.99 <span class="text-sm text-gray-500">/ mes</span></p>
+          <p class="text-sm text-gray-500 mt-1">Acceso completo a todos los cursos y chats</p>
+        </div>
+        <div class="mt-4 sm:mt-0">
+          <button (click)="goToPricing()"
+            class="bg-green-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-green-700 transition">
+            Suscribirme
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Beneficios adicionales -->
+    <ul class="text-gray-700 text-sm space-y-2 mb-6">
+      <li>✔️ IA conversacional 24/7 para practicar en cualquier momento.</li>
+      <li>✔️ Feedback instantáneo y aprendizaje de vocabulario activo.</li>
+      <li>✔️ Seguimiento de tu progreso en tiempo real.</li>
+    </ul>
+
+    <!-- Fechas del trial + botón “Continuar sin suscripción” -->
+    <p class="text-gray-500 mb-4 text-center">
+      Tu prueba finaliza el <strong>{{ trialEndDate | date:'longDate' }}</strong>
+    </p>
+
+    <div class="text-center">
+      <button (click)="handleClose()" class="text-indigo-600 underline hover:text-indigo-800 text-sm">
+        Continuar sin suscripción
+      </button>
+    </div>
+  </div>
+</div>
