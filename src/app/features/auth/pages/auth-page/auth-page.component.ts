@@ -2,13 +2,15 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../../core/services/auth.service';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { supabase } from '../../../../core/utils/supabase-client';
+
 
 
 @Component({
   selector: 'app-auth-page',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './auth-page.component.html',
 })
 export class AuthPageComponent {
@@ -71,5 +73,24 @@ export class AuthPageComponent {
   goToLogin() {
     this.showConfirmationNotice = false;
     this.toggleMode();
+  }
+  sendResetPasswordEmail() {
+    if (!this.email) {
+      this.message = 'Please enter your email to reset your password';
+      return;
+    }
+
+    this.isLoading = true;
+
+    supabase.auth
+      .resetPasswordForEmail(this.email, {
+        redirectTo: 'https://activlingo.com/auth/reset-confirmed',
+      })
+      .then(({ error }) => {
+        this.isLoading = false;
+        this.message = error
+          ? error.message
+          : 'Password reset email sent. Please check your inbox.';
+      });
   }
 }

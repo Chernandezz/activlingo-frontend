@@ -1,66 +1,87 @@
-<div class="min-h-screen flex items-center justify-center bg-gray-50">
-  <div class="w-full max-w-md bg-white p-6 rounded-lg shadow-md">
-    <h2 class="text-2xl font-bold text-center mb-6">
+<!-- auth-page.component.html -->
+<div class=" min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-100 to-purple-100">
+  <!-- Logo Activlingo -->
+  <h1
+    class="text-5xl font-extrabold text-center mb-15 bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent drop-shadow-lg">
+    Activlingo
+  </h1>
+
+  <div class="w-full max-w-md bg-white rounded-xl shadow-xl p-8">
+    <!-- Título de Login / Registro -->
+    <h2 class="text-3xl font-semibold text-gray-800 text-center mb-6">
       {{ isLogin ? 'Login' : 'Sign Up' }}
     </h2>
 
-    <!-- Confirmation message after signup -->
+    <!-- Mensaje de confirmación después de registrarse -->
     <div *ngIf="showConfirmationNotice" class="text-center space-y-6">
-      <h2 class="text-2xl font-bold text-gray-800">Check your email</h2>
+      <h3 class="text-2xl font-bold text-gray-800">Check your email</h3>
       <p class="text-gray-600">
         We've sent you a confirmation link. Please verify your email to activate your account.
       </p>
       <button (click)="goToLogin()"
-        class="bg-blue-600 text-white font-semibold py-2 px-6 rounded hover:bg-blue-700 transition">
+        class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg shadow-md hover:bg-indigo-700 hover:shadow-lg transition-all">
         I’ve confirmed my email – Log In
       </button>
     </div>
 
-    <form *ngIf="!showConfirmationNotice" (ngSubmit)="submit()" class="space-y-4">
-      <!-- Name (solo en Sign Up) -->
+    <!-- Formulario de Login / Sign Up -->
+    <form *ngIf="!showConfirmationNotice" (ngSubmit)="submit()" class="space-y-5">
+      <!-- Nombre (solo en Sign Up) -->
       <div *ngIf="!isLogin">
         <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-        <input [(ngModel)]="name" name="name" id="name" type="text" required
-          class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+        <input [(ngModel)]="name" name="name" id="name" type="text" required placeholder="Your full name"
+          class="mt-1 block w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition" />
       </div>
-    
+
       <!-- Email -->
       <div>
         <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-        <input [(ngModel)]="email" name="email" id="email" type="email" required
-          class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+        <input [(ngModel)]="email" name="email" id="email" type="email" required placeholder="you@example.com"
+          class="mt-1 block w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition" />
       </div>
-    
+
       <!-- Password -->
       <div>
         <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-        <input [(ngModel)]="password" name="password" id="password" type="password" required
-          class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+        <input [(ngModel)]="password" name="password" id="password" type="password" required placeholder="••••••••"
+          class="mt-1 block w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition" />
+
+        <!-- Solo cuando estamos en Login -->
+        <div *ngIf="isLogin" class="mt-2 text-right">
+          <button type="button" (click)="sendResetPasswordEmail()"
+            class="text-sm text-indigo-600 underline hover:text-indigo-800 transition">
+            Forgot your password?
+          </button>
+        </div>
       </div>
-    
+
       <!-- Confirm Password (solo en Sign Up) -->
       <div *ngIf="!isLogin">
         <label for="confirmPassword" class="block text-sm font-medium text-gray-700">Confirm Password</label>
         <input [(ngModel)]="confirmPassword" name="confirmPassword" id="confirmPassword" type="password" required
-          class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+          placeholder="••••••••"
+          class="mt-1 block w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition" />
       </div>
-    
-      <!-- Submit Button -->
-      <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 rounded hover:bg-blue-700 transition">
+
+      <!-- Botón Enviar -->
+      <button type="submit"
+        class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg shadow-md hover:bg-indigo-700 hover:shadow-lg transition-all">
         {{ isLogin ? 'Login' : 'Sign Up' }}
       </button>
-    
-      <!-- Toggle -->
+
+      <!-- Toggle entre Login y SignUp -->
       <p class="text-center text-sm text-gray-600">
         {{ isLogin ? "Don't have an account?" : "Already have an account?" }}
-        <button type="button" (click)="toggleMode()" class="text-blue-600 underline ml-1">
+        <button type="button" (click)="toggleMode()"
+          class="ml-1 text-indigo-600 underline hover:text-indigo-800 transition">
           {{ isLogin ? 'Sign up' : 'Login' }}
         </button>
       </p>
-    
-      <!-- Error / Success Message -->
-      <div *ngIf="message" class="text-center text-sm text-red-500 mt-2">{{ message }}</div>
+
+      <!-- Mensaje de error / éxito -->
+      <div *ngIf="message" class="text-center text-sm text-red-500 mt-2">
+        {{ message }}
+      </div>
     </form>
-    
   </div>
 </div>
