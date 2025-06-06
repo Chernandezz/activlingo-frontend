@@ -1,4 +1,6 @@
-<app-onboarding-welcome-overlay *ngIf="showOnboarding"></app-onboarding-welcome-overlay>
+<app-onboarding-welcome-overlay *ngIf="showOnboarding" (startFreeTrial)="handleStartFreeTrial()">
+</app-onboarding-welcome-overlay>
+
 
 <div class="flex h-full">
   <!-- Sidebar Desktop -->

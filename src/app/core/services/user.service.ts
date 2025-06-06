@@ -9,6 +9,7 @@ export interface TrialStatus {
   trial_end: string;
   trial_active: boolean;
   is_subscribed: boolean;
+  onboarding_seen: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -19,5 +20,9 @@ export class UserService {
 
   getTrialInfo(): Observable<TrialStatus> {
     return this.http.get<TrialStatus>(`${this.apiUrl}/trial-status`);
+  }
+
+  markOnboardingSeen() {
+    return this.http.post(`${this.apiUrl}/onboarding-seen`, {});
   }
 }

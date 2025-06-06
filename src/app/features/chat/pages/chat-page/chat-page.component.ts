@@ -93,18 +93,13 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
   ngOnInit(): void {
     this.chatService.fetchChats();
 
-    // 1) Solo mostramos el overlay si aún no lo vio el usuario
-    const alreadySeen = localStorage.getItem('onboarding_seen');
-    if (!alreadySeen) {
-      this.showOnboarding = true;
-    }
 
-    // 2) También comprobamos trial_active e is_subscribed
     this.userService
       .getTrialInfo()
       .pipe(take(1))
       .subscribe((res) => {
-        if (res.trial_active && !res.is_subscribed) {
+        console.log('Trial info:', res);
+        if (res.trial_active && !res.is_subscribed && !res.onboarding_seen) {
           this.showOnboarding = true;
         }
       });
@@ -130,11 +125,6 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     );
   }
 
-  closeOnboarding(): void {
-    this.showOnboarding = false;
-    localStorage.setItem('onboarding_seen', 'true');
-  }
-
   ngAfterViewChecked(): void {
     this.scrollToBottom();
   }
@@ -155,7 +145,7 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     if (currentChat) {
       this.isLoading = true;
       this.messageService.sendMessage(currentChat.id, content);
-      setTimeout(() => (this.isLoading = false), 2000); // Simulación
+      setTimeout(() => (this.isLoading = false), 2000); 
     }
   }
 
@@ -275,5 +265,17 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
 
   trackByMessage(index: number, message: Message): string {
     return message.id;
+  }
+
+  handleStartFreeTrial(): void {
+    this.userService.markOnboardingSeen().subscribe({
+      next: () => {
+        this.showOnboarding = false;
+      },
+      error: (err) => {
+        console.error('Error al marcar onboarding visto:', err);
+        this.showOnboarding = false;
+      },
+    });
   }
 }
