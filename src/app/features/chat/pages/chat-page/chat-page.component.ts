@@ -47,6 +47,7 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
 
   // Observables
   chats$: Observable<Chat[]>;
+
   currentChat$: Observable<Chat | null>;
   messages$: Observable<Message[]>;
   overlayVisible$: Observable<boolean>;
@@ -93,7 +94,6 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
   ngOnInit(): void {
     this.chatService.fetchChats();
 
-
     this.userService
       .getTrialInfo()
       .pipe(take(1))
@@ -125,6 +125,7 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     );
   }
 
+
   ngAfterViewChecked(): void {
     this.scrollToBottom();
   }
@@ -145,7 +146,23 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     if (currentChat) {
       this.isLoading = true;
       this.messageService.sendMessage(currentChat.id, content);
-      setTimeout(() => (this.isLoading = false), 2000); 
+      setTimeout(() => (this.isLoading = false), 2000);
+    }
+  }
+
+  handleDeleteChat(chatId: string): void {
+    if (confirm('¿Estás seguro de que deseas eliminar este chat?')) {
+      this.chatService.deleteChat(chatId).subscribe(() => {
+        const updatedChats = this.chatService
+          .getChatsValue()
+          .filter((c) => c.id !== chatId);
+        this.chatService.setChats(updatedChats);
+
+        // Limpiar el chat actual si era el eliminado
+        if (this.chatService.getCurrentChatValue()?.id === chatId) {
+          this.chatService.setCurrentChat(null);
+        }
+      });
     }
   }
 

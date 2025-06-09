@@ -8,17 +8,19 @@
     <app-chat-sidebar [chats]="(chats$ | async) ?? []" [currentChatId]="currentChatId"
       [hideAIResponses]="(hideAIResponses$ | async) ?? false" [isCreatingChat]="isCreatingChat" [showModal]="showModal"
       (toggleSidebar)="ui.toggleSidebar()" (select)="handleSelectChat($event)" (startChat)="handleStartNewChat($event)"
-      (toggleAI)="ui.toggleHideAIResponses()" (openModal)="openModal()" (closeModal)="closeModal()"
+      (toggleAI)="ui.toggleHideAIResponses()" (deleteChat)="handleDeleteChat($event)"
+      (openModal)="openModal()" (closeModal)="closeModal()"
       class="w-full h-full"></app-chat-sidebar>
   </div>
 
   <!-- Sidebar Mobile -->
-  <div *ngIf="isSidebarOpen" class="fixed inset-0 z-50 flex lg:hidden">
+  <div *ngIf="isSidebarOpen" class="fixed inset-0 z-50 flex lg:hidden h-full">
     <div class="w-[320px] bg-white shadow-xl">
       <app-chat-sidebar [chats]="(chats$ | async) ?? []" [currentChatId]="currentChatId"
         [hideAIResponses]="(hideAIResponses$ | async) ?? false" [isCreatingChat]="isCreatingChat"
         [showModal]="showModal" (toggleSidebar)="ui.toggleSidebar()" (select)="handleSelectChat($event)"
-        (startChat)="handleStartNewChat($event)" (toggleAI)="ui.toggleHideAIResponses()" (openModal)="openModal()"
+        (startChat)="handleStartNewChat($event)" (deleteChat)="handleDeleteChat($event)"
+        (toggleAI)="ui.toggleHideAIResponses()" (openModal)="openModal()"
         (closeModal)="closeModal()"></app-chat-sidebar>
     </div>
     <div class="flex-1 bg-black/20" (click)="ui.closeSidebar()"></div>
