@@ -14,7 +14,7 @@ export const routes: Routes = [
   },
   {
     path: 'dictionary',
-    canActivate: [AuthGuard], 
+    canActivate: [AuthGuard],
     loadComponent: () =>
       import(
         './features/dictionary/pages/dictionary-page/dictionary-page.component'
@@ -25,6 +25,20 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/auth/pages/auth-page/auth-page.component').then(
         (c) => c.AuthPageComponent
+      ),
+  },
+  {
+    path: 'success',
+    loadComponent: () =>
+      import('./features/onboarding/pages/success-page/success-page.component').then(
+        (m) => m.SuccessPageComponent
+      ),
+  },
+  {
+    path: 'cancel',
+    loadComponent: () =>
+      import('./features/onboarding/pages/cancel-page/cancel-page.component').then(
+        (m) => m.CancelPageComponent
       ),
   },
 ];

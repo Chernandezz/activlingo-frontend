@@ -16,6 +16,7 @@ import { ChatService } from '../../services/chat.service';
 import { MessageService } from '../../services/message.service';
 import { UiService } from '../../../../shared/services/ui.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { OnboardingWelcomeOverlayComponent } from '../../../onboarding/pages/onboarding-welcome-overlay.component';
 
 import { ChatSidebarComponent } from '../../components/chat-sidebar/chat-sidebar.component';
 import { ChatMessageComponent } from '../../components/chat-message/chat-message.component';
@@ -25,6 +26,7 @@ import { ConversationOverlayComponent } from '../../components/conversation-over
 import { Task } from '../../../../core/models/task';
 import { TaskService } from '../../services/tasks.service';
 import { AudioRecorderService } from '../../services/audio-recorder.service';
+import { UserService } from '../../../../core/services/user.service';
 
 @Component({
   selector: 'app-chat-page',
@@ -36,6 +38,7 @@ import { AudioRecorderService } from '../../services/audio-recorder.service';
     ChatInputComponent,
     ChatAnalysisComponent,
     ConversationOverlayComponent,
+    OnboardingWelcomeOverlayComponent,
   ],
   templateUrl: './chat-page.component.html',
 })
@@ -44,12 +47,14 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
 
   // Observables
   chats$: Observable<Chat[]>;
+
   currentChat$: Observable<Chat | null>;
   messages$: Observable<Message[]>;
   overlayVisible$: Observable<boolean>;
   hideAIResponses$: Observable<boolean>;
   chatForAnalysis: Chat | null = null;
   tasks$: Observable<Task[]>;
+  showOnboarding = false; // Para mostrar el overlay de bienvenida
 
   // Estado UI
   currentChatId: string | null = null;
@@ -74,7 +79,7 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     private chatService: ChatService,
     private messageService: MessageService,
     public ui: UiService,
-    private authService: AuthService,
+    private userService: UserService,
     private taskService: TaskService,
     private audioRecorder: AudioRecorderService
   ) {
@@ -88,6 +93,16 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
 
   ngOnInit(): void {
     this.chatService.fetchChats();
+
+    this.userService
+      .getTrialInfo()
+      .pipe(take(1))
+      .subscribe((res) => {
+        console.log('Trial info:', res);
+        if (res.trial_active && !res.is_subscribed && !res.onboarding_seen) {
+          this.showOnboarding = true;
+        }
+      });
 
     this.subscriptions.add(
       this.currentChat$.subscribe((chat) => {
@@ -110,6 +125,7 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     );
   }
 
+
   ngAfterViewChecked(): void {
     this.scrollToBottom();
   }
@@ -130,7 +146,23 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     if (currentChat) {
       this.isLoading = true;
       this.messageService.sendMessage(currentChat.id, content);
-      setTimeout(() => (this.isLoading = false), 2000); // Simulación
+      setTimeout(() => (this.isLoading = false), 2000);
+    }
+  }
+
+  handleDeleteChat(chatId: string): void {
+    if (confirm('¿Estás seguro de que deseas eliminar este chat?')) {
+      this.chatService.deleteChat(chatId).subscribe(() => {
+        const updatedChats = this.chatService
+          .getChatsValue()
+          .filter((c) => c.id !== chatId);
+        this.chatService.setChats(updatedChats);
+
+        // Limpiar el chat actual si era el eliminado
+        if (this.chatService.getCurrentChatValue()?.id === chatId) {
+          this.chatService.setCurrentChat(null);
+        }
+      });
     }
   }
 
@@ -187,7 +219,6 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
   }
 
   handleStartNewChat(data: { role: string; context: string }): void {
-
     this.isCreatingChat = true;
     this.chatService
       .createChat({
@@ -251,5 +282,17 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
 
   trackByMessage(index: number, message: Message): string {
     return message.id;
+  }
+
+  handleStartFreeTrial(): void {
+    this.userService.markOnboardingSeen().subscribe({
+      next: () => {
+        this.showOnboarding = false;
+      },
+      error: (err) => {
+        console.error('Error al marcar onboarding visto:', err);
+        this.showOnboarding = false;
+      },
+    });
   }
 }

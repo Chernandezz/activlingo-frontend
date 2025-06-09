@@ -22,12 +22,24 @@ export class ChatService {
     private taskService: TaskService
   ) {}
 
+  getChatsValue(): Chat[] {
+    return this.chatsSubject.getValue();
+  }
+
+  setChats(chats: Chat[]): void {
+    this.chatsSubject.next(chats);
+  }
+
   getCurrentChatValue(): Chat | null {
     return this.currentChatSubject.getValue();
   }
 
   setCurrentChat(chat: Chat | null): void {
     this.currentChatSubject.next(chat);
+  }
+
+  deleteChat(chatId: string): Observable<string> {
+    return this.http.delete<string>(`${this.apiUrl}/chats/${chatId}`);
   }
 
   fetchChats(): void {
