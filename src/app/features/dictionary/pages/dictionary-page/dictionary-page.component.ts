@@ -1,57 +1,115 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DictionarySidebarComponent } from '../../components/dictionary-sidebar/dictionary-sidebar.component';
 import { WordDetailsComponent } from '../../components/word-details/word-details.component';
-import { WordDefinition } from '../../../../core/models/user-dictionary.model';
+import { DictionarySearchPanelComponent } from '../../components/dictionary-search-panel/dictionary-search-panel.component';
 import { DictionaryService } from '../../services/dictionary.service';
 import { AuthService } from '../../../../core/services/auth.service';
-import { DictionarySearchPanelComponent } from '../../components/dictionary-search-panel/dictionary-search-panel.component';
+import {
+  UserDictionaryEntry,
+  WordDefinition,
+  WordStatus,
+} from '../../../../core/models/user-dictionary.model';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { RouterModule } from '@angular/router';
+import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-dictionary-page',
   standalone: true,
   imports: [
     CommonModule,
+    RouterModule,
     DictionarySidebarComponent,
     WordDetailsComponent,
     DictionarySearchPanelComponent,
+    LoadingSpinnerComponent,
   ],
   templateUrl: './dictionary-page.component.html',
 })
-export class DictionaryPageComponent {
-  searchMode = false;
-  searchResults: WordDefinition[] = [];
-  searchTerm: string = '';
+export class DictionaryPageComponent implements OnInit {
+  private dictionaryService = inject(DictionaryService);
+  private authService = inject(AuthService);
 
-  constructor(
-    private dictionaryService: DictionaryService,
-    private authService: AuthService
-  ) {}
+  // Estados reactivos con signals
+  searchMode = signal(false);
+  selectedWord = signal<UserDictionaryEntry | null>(null);
+  filter = signal<'all' | WordStatus>('all');
+  words = signal<UserDictionaryEntry[]>([]);
+  isLoading = signal(false);
 
-  onSearchResults(results: WordDefinition[]) {
-    this.searchResults = results;
+  // Computed values
+  activeWordCount = computed(
+    () => this.words().filter((w) => w.status === 'active').length
+  );
+
+  filteredWords = computed(() => {
+    const selected = this.filter();
+    return this.words().filter((word) =>
+      selected === 'all' ? true : word.status === selected
+    );
+  });
+
+  passiveWordCount = computed(
+    () => this.words().filter((w) => w.status === 'passive').length
+  );
+
+  totalWordCount = computed(
+    () => this.passiveWordCount() + this.activeWordCount()
+  );
+
+  get userId(): string | null {
+    return this.authService.currentUserId;
+  }
+  handleWordAdded(): void {
+    this.loadWords(); // Recargar las palabras
+    this.searchMode.set(false); // Cerrar el panel de búsqueda
+    // Opcional: Mostrar notificación
+  }
+  ngOnInit(): void {
+    this.loadWords();
+
+    // Escuchar actualizaciones
+    this.dictionaryService.refresh$
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.loadWords());
   }
 
-  selectedWord: any = null;
+  loadWords(): void {
+    if (!this.userId) return;
 
-  onSelectWord(word: any) {
-    this.selectedWord = word;
-  }
-
-  addToDictionary(definition: WordDefinition): void {
-    const userId = this.authService.getCurrentUser;
-    if (!userId) return;
-
-    const payload = {
-      word: this.searchTerm,
-      meaning: definition.meaning,
-      example: definition.example,
-      part_of_speech: definition.part_of_speech,
-      source: definition.source,
-    };
-
-    this.dictionaryService.addWord(userId, payload).subscribe(() => {
-      this.searchMode = false;
+    this.isLoading.set(true);
+    this.dictionaryService.getUserWords().subscribe({
+      next: (words) => {
+        this.words.set(words);
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.isLoading.set(false);
+      },
     });
+  }
+
+  onSearchResults(results: WordDefinition[]): void {
+    this.searchMode.set(false);
+    // Aquí puedes manejar los resultados si es necesario
+    // Por ejemplo, mostrar un toast de éxito
+  }
+
+  onSelectWord(word: UserDictionaryEntry): void {
+    this.selectedWord.set(word);
+    // Registrar visualización como uso
+    this.dictionaryService.logWordUsage(word.id, 'view-details').subscribe({
+      error: (err) => console.error('Error logging word usage:', err),
+    });
+  }
+
+  onFilterChange(filter: 'all' | WordStatus): void {
+    this.filter.set(filter);
+    this.selectedWord.set(null);
+  }
+
+  trackByWordId(index: number, word: UserDictionaryEntry): string {
+    return word.id; // Usar el ID real en lugar de 'asdfasdf'
   }
 }

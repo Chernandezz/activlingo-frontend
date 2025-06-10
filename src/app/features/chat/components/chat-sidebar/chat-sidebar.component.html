@@ -1,56 +1,89 @@
-<div class="flex flex-col h-full max-h-screen bg-white border-r border-gray-200">
+<div class="flex flex-col h-full bg-white border-r border-gray-200">
 
-  <!-- Header Section -->
+  <!-- Header -->
   <div class="flex-shrink-0 p-4 border-b border-gray-200 flex justify-between items-center">
-    <h1 class="text-xl font-bold text-gray-900">My chats</h1>
-    <button (click)="ui.toggleSidebar()" class="text-gray-600 hover:text-gray-900 focus:outline-none p-2">
+    <h1 class="text-xl font-bold text-gray-900">Chats</h1>
+    <button (click)="toggleSidebar.emit()" class="text-gray-600 hover:text-gray-900 focus:outline-none p-2">
       <fa-icon [icon]="faTimes" class="w-5 h-5"></fa-icon>
     </button>
   </div>
 
-  <!-- Chat List -->
-  <div class="flex-1 overflow-scroll max-h-[calc(100vh-16rem)] overflow-x-hidden">
-    <div class="space-y-0">
-      <div *ngFor="let chat of chats$ | async; trackBy: trackByChat" (click)="selectChat(chat.id)"
-        class="px-4 py-4 cursor-pointer hover:bg-gray-50 transition-colors duration-150 border-b border-gray-100"
-        [class.bg-blue-50]="(currentChat$ | async)?.id === chat.id"
-        [class.border-l-4]="(currentChat$ | async)?.id === chat.id"
-        [class.border-l-blue-500]="(currentChat$ | async)?.id === chat.id">
+  <!-- Contenedor que toma todo el espacio entre header y footer -->
+  <div class="flex-1 flex flex-col overflow-hidden">
 
-        <div class="flex items-center justify-between">
-          <div class="flex-1 min-w-0">
-            <h3 class="text-base font-semibold text-gray-900 truncate mb-1"
-              [class.text-blue-900]="(currentChat$ | async)?.id === chat.id">
-              {{ chat.title }}
-            </h3>
-          </div>
-          <div class="flex-shrink-0 ml-3">
-            <span class="text-sm text-gray-400" [class.text-blue-500]="(currentChat$ | async)?.id === chat.id">
-              {{ getRelativeTime(chat.created_at) }}
-            </span>
+    <!-- Lista de chats con scroll -->
+    <div class="flex-1 overflow-y-auto overflow-x-hidden">
+      <div class="space-y-0">
+        <!-- chat-sidebar.component.html -->
+        <div *ngFor="let chat of chats; trackBy: trackByChat"
+          class="group relative px-4 py-4 cursor-pointer hover:bg-gray-50 transition-colors duration-150 border-b border-gray-100"
+          [class.bg-blue-50]="currentChatId === chat.id" [class.border-l-4]="currentChatId === chat.id"
+          [class.border-l-blue-500]="currentChatId === chat.id">
+
+          <div class="flex items-center justify-between">
+            <!-- Título -->
+            <div class="flex-1 min-w-0" (click)="select.emit(chat.id)">
+              <h3 class="text-base font-semibold text-gray-900 truncate mb-1 capitalize"
+                [class.text-blue-900]="currentChatId === chat.id">
+                {{ chat.title }}
+              </h3>
+            </div>
+
+            <!-- Fecha + Botón eliminar -->
+            <div class="flex items-center space-x-2 flex-shrink-0">
+              <!-- Fecha -->
+              <span class="text-sm text-gray-400 group-hover:text-gray-500 transition-colors"
+                [class.text-blue-500]="currentChatId === chat.id">
+                {{ getRelativeTime(chat.created_at) }}
+              </span>
+
+              <!-- Opciones Chat -->
+              <div class="relative flex-shrink-0 courser-pointer">
+                <!-- Botón de tres puntitos -->
+                <button (click)="toggleMenu(chat.id, $event)" class="p-1 text-gray-400 hover:text-gray-700 focus:outline-none"
+                  title="Opciones">
+                  <fa-icon [icon]="faEllipsisVertical" class="w-5 h-5"></fa-icon>
+                </button>
+              
+                <!-- Dropdown -->
+                <div *ngIf="openMenuId === chat.id"
+                  class="absolute right-0 mt-1 w-40 bg-white border border-gray-200 rounded shadow-lg z-20"
+                  (click)="$event.stopPropagation()">
+              
+                  <button (click)="deleteChat.emit(chat.id); closeMenu()"
+                    class="w-full flex items-center px-3 py-2 text-red-600 hover:bg-red-50 transition-colors">
+                    <fa-icon [icon]="faTrashAlt" class="w-4 h-4 mr-2"></fa-icon>
+                    Eliminar chat
+                  </button>        </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Empty State -->
-      <div *ngIf="(chats$ | async)?.length === 0" class="text-center py-16 px-4">
-        <div class="w-16 h-16 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
-          <fa-icon [icon]="faTimes" class="text-gray-400 text-2xl"></fa-icon>
+
+
+        <!-- Empty State -->
+        <div *ngIf="chats.length === 0" class="text-center py-16 px-4">
+          <div class="w-16 h-16 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
+            <fa-icon [icon]="faTimes" class="text-gray-400 text-2xl"></fa-icon>
+          </div>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">No chats yet</h3>
+          <p class="text-sm text-gray-500 mb-6 max-w-xs mx-auto">
+            Start your first conversation to practice English
+          </p>
         </div>
-        <h3 class="text-lg font-medium text-gray-900 mb-2">No chats yet</h3>
-        <p class="text-sm text-gray-500 mb-6 max-w-xs mx-auto">
-          Start your first conversation to practice English
-        </p>
       </div>
     </div>
+
   </div>
 
-  <!-- Footer Section -->
-  <div class="flex-shrink-0 border-t border-gray-200 bg-gray-50 px-4 py-3">
-    <div class="flex items-center justify-between mb-4">
+  <!-- Footer (nuevo chat y toggle) -->
+  <div class="flex-shrink-0 border-t border-gray-200 bg-gray-50 px-4 py-3 space-y-4">
+
+    <!-- Hide AI Toggle -->
+    <div class="flex items-center justify-between">
       <span class="text-sm text-gray-700">Esconder respuestas de IA</span>
       <label class="relative inline-flex items-center cursor-pointer">
-        <input type="checkbox" [checked]="hideAIResponses" (change)="toggleAIResponses()" class="sr-only peer">
+        <input type="checkbox" [checked]="hideAIResponses" (change)="toggleAI.emit()" class="sr-only peer">
         <div
           class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-green-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all">
         </div>
@@ -58,7 +91,7 @@
     </div>
 
     <!-- Nuevo Chat -->
-    <button (click)="openModal()" [disabled]="isCreatingChat"
+    <button (click)="openModal.emit()" [disabled]="isCreatingChat"
       class="w-full px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
       <span *ngIf="!isCreatingChat">+ Nuevo Chat</span>
       <span *ngIf="isCreatingChat" class="flex items-center justify-center gap-2">
@@ -67,7 +100,9 @@
       </span>
     </button>
 
-    <!-- Modal para crear chat -->
-    <app-chat-modal *ngIf="showModal" (cancel)="closeModal()" (start)="startNewChat($event)"></app-chat-modal>
+    <!-- Modal -->
+    <app-chat-modal *ngIf="showModal" (cancel)="closeModal.emit()" (start)="startChat.emit($event)">
+    </app-chat-modal>
+
   </div>
 </div>

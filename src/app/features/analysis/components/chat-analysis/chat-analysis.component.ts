@@ -1,9 +1,8 @@
-// chat-analysis.component.ts
 import { Component, Input, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BehaviorSubject } from 'rxjs';
-import { LanguageAnalysisPoint } from '../../../chat/models/language-analysis.model';
 import { AnalysisService } from '../../../chat/services/analysis.service';
+import { LanguageAnalysisPoint } from '../../../chat/models/language-analysis.model';
 
 @Component({
   selector: 'app-chat-analysis',
@@ -12,44 +11,40 @@ import { AnalysisService } from '../../../chat/services/analysis.service';
   templateUrl: './chat-analysis.component.html',
 })
 export class ChatAnalysisComponent implements OnChanges {
-  @Input() chatId: string | undefined;
-
-  private analysisPointsSubject = new BehaviorSubject<LanguageAnalysisPoint[]>(
-    []
-  );
-  analysisPoints$ = this.analysisPointsSubject.asObservable();
-
+  @Input() chatId?: string;
+  points: LanguageAnalysisPoint[] = [];
   expandedPoints = new Set<string>();
 
   constructor(private analysisService: AnalysisService) {}
-
+  
   ngOnChanges(): void {
-    if (this.chatId) {
-      this.clearExpandedPoints();
-      this.loadAnalysisPoints();
-    } else {
-      this.analysisPointsSubject.next([]);
-      this.clearExpandedPoints();
-    }
-  }
+    console.log('🔍 Analyzing chatId:', this.chatId); // ✅ Debug
+    this.expandedPoints.clear();
 
-  loadAnalysisPoints(): void {
     if (this.chatId) {
       this.analysisService
         .getAnalysisPointsForChat(this.chatId)
         .subscribe((points) => {
-          this.analysisPointsSubject.next(points);
+          console.log('📊 Analysis points received:', points); // ✅ Debug
+          this.points = points;
         });
+    } else {
+      this.points = [];
     }
   }
 
-  getCategoryCount(type: string): number {
-    return this.analysisPointsSubject.value.filter((p) => p.category === type)
-      .length;
+  toggle(pointId: string): void {
+    this.expandedPoints.has(pointId)
+      ? this.expandedPoints.delete(pointId)
+      : this.expandedPoints.add(pointId);
   }
 
-  getTotalPoints(): number {
-    return this.analysisPointsSubject.value.length;
+  isExpanded(pointId: string): boolean {
+    return this.expandedPoints.has(pointId);
+  }
+
+  getCategoryCount(type: string): number {
+    return this.points.filter((p) => p.category === type).length;
   }
 
   getTypeConfig(type: string): {
@@ -57,65 +52,39 @@ export class ChatAnalysisComponent implements OnChanges {
     icon: string;
     label: string;
   } {
-    const configs = {
+    const configs: Record<string, any> = {
       grammar: {
-        gradient: 'from-rose-500 to-pink-600',
+        gradient: 'rose',
         icon: '📝',
         label: 'Gramática',
+        subtitle: 'Errores detectados',
       },
       vocabulary: {
-        gradient: 'from-amber-500 to-orange-600',
+        gradient: 'amber',
         icon: '📚',
         label: 'Vocabulario',
+        subtitle: 'Palabras nuevas',
       },
       phrasal_verb: {
-        gradient: 'from-blue-500 to-indigo-600',
+        gradient: 'blue',
         icon: '🔗',
         label: 'Phrasal Verbs',
-      },
-      idiom: {
-        gradient: 'from-purple-500 to-violet-600',
-        icon: '🎭',
-        label: 'Idiomas',
-      },
-      collocation: {
-        gradient: 'from-cyan-500 to-teal-600',
-        icon: '🧩',
-        label: 'Colocaciones',
+        subtitle: 'Expresiones compuestas',
       },
       expression: {
-        gradient: 'from-emerald-500 to-green-600',
+        gradient: 'emerald',
         icon: '💬',
         label: 'Expresiones',
+        subtitle: 'Frases idiomáticas',
       },
     };
     return (
-      configs[type as keyof typeof configs] || {
-        gradient: 'from-gray-500 to-gray-600',
+      configs[type] || {
+        gradient: 'gray',
         icon: '📋',
         label: type,
+        subtitle: '',
       }
     );
-  }
-
-  togglePoint(pointId: string): void {
-    if (this.expandedPoints.has(pointId)) {
-      this.expandedPoints.delete(pointId);
-    } else {
-      this.expandedPoints.add(pointId);
-    }
-  }
-
-  isExpanded(pointId: string): boolean {
-    return this.expandedPoints.has(pointId);
-  }
-
-  trackByPointId(index: number, point: LanguageAnalysisPoint): string {
-    return point.id;
-  }
-
-  // Método para limpiar puntos expandidos cuando cambia el chat
-  private clearExpandedPoints(): void {
-    this.expandedPoints.clear();
   }
 }

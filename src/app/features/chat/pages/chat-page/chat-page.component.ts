@@ -1,4 +1,3 @@
-// chat-page.component.ts
 import {
   Component,
   OnInit,
@@ -8,17 +7,26 @@ import {
   OnDestroy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ChatService } from '../../services/chat.service';
-import { MessageService } from '../../services/message.service';
 import { Observable, Subscription } from 'rxjs';
+import { map, take } from 'rxjs/operators';
+
 import { Chat } from '../../../../core/models/chat.model';
 import { Message } from '../../../../core/models/message.model';
+import { ChatService } from '../../services/chat.service';
+import { MessageService } from '../../services/message.service';
+import { UiService } from '../../../../shared/services/ui.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import { OnboardingWelcomeOverlayComponent } from '../../../onboarding/pages/onboarding-welcome-overlay.component';
+
 import { ChatSidebarComponent } from '../../components/chat-sidebar/chat-sidebar.component';
 import { ChatMessageComponent } from '../../components/chat-message/chat-message.component';
 import { ChatInputComponent } from '../../components/chat-input/chat-input.component';
 import { ChatAnalysisComponent } from '../../../analysis/components/chat-analysis/chat-analysis.component';
-import { UiService } from '../../../../shared/services/ui.service';
-import { map } from 'rxjs';
+import { ConversationOverlayComponent } from '../../components/conversation-overlay/conversation-overlay.component';
+import { Task } from '../../../../core/models/task';
+import { TaskService } from '../../services/tasks.service';
+import { AudioRecorderService } from '../../services/audio-recorder.service';
+import { UserService } from '../../../../core/services/user.service';
 
 @Component({
   selector: 'app-chat-page',
@@ -29,85 +37,97 @@ import { map } from 'rxjs';
     ChatMessageComponent,
     ChatInputComponent,
     ChatAnalysisComponent,
+    ConversationOverlayComponent,
+    OnboardingWelcomeOverlayComponent,
   ],
   templateUrl: './chat-page.component.html',
 })
 export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
-  public hideAIResponses$!: Observable<boolean>;
+  @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
 
-  isSidebarOpen = false;
-  overlayVisible$: Observable<boolean>;
-  overlayMessage = 'Tu turno. Estamos escuchando...';
+  // Observables
+  chats$: Observable<Chat[]>;
 
   currentChat$: Observable<Chat | null>;
   messages$: Observable<Message[]>;
+  overlayVisible$: Observable<boolean>;
+  hideAIResponses$: Observable<boolean>;
+  chatForAnalysis: Chat | null = null;
+  tasks$: Observable<Task[]>;
+  showOnboarding = false; // Para mostrar el overlay de bienvenida
+
+  // Estado UI
+  currentChatId: string | null = null;
+  isSidebarOpen = false;
+  isCreatingChat = false;
+  showModal = false;
   showAnalysis = false;
   isLoading = false;
+  isRecordingManual = false;
+  isProcessing = false;
+  overlayMessage = 'Tu turno. Estamos escuchando...';
+
+  isNaturalMode = false;
+  message = '';
+  isRecording = false;
+  recordingDuration = 0;
+  tasksList: { description: string; completed: boolean }[] = [];
 
   private subscriptions = new Subscription();
-
-  @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
 
   constructor(
     private chatService: ChatService,
     private messageService: MessageService,
-    public ui: UiService
+    public ui: UiService,
+    private userService: UserService,
+    private taskService: TaskService,
+    private audioRecorder: AudioRecorderService
   ) {
+    this.chats$ = this.chatService.chats$;
     this.currentChat$ = this.chatService.currentChat$;
     this.messages$ = this.messageService.messages$;
     this.overlayVisible$ = this.ui.conversationOverlay$;
     this.hideAIResponses$ = this.ui.hideAIResponses$;
+    this.tasks$ = this.taskService.tasks$;
   }
 
   ngOnInit(): void {
+    this.chatService.fetchChats();
+
+    this.userService
+      .getTrialInfo()
+      .pipe(take(1))
+      .subscribe((res) => {
+        console.log('Trial info:', res);
+        if (res.trial_active && !res.is_subscribed && !res.onboarding_seen) {
+          this.showOnboarding = true;
+        }
+      });
+
     this.subscriptions.add(
       this.currentChat$.subscribe((chat) => {
-        if (chat) {
-          this.showAnalysis = false;
-        }
+        this.currentChatId = chat?.id ?? null;
+        this.chatForAnalysis = chat;
       })
     );
 
-    this.ui.sidebarOpen$.subscribe((open) => (this.isSidebarOpen = open));
+    this.subscriptions.add(
+      this.ui.sidebarOpen$.subscribe((open) => (this.isSidebarOpen = open))
+    );
+
+    this.subscriptions.add(
+      this.taskService.tasks$.subscribe((tasks) => {
+        this.tasksList = tasks.map((t) => ({
+          description: t.description,
+          completed: t.completed ?? false,
+        }));
+      })
+    );
   }
-  closeCurrentChat(): void {
-    this.chatService.setCurrentChat(null); // Asegúrate que esta función exista en tu servicio
-    this.messageService.clearMessages(); // Si deseas limpiar también los mensajes
-    this.showAnalysis = false;
-  }
+
 
   ngAfterViewChecked(): void {
-    try {
-      this.scrollToBottom();
-    } catch (err) {
-      console.warn('Error auto-scroll:', err);
-    }
-  }
-
-  handleSendMessage(content: string): void {
-    const currentChat = this.chatService.getCurrentChatValue();
-    if (currentChat) {
-      this.isLoading = true;
-      this.messageService.sendMessage(currentChat.id, content);
-
-      // Reset loading after a delay (you might want to use actual response)
-      setTimeout(() => {
-        this.isLoading = false;
-      }, 2000);
-    }
-  }
-
-  handleAudioRecording(audioBlob: Blob): void {
-    const currentChat = this.chatService.getCurrentChatValue();
-    if (currentChat) {
-      this.isLoading = true;
-      this.messageService.sendVoiceMessage(currentChat.id, audioBlob);
-
-      // Reset loading after a delay
-      setTimeout(() => {
-        this.isLoading = false;
-      }, 3000);
-    }
+    this.scrollToBottom();
   }
 
   scrollToBottom(): void {
@@ -120,45 +140,159 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
       console.warn('Error scrolling to bottom:', err);
     }
   }
-  startConversationMode(): void {
-    this.overlayMessage = 'Tu turno. Estamos escuchando...';
-    this.ui.showOverlay();
-    // Aquí podrías emitir un evento a ChatInputComponent si quieres iniciar el loop
+
+  handleSendMessage(content: string): void {
+    const currentChat = this.chatService.getCurrentChatValue();
+    if (currentChat) {
+      this.isLoading = true;
+      this.messageService.sendMessage(currentChat.id, content);
+      setTimeout(() => (this.isLoading = false), 2000);
+    }
   }
 
-  endConversationMode() {
-    this.ui.hideOverlay();
+  handleDeleteChat(chatId: string): void {
+    if (confirm('¿Estás seguro de que deseas eliminar este chat?')) {
+      this.chatService.deleteChat(chatId).subscribe(() => {
+        const updatedChats = this.chatService
+          .getChatsValue()
+          .filter((c) => c.id !== chatId);
+        this.chatService.setChats(updatedChats);
+
+        // Limpiar el chat actual si era el eliminado
+        if (this.chatService.getCurrentChatValue()?.id === chatId) {
+          this.chatService.setCurrentChat(null);
+        }
+      });
+    }
+  }
+
+  handleAudioRecording(audioBlob: Blob): Promise<void> {
+    const currentChat = this.chatService.getCurrentChatValue();
+    if (!currentChat) return Promise.resolve();
+
+    this.isLoading = true;
+    // Llamamos a la versión que “espera” la respuesta de la IA
+    return this.messageService
+      .sendVoiceMessageAndWait(currentChat.id, audioBlob)
+      .then(() => {
+        this.isLoading = false;
+      })
+      .catch((err) => {
+        console.error('Error enviando voz:', err);
+        this.isLoading = false;
+      });
+  }
+
+  // chat-page.component.ts (fragmento ajustado)
+  async handleManualRecording(): Promise<void> {
+    if (!this.isRecordingManual) {
+      // 1) Usuario inicia grabación
+      this.isRecordingManual = true;
+      this.isProcessing = false;
+      this.overlayMessage = 'Grabando... presiona de nuevo para detener';
+
+      setTimeout(async () => {
+        await this.audioRecorder.startRecording();
+      }, 300);
+    } else {
+      // 2) Usuario detiene grabación
+      this.isRecordingManual = false;
+      this.isProcessing = true;
+      this.overlayMessage = 'Procesando...';
+
+      // Detener la grabación y obtener el blob
+      const audioBlob = await this.audioRecorder.stopRecording();
+      if (audioBlob) {
+        // Esperamos a que la IA realmente termine de procesar
+        await this.handleAudioRecording(audioBlob);
+      }
+
+      // Ahora que la IA ya respondió, reestablecemos el flag
+      this.isProcessing = false;
+      this.overlayMessage = 'Tu turno. Estamos escuchando...';
+    }
+  }
+
+  handleSelectChat(chatId: string): void {
+    this.chatService.selectChat(chatId);
+    this.ui.closeSidebar();
+  }
+
+  handleStartNewChat(data: { role: string; context: string }): void {
+    this.isCreatingChat = true;
+    this.chatService
+      .createChat({
+        title: data.role,
+        role: data.role,
+        context: data.context,
+      })
+      .subscribe({
+        next: (newChat) => {
+          this.chatService.selectChat(newChat.id);
+          this.messageService.fetchMessages(newChat.id);
+          if (newChat.initial_message) {
+            this.messageService.speak(newChat.initial_message);
+          }
+
+          this.isCreatingChat = false;
+          this.showModal = false;
+          this.ui.closeSidebar();
+        },
+        error: () => {
+          this.isCreatingChat = false;
+          this.showModal = false;
+        },
+      });
   }
 
   toggleAnalysisView(): void {
     this.showAnalysis = !this.showAnalysis;
   }
 
-  getChatLanguageIcon(language: string): string {
-    const icons: Record<string, string> = {
-      english: '🇺🇸',
-      spanish: '🇪🇸',
-      french: '🇫🇷',
-      german: '🇩🇪',
-      italian: '🇮🇹',
-      portuguese: '🇵🇹',
-    };
-    return icons[language?.toLowerCase()] || '🌐';
+  closeCurrentChat(): void {
+    this.chatService.setCurrentChat(null);
+    this.messageService.clearMessages();
+    this.showAnalysis = false;
   }
 
-  getMessageCount(): Observable<number> {
-    return this.messages$.pipe(map((messages) => messages.length));
+  startConversationMode(): void {
+    this.overlayMessage = 'Tu turno. Estamos escuchando...';
+    this.ui.showOverlay();
+  }
+
+  endConversationMode(): void {
+    this.ui.hideOverlay();
+  }
+
+  toggleConversationMode(): void {
+    this.isNaturalMode = !this.isNaturalMode;
+  }
+
+  openModal(): void {
+    this.showModal = true;
+  }
+
+  closeModal(): void {
+    this.showModal = false;
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
   trackByMessage(index: number, message: Message): string {
     return message.id;
   }
 
-  trackByChatId(index: number, chat: Chat): string {
-    return chat.id;
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
+  handleStartFreeTrial(): void {
+    this.userService.markOnboardingSeen().subscribe({
+      next: () => {
+        this.showOnboarding = false;
+      },
+      error: (err) => {
+        console.error('Error al marcar onboarding visto:', err);
+        this.showOnboarding = false;
+      },
+    });
   }
 }

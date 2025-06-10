@@ -1,3 +1,5 @@
+import { Task } from "./task";
+
 export interface Chat {
   id: string;
   user_id: string;
@@ -5,6 +7,8 @@ export interface Chat {
   language: string;
   level: string;
   created_at: string;
+  tasks?: Task[];
+  initial_message?: string;
 }
 
 
@@ -14,4 +18,5 @@ export interface ChatCreate {
   level?: string;
   role?: string;
   context?: string;
+  tasks?: Task[];
 }

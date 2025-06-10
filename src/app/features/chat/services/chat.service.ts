@@ -4,6 +4,7 @@ import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { Chat, ChatCreate } from '../../../core/models/chat.model';
 import { environment } from '../../../../environments/environment';
 import { MessageService } from './message.service';
+import { TaskService } from './tasks.service';
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
@@ -17,8 +18,17 @@ export class ChatService {
 
   constructor(
     private http: HttpClient,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private taskService: TaskService
   ) {}
+
+  getChatsValue(): Chat[] {
+    return this.chatsSubject.getValue();
+  }
+
+  setChats(chats: Chat[]): void {
+    this.chatsSubject.next(chats);
+  }
 
   getCurrentChatValue(): Chat | null {
     return this.currentChatSubject.getValue();
@@ -28,13 +38,17 @@ export class ChatService {
     this.currentChatSubject.next(chat);
   }
 
-  fetchChats(userId: string): void {
+  deleteChat(chatId: string): Observable<string> {
+    return this.http.delete<string>(`${this.apiUrl}/chats/${chatId}`);
+  }
+
+  fetchChats(): void {
     this.http
-      .get<Chat[]>(`${this.apiUrl}/chats/?user_id=${userId}`)
+      .get<Chat[]>(`${this.apiUrl}/chats/`)
       .subscribe((chats) => this.chatsSubject.next(chats));
   }
 
-  createChat(userId: string, chat: ChatCreate): Observable<Chat> {
+  createChat(chat: ChatCreate): Observable<Chat> {
     const payload: ChatCreate = {
       title: chat.title || 'New Chat',
       language: chat.language || 'en',
@@ -44,15 +58,17 @@ export class ChatService {
         chat.context || 'You are having a conversation to practice English.',
     };
 
-    return this.http
-      .post<Chat>(`${this.apiUrl}/chats/?user_id=${userId}`, payload)
-      .pipe(
-        tap((newChat) => {
-          const current = this.chatsSubject.getValue();
-          this.chatsSubject.next([newChat, ...current]);
-          this.currentChatSubject.next(newChat);
-        })
-      );
+    return this.http.post<Chat>(`${this.apiUrl}/chats/`, payload).pipe(
+      tap((newChat) => {
+        const current = this.chatsSubject.getValue();
+        this.chatsSubject.next([newChat, ...current]);
+        this.currentChatSubject.next(newChat);
+
+        if (newChat.tasks) {
+          this.taskService.setTasks(newChat.tasks);
+        }
+      })
+    );
   }
 
   clearChats(): void {
@@ -64,6 +80,12 @@ export class ChatService {
     this.http.get<Chat>(`${this.apiUrl}/chats/${chatId}`).subscribe((chat) => {
       this.currentChatSubject.next(chat);
       this.messageService.fetchMessages(chatId);
+
+      if (chat.tasks) {
+        this.taskService.setTasks(chat.tasks);
+      } else {
+        this.taskService.clear();
+      }
     });
   }
 

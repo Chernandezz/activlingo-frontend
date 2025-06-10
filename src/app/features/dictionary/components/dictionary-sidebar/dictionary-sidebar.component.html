@@ -1,25 +1,88 @@
-<div class="p-4 space-y-4">
-  <!-- Botón para buscar nueva palabra -->
-  <button class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded shadow"
-    (click)="startSearch.emit()">
-    + Nueva Palabra
-  </button>
-
-  <!-- Lista de palabras del usuario -->
-  <div class="border-t border-gray-200 pt-4">
-    <h2 class="text-xl font-semibold text-gray-800">Mis Palabras</h2>
-    <p class="text-sm text-gray-500">Aquí puedes ver y buscar las palabras que has guardado.</p>
+<div class="h-full flex flex-col bg-white border-r border-gray-200">
+  <!-- Header -->
+  <div class="p-4 border-b border-gray-200">
+    <h2 class="text-lg font-semibold text-gray-800">Mi Diccionario</h2>
   </div>
 
-  <!-- Buscador local -->
-  <input type="text" [(ngModel)]="searchTerm" placeholder="Buscar palabra..."
-    class="w-full px-3 py-2 border rounded shadow-sm focus:outline-none" />
+  <!-- Controles -->
+  <div class="p-4 space-y-4 border-b border-gray-200">
+    <!-- Botón Nueva Palabra -->
+    <button (click)="startSearch.emit()" class="w-full btn btn-primary" [disabled]="loading">
+      <fa-icon [icon]="icons.plus" class="mr-2"></fa-icon>
+      Nueva Palabra
+    </button>
 
-  <!-- Lista -->
-  <ul class="space-y-2">
-    <li *ngFor="let word of filteredWords" (click)="onSelect(word)"
-      class="cursor-pointer hover:bg-gray-100 p-2 rounded">
-      {{ word.word }}
-    </li>
-  </ul>
+    <!-- Filtros -->
+    <div class="space-y-2">
+      <button type="button" (click)="onFilterSelect('all')"
+        class="w-full py-2 px-3 text-sm font-medium rounded-md border border-gray-300" [ngClass]="{
+                'bg-blue-600 text-white': activeFilter === 'all',
+                'bg-gray-100 text-gray-700 hover:bg-gray-50': activeFilter !== 'all'
+              }">
+        Todas ({{ totalCount }})
+      </button>
+
+      <div class="flex gap-2">
+        <button type="button" (click)="onFilterSelect('active')"
+          class="w-full py-2 px-3 text-sm font-medium rounded-md border border-gray-300" [ngClass]="{
+                  'bg-blue-600 text-white': activeFilter === 'active',
+                  'bg-gray-100 text-gray-700 hover:bg-gray-50': activeFilter !== 'active'
+                }">
+          Activas ({{ activeCount }})
+        </button>
+
+        <button type="button" (click)="onFilterSelect('passive')"
+          class="w-full py-2 px-3 text-sm font-medium rounded-md border border-gray-300" [ngClass]="{
+                  'bg-blue-600 text-white': activeFilter === 'passive',
+                  'bg-gray-100 text-gray-700 hover:bg-gray-50': activeFilter !== 'passive'
+                }">
+          Pasivas ({{ passiveCount }})
+        </button>
+      </div>
+    </div>
+
+    <!-- Buscador -->
+    <div class="relative">
+      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <fa-icon [icon]="icons.search" class="text-gray-400"></fa-icon>
+      </div>
+      <input type="text" [(ngModel)]="searchTerm" placeholder="Buscar palabra..."
+        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+        [disabled]="loading">
+    </div>
+  </div>
+
+  <!-- Lista de palabras -->
+  <div class="flex-1 overflow-y-auto">
+    @if (loading) {
+    <div class="flex justify-center items-center h-full">
+      <fa-icon [icon]="icons.spinner" spin class="text-blue-500 text-2xl"></fa-icon>
+    </div>
+    } @else if (words.length > 0) {
+    <ul class="divide-y divide-gray-200">
+      @for (word of words; track trackByWordId($index, word)) {
+      <li (click)="onSelect(word)" class="px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors">
+        <div class="flex items-center justify-between">
+          <span class="text-sm font-medium text-gray-900 capitalize">{{ word.word }}</span>
+          <span [class]="{
+                        'bg-green-100 text-green-800': word.status === 'active',
+                        'bg-yellow-100 text-yellow-800': word.status === 'passive'
+                      }" class="px-2 py-0.5 text-xs font-medium rounded-full">
+            {{ word.status === 'active' ? 'Activa' : 'Pasiva' }}
+          </span>
+        </div>
+        <p class="mt-1 text-xs text-gray-500 truncate">{{ word.meaning }}</p>
+      </li>
+      }
+    </ul>
+    } @else {
+    <div class="p-4 text-center text-gray-500">
+      @if (searchTerm()) {
+      <p>No se encontraron palabras que coincidan con "{{ searchTerm() }}"</p>
+      } @else {
+      <p>No hay palabras {{ activeFilter === 'active' ? 'activas' : activeFilter === 'passive' ? 'pasivas' : '' }}</p>
+      }
+    </div>
+    }
+  </div>
 </div>

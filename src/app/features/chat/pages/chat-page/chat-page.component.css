@@ -18,6 +18,30 @@
   background: rgba(156, 163, 175, 0.3);
   border-radius: 3px;
 }
+@media (max-width: 640px) {
+  .header-logo{
+    display: none;
+  }
+  .chat-header h2 {
+    font-size: 1rem;
+    line-height: 1.25rem;
+  }
+
+  .chat-header .text-sm {
+    font-size: 0.75rem;
+  }
+
+  .chat-header .w-10.h-10 {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.75rem;
+  }
+
+  .chat-header .btn-analyze {
+    width: 100%;
+  }
+}
+
 
 .messages-container::-webkit-scrollbar-thumb:hover {
   background: rgba(156, 163, 175, 0.5);

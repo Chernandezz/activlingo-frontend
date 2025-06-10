@@ -1,2 +1,8 @@
-<app-header></app-header>
-<router-outlet></router-outlet>
+<!-- src/app/app.component.html -->
+<div class="h-screen flex flex-col">
+
+  <app-header *ngIf="!isAuthPage()"></app-header>
+  <div class="flex-1 overflow-auto">
+    <router-outlet></router-outlet>
+  </div>
+</div>

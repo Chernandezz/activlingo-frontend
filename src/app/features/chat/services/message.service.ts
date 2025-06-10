@@ -4,13 +4,14 @@ import { Message } from '../../../core/models/message.model';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
 import { generateUUID } from '../../../shared/utils/uuid.util';
+import { TaskService } from './tasks.service';
 
 @Injectable({ providedIn: 'root' })
 export class MessageService {
   private messagesSubject = new BehaviorSubject<Message[]>([]);
   messages$ = this.messagesSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private taskService: TaskService) {}
 
   fetchMessages(chatId: string): void {
     this.http
@@ -34,7 +35,11 @@ export class MessageService {
       formData.append('file', audioBlob, 'audio.webm');
 
       this.http
-        .post<{ user_text: string; ai_text: string }>(
+        .post<{
+          user_text: string;
+          ai_text: string;
+          completed_tasks: string[];
+        }>(
           `${environment.apiUrl}/messages/transcribe-audio/?chat_id=${chatId}`,
           formData
         )
@@ -43,23 +48,28 @@ export class MessageService {
             const now = new Date().toISOString();
             const current = this.messagesSubject.getValue();
 
-            this.messagesSubject.next([
-              ...current,
-              {
-                id: generateUUID(),
-                chat_id: chatId,
-                sender: 'human',
-                content: res.user_text,
-                timestamp: now,
-              },
-              {
-                id: generateUUID(),
-                chat_id: chatId,
-                sender: 'ai',
-                content: res.ai_text,
-                timestamp: now,
-              },
-            ]);
+            const humanMsg: Message = {
+              id: generateUUID(),
+              chat_id: chatId,
+              sender: 'human',
+              content: res.user_text,
+              timestamp: now,
+            };
+            const aiMsg: Message = {
+              id: generateUUID(),
+              chat_id: chatId,
+              sender: 'ai',
+              content: res.ai_text,
+              timestamp: now,
+            };
+
+            this.messagesSubject.next([...current, humanMsg, aiMsg]);
+
+            if (res.completed_tasks?.length) {
+              res.completed_tasks.forEach((taskId) =>
+                this.taskService.updateTaskCompleted(taskId)
+              );
+            }
 
             this.speak(res.ai_text, () => resolve());
           },
@@ -156,7 +166,11 @@ export class MessageService {
     ]);
 
     this.http
-      .post<Message>(`${environment.apiUrl}/messages/`, {
+      .post<{
+        message: Message;
+        human_message: Message;
+        completed_tasks: any[];
+      }>(`${environment.apiUrl}/messages/`, {
         chat_id: chatId,
         sender: 'human',
         content,
@@ -164,9 +178,17 @@ export class MessageService {
       .subscribe((response) => {
         const updatedMessages = this.messagesSubject
           .getValue()
-          .map((msg) => (msg.id === aiPlaceholder.id ? response : msg));
+          .map((msg) => (msg.id === aiPlaceholder.id ? response.message : msg));
+
         this.messagesSubject.next(updatedMessages);
-        this.speak(response.content);
+        this.speak(response.message.content);
+
+        if (response.completed_tasks?.length) {
+          console.log('🎯 Completed tasks:', response.completed_tasks);
+          response.completed_tasks.forEach((taskId) => {
+            this.taskService.updateTaskCompleted(taskId);
+          });
+        }
       });
   }
 }
