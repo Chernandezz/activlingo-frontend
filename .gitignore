@@ -6,8 +6,12 @@
 # Node modules
 /node_modules/
 
+
+
 # Environment files
 /src/environments/environment*.ts
+!/src/environments/environment.prod.ts.template
+
 
 # Logs
 npm-debug.log*

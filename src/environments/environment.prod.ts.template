@@ -1,0 +1,8 @@
+// src/environments/environment.prod.ts.template
+export const environment = {
+  production: true,
+  apiUrl: 'REPLACE_API_URL',
+  supabaseUrl: 'REPLACE_SUPABASE_URL',
+  supabaseAnonKey: 'REPLACE_SUPABASE_ANON_KEY',
+  useLocalStorage: true,
+};
