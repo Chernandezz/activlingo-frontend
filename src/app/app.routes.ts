@@ -1,15 +1,16 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './features/auth/guards/auth.guard';
+import { GuestGuard } from './features/auth/guards/guest.guard';
 
 export const routes: Routes = [
   {
     path: 'auth',
+    canActivate: [GuestGuard],
     loadComponent: () =>
       import('./features/auth/pages/auth-page/auth-page.component').then(
         (c) => c.AuthPageComponent
       ),
   },
-  { path: '', redirectTo: 'chat', pathMatch: 'full' },
 
   {
     path: 'chat',
@@ -41,5 +42,10 @@ export const routes: Routes = [
       import(
         './features/onboarding/pages/cancel-page/cancel-page.component'
       ).then((m) => m.CancelPageComponent),
+  },
+  { path: '', redirectTo: 'chat', pathMatch: 'full' },
+  {
+    path: '**',
+    redirectTo: 'chat', 
   },
 ];

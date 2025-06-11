@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -13,7 +13,7 @@ import { supabase } from '../../../../core/utils/supabase-client';
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './auth-page.component.html',
 })
-export class AuthPageComponent {
+export class AuthPageComponent implements OnInit {
   showConfirmationNotice = false;
 
   name = '';
@@ -24,7 +24,18 @@ export class AuthPageComponent {
   isLoading = false;
   message = '';
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) {
+  }
+
+  async ngOnInit() {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (session) {
+      this.router.navigate(['/chat']);
+    }
+  }
 
   toggleMode() {
     this.isLogin = !this.isLogin;
