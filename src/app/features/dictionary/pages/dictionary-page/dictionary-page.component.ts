@@ -31,16 +31,25 @@ export class DictionaryPageComponent implements OnInit {
   private dictionaryService = inject(DictionaryService);
   private authService = inject(AuthService);
 
-  // Estados reactivos con signals
   searchMode = signal(false);
   selectedWord = signal<UserDictionaryEntry | null>(null);
   filter = signal<'all' | WordStatus>('all');
   words = signal<UserDictionaryEntry[]>([]);
   isLoading = signal(false);
 
-  // Computed values
+  private cacheKey = '';
+
+  // Computed
   activeWordCount = computed(
     () => this.words().filter((w) => w.status === 'active').length
+  );
+
+  passiveWordCount = computed(
+    () => this.words().filter((w) => w.status === 'passive').length
+  );
+
+  totalWordCount = computed(
+    () => this.activeWordCount() + this.passiveWordCount()
   );
 
   filteredWords = computed(() => {
@@ -50,38 +59,47 @@ export class DictionaryPageComponent implements OnInit {
     );
   });
 
-  passiveWordCount = computed(
-    () => this.words().filter((w) => w.status === 'passive').length
-  );
-
-  totalWordCount = computed(
-    () => this.passiveWordCount() + this.activeWordCount()
-  );
-
   get userId(): string | null {
     return this.authService.currentUserId;
   }
-  handleWordAdded(): void {
-    this.loadWords(); // Recargar las palabras
-    this.searchMode.set(false); // Cerrar el panel de búsqueda
-    // Opcional: Mostrar notificación
-  }
+
   ngOnInit(): void {
-    this.loadWords();
-
-    // Escuchar actualizaciones
-    this.dictionaryService.refresh$
-      .pipe(takeUntilDestroyed())
-      .subscribe(() => this.loadWords());
-  }
-
-  loadWords(): void {
     if (!this.userId) return;
 
-    this.isLoading.set(true);
+    this.cacheKey = `user_words_${this.userId}`;
+    this.loadWordsFromCache(); // instantáneo, sin loading
+
+    this.loadWordsFromBackend(); // carga en segundo plano sin forzar loading si ya hay palabras
+
+    this.dictionaryService.refresh$
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.loadWordsFromBackend(true)); // fuerza loading al refrescar manualmente
+  }
+
+  loadWordsFromCache(): void {
+    const cached = localStorage.getItem(this.cacheKey);
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached) as UserDictionaryEntry[];
+        this.words.set(parsed);
+      } catch (e) {
+        console.error('Error parsing dictionary cache:', e);
+      }
+    }
+  }
+
+  loadWordsFromBackend(forceLoading: boolean = false): void {
+    if (!this.userId) return;
+
+    // Solo mostrar spinner si no hay palabras
+    if (forceLoading || this.words().length === 0) {
+      this.isLoading.set(true);
+    }
+
     this.dictionaryService.getUserWords().subscribe({
       next: (words) => {
         this.words.set(words);
+        localStorage.setItem(this.cacheKey, JSON.stringify(words));
         this.isLoading.set(false);
       },
       error: () => {
@@ -90,15 +108,17 @@ export class DictionaryPageComponent implements OnInit {
     });
   }
 
+  handleWordAdded(): void {
+    this.loadWordsFromBackend();
+    this.searchMode.set(false);
+  }
+
   onSearchResults(results: WordDefinition[]): void {
     this.searchMode.set(false);
-    // Aquí puedes manejar los resultados si es necesario
-    // Por ejemplo, mostrar un toast de éxito
   }
 
   onSelectWord(word: UserDictionaryEntry): void {
     this.selectedWord.set(word);
-    // Registrar visualización como uso
     this.dictionaryService.logWordUsage(word.id, 'view-details').subscribe({
       error: (err) => console.error('Error logging word usage:', err),
     });
@@ -110,6 +130,6 @@ export class DictionaryPageComponent implements OnInit {
   }
 
   trackByWordId(index: number, word: UserDictionaryEntry): string {
-    return word.id; // Usar el ID real en lugar de 'asdfasdf'
+    return word.id;
   }
 }

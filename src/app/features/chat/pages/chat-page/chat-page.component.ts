@@ -125,7 +125,6 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     );
   }
 
-
   ngAfterViewChecked(): void {
     this.scrollToBottom();
   }
@@ -146,6 +145,9 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     if (currentChat) {
       this.isLoading = true;
       this.messageService.sendMessage(currentChat.id, content);
+
+      this.chatService.bumpChatToTop(currentChat.id);
+
       setTimeout(() => (this.isLoading = false), 2000);
     }
   }
@@ -200,11 +202,13 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
       this.isProcessing = true;
       this.overlayMessage = 'Procesando...';
 
+      const currentChat = this.chatService.getCurrentChatValue();
+
       // Detener la grabación y obtener el blob
       const audioBlob = await this.audioRecorder.stopRecording();
-      if (audioBlob) {
-        // Esperamos a que la IA realmente termine de procesar
+      if (audioBlob && currentChat) {
         await this.handleAudioRecording(audioBlob);
+        this.chatService.bumpChatToTop(currentChat.id); 
       }
 
       // Ahora que la IA ya respondió, reestablecemos el flag
@@ -229,7 +233,6 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
       .subscribe({
         next: (newChat) => {
           this.chatService.selectChat(newChat.id);
-          this.messageService.fetchMessages(newChat.id);
           if (newChat.initial_message) {
             this.messageService.speak(newChat.initial_message);
           }
