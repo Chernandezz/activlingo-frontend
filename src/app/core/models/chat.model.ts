@@ -1,3 +1,4 @@
+import { Message } from "./message.model";
 import { Task } from "./task";
 
 export interface Chat {
@@ -7,7 +8,9 @@ export interface Chat {
   language: string;
   level: string;
   created_at: string;
+  updated_at: string;
   tasks?: Task[];
+  messages?: Message[];
   initial_message?: string;
 }
 

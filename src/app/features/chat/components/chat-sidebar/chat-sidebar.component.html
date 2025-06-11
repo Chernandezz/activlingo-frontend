@@ -15,14 +15,14 @@
     <div class="flex-1 overflow-y-auto overflow-x-hidden">
       <div class="space-y-0">
         <!-- chat-sidebar.component.html -->
-        <div *ngFor="let chat of chats; trackBy: trackByChat"
+        <div *ngFor="let chat of chats; trackBy: trackByChat" (click)="select.emit(chat.id)"
           class="group relative px-4 py-4 cursor-pointer hover:bg-gray-50 transition-colors duration-150 border-b border-gray-100"
           [class.bg-blue-50]="currentChatId === chat.id" [class.border-l-4]="currentChatId === chat.id"
           [class.border-l-blue-500]="currentChatId === chat.id">
 
           <div class="flex items-center justify-between">
             <!-- Título -->
-            <div class="flex-1 min-w-0" (click)="select.emit(chat.id)">
+            <div class="flex-1 min-w-0" >
               <h3 class="text-base font-semibold text-gray-900 truncate mb-1 capitalize"
                 [class.text-blue-900]="currentChatId === chat.id">
                 {{ chat.title }}
@@ -34,7 +34,7 @@
               <!-- Fecha -->
               <span class="text-sm text-gray-400 group-hover:text-gray-500 transition-colors"
                 [class.text-blue-500]="currentChatId === chat.id">
-                {{ getRelativeTime(chat.created_at) }}
+                {{ getRelativeTime(chat.updated_at) }}
               </span>
 
               <!-- Opciones Chat -->

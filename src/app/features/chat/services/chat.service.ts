@@ -38,14 +38,47 @@ export class ChatService {
     this.currentChatSubject.next(chat);
   }
 
-  deleteChat(chatId: string): Observable<string> {
-    return this.http.delete<string>(`${this.apiUrl}/chats/${chatId}`);
+  clearChats(): void {
+    this.chatsSubject.next([]);
+    this.currentChatSubject.next(null);
+  }
+
+  clearCurrentChat(): void {
+    this.currentChatSubject.next(null);
   }
 
   fetchChats(): void {
-    this.http
-      .get<Chat[]>(`${this.apiUrl}/chats/`)
-      .subscribe((chats) => this.chatsSubject.next(chats));
+    this.http.get<Chat[]>(`${this.apiUrl}/chats/`).subscribe((chats) => {
+      console.log('Chats recibidos:', chats);
+      const sorted = [...chats].sort(
+        (a, b) =>
+          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      );
+      this.chatsSubject.next(sorted);
+    });
+  }
+
+  bumpChatToTop(chatId: string): void {
+    const chats = this.getChatsValue();
+    const target = chats.find((c) => c.id === chatId);
+    if (!target) return;
+
+    const updatedChat = {
+      ...target,
+      updated_at: new Date().toISOString(), // actualizamos manualmente
+    };
+
+    const newOrder = [updatedChat, ...chats.filter((c) => c.id !== chatId)];
+    this.setChats(
+      newOrder.sort(
+        (a, b) =>
+          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      )
+    );
+  }
+
+  getChatById(chatId: string): Observable<Chat> {
+    return this.http.get<Chat>(`${this.apiUrl}/chats/${chatId}`);
   }
 
   createChat(chat: ChatCreate): Observable<Chat> {
@@ -71,29 +104,39 @@ export class ChatService {
     );
   }
 
-  clearChats(): void {
-    this.chatsSubject.next([]);
-    this.currentChatSubject.next(null);
+  deleteChat(chatId: string): Observable<string> {
+    return this.http.delete<string>(`${this.apiUrl}/chats/${chatId}`);
   }
 
   selectChat(chatId: string): void {
-    this.http.get<Chat>(`${this.apiUrl}/chats/${chatId}`).subscribe((chat) => {
-      this.currentChatSubject.next(chat);
-      this.messageService.fetchMessages(chatId);
+    const allChats = this.chatsSubject.getValue();
+
+    const chat = allChats.find((c) => c.id === chatId);
+    if (chat) {
+      this.setCurrentChat(chat);
+
+      if (chat.messages?.length) {
+        this.messageService.setMessages(chat.messages);
+      } else {
+        this.messageService.fetchMessages(chatId);
+      }
 
       if (chat.tasks) {
         this.taskService.setTasks(chat.tasks);
       } else {
         this.taskService.clear();
       }
-    });
-  }
+    } else {
+      this.getChatById(chatId).subscribe((loadedChat) => {
+        this.setCurrentChat(loadedChat);
+        this.messageService.fetchMessages(chatId);
 
-  getChatById(chatId: string): Observable<Chat> {
-    return this.http.get<Chat>(`${this.apiUrl}/chats/${chatId}`);
-  }
-
-  clearCurrentChat(): void {
-    this.currentChatSubject.next(null);
+        if (loadedChat.tasks) {
+          this.taskService.setTasks(loadedChat.tasks);
+        } else {
+          this.taskService.clear();
+        }
+      });
+    }
   }
 }

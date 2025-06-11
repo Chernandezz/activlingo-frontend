@@ -22,6 +22,11 @@ export class MessageService {
       });
   }
 
+  setMessages(messages: Message[]): void {
+    const filtered = messages.filter((m) => m.sender !== 'system');
+    this.messagesSubject.next(filtered);
+  }
+
   clearMessages(): void {
     this.messagesSubject.next([]);
   }
@@ -115,7 +120,7 @@ export class MessageService {
           this.speak(res.ai_text);
         },
         error: (err) => {
-          console.error('❌ Voice message error', err);
+          console.error('❌ Voice message error:', err);
         },
       });
   }
