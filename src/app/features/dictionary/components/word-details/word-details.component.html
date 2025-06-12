@@ -1,41 +1,104 @@
-<div class="p-6 bg-white rounded-xl shadow-lg space-y-8">
-  <!-- Header -->
-  <div class="flex items-center justify-between border-b pb-4">
-    <h2 class="text-3xl font-bold text-gray-900 capitalize">{{ word.word }}</h2>
-    <button class="text-blue-600 hover:text-blue-800 font-medium focus:outline-none">Aprender Mas</button>
-  </div>
-
-  <!-- Statistics Grid -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-    <div class="flex flex-col items-center bg-indigo-50 p-4 rounded-lg shadow-inner">
-      <div class="text-sm text-gray-500">Veces usada en <span class="font-bold text-indigo-600">5</span> chats</div>
-      <div class="text-2xl font-bold text-indigo-600 mt-1">45</div>
-    </div>
-    <div class="flex flex-col items-center bg-teal-50 p-4 rounded-lg shadow-inner">
-      <div class="text-sm text-gray-500">Tipo de palabra</div>
-      <div class="text-2xl font-bold text-teal-600 mt-1">Verbo</div>
-    </div>
-    <div class="flex flex-col items-center bg-yellow-50 p-4 rounded-lg shadow-inner">
-      <div class="text-sm text-gray-500">Uso</div>
-      <div class="text-2xl font-bold text-yellow-600 mt-1">Formal</div>
-    </div>
-    <div class="flex flex-col items-center bg-pink-50 p-4 rounded-lg shadow-inner">
-      <div class="text-sm text-gray-500">Frecuencia</div>
-      <div class="text-2xl font-bold text-pink-600 mt-1">Muy comun</div>
+<div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/40 overflow-hidden">
+  <!-- Enhanced Header with gradient -->
+  <div class="bg-gradient-to-r from-emerald-500 to-teal-600 p-8">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+          <i class="fas fa-quote-left text-white text-2xl"></i>
+        </div>
+        <div>
+          <h2 class="text-4xl font-bold text-white capitalize mb-2">{{ word.word }}</h2>
+          <p class="text-emerald-100 text-lg font-medium">{{ word.part_of_speech || 'Palabra' }}</p>
+        </div>
+      </div>
+      <button
+        class="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105">
+        <i class="fas fa-graduation-cap mr-2"></i>
+        Aprender Más
+      </button>
     </div>
   </div>
 
-  <!-- Meaning Section -->
-  <section class="space-y-2">
-    <h3 class="text-xl font-semibold text-gray-800">Significado</h3>
-    <p class="text-gray-700 leading-relaxed">{{ word.meaning }}</p>
-  </section>
+  <div class="p-8">
+    <!-- Enhanced Statistics Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 p-6 rounded-2xl shadow-lg border border-indigo-200">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-sm text-indigo-600 font-semibold mb-1">Usos en chats</div>
+            <div class="text-3xl font-bold text-indigo-700">{{ word.usage_count || 0 }}</div>
+          </div>
+          <div class="w-12 h-12 bg-indigo-200 rounded-xl flex items-center justify-center">
+            <i class="fas fa-comments text-indigo-600"></i>
+          </div>
+        </div>
+      </div>
 
-  <!-- Example Section -->
-  <section *ngIf="word.example" class="space-y-2">
-    <h3 class="text-xl font-semibold text-gray-800">Ejemplo</h3>
-    <blockquote class="border-l-4 border-blue-200 italic pl-4 text-gray-600">
-      "{{ word.example }}"
-    </blockquote>
-  </section>
+      <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 p-6 rounded-2xl shadow-lg border border-emerald-200">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-sm text-emerald-600 font-semibold mb-1">Estado</div>
+            <div class="text-3xl font-bold text-emerald-700 capitalize">{{ word.status === 'active' ? 'Activa' :
+              'Pasiva' }}</div>
+          </div>
+          <div class="w-12 h-12 bg-emerald-200 rounded-xl flex items-center justify-center">
+            <i
+              [class]="word.status === 'active' ? 'fas fa-check-circle text-emerald-600' : 'fas fa-clock text-emerald-600'"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gradient-to-br from-amber-50 to-amber-100 p-6 rounded-2xl shadow-lg border border-amber-200">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-sm text-amber-600 font-semibold mb-1">Tipo</div>
+            <div class="text-3xl font-bold text-amber-700">{{ word.part_of_speech || 'N/A' }}</div>
+          </div>
+          <div class="w-12 h-12 bg-amber-200 rounded-xl flex items-center justify-center">
+            <i class="fas fa-tag text-amber-600"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-2xl shadow-lg border border-purple-200">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-sm text-purple-600 font-semibold mb-1">Fuente</div>
+            <div class="text-xl font-bold text-purple-700">{{ word.source || 'Manual' }}</div>
+          </div>
+          <div class="w-12 h-12 bg-purple-200 rounded-xl flex items-center justify-center">
+            <i class="fas fa-source text-purple-600"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Enhanced Meaning Section -->
+    <section class="mb-8">
+      <div class="flex items-center space-x-3 mb-4">
+        <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+          <i class="fas fa-lightbulb text-white text-sm"></i>
+        </div>
+        <h3 class="text-2xl font-bold text-gray-800">Significado</h3>
+      </div>
+      <div class="bg-gradient-to-r from-gray-50 to-blue-50 p-6 rounded-xl border-l-4 border-blue-500">
+        <p class="text-gray-700 text-lg leading-relaxed">{{ word.meaning }}</p>
+      </div>
+    </section>
+
+    <!-- Enhanced Example Section -->
+    <section *ngIf="word.example">
+      <div class="flex items-center space-x-3 mb-4">
+        <div class="w-8 h-8 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
+          <i class="fas fa-quote-right text-white text-sm"></i>
+        </div>
+        <h3 class="text-2xl font-bold text-gray-800">Ejemplo de uso</h3>
+      </div>
+      <div class="bg-gradient-to-r from-emerald-50 to-teal-50 p-6 rounded-xl border-l-4 border-emerald-500">
+        <blockquote class="text-gray-700 text-lg italic leading-relaxed">
+          "{{ word.example }}"
+        </blockquote>
+      </div>
+    </section>
+  </div>
 </div>

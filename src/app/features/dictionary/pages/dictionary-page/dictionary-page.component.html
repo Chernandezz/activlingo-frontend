@@ -1,101 +1,420 @@
-<!-- dictionary-page.component.html -->
-<div class="flex flex-col h-[calc(100vh-4rem)] bg-gray-50">
-  <!-- Mobile Header -->
-  <div class="md:hidden bg-white shadow-sm p-4 flex justify-between items-center">
-    <h1 class="text-xl font-semibold">Mi Diccionario</h1>
-    <button (click)="searchMode.set(true)" class="btn btn-primary btn-sm">
-      <i class="fas fa-search mr-2"></i> Buscar
-    </button>
-  </div>
+<!-- dictionary-page.component.html - DISEÑO MEJORADO CON MÁS VALOR -->
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-slate-100">
+  <!-- Header con Search y Filtros -->
+  <div class="sticky top-0 z-50 bg-white/90 backdrop-blur-lg border-b border-gray-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between py-4 space-y-4 lg:space-y-0">
 
-  <div class="flex flex-1 overflow-hidden">
-    <!-- Sidebar -->
-    <aside class="hidden md:flex w-80 border-r border-gray-200 bg-white flex-col">
-      <app-dictionary-sidebar [words]="filteredWords()" [activeFilter]="filter()" [activeCount]="activeWordCount()"
-        [passiveCount]="passiveWordCount()" [totalCount]="totalWordCount()" [loading]="isLoading()"
-        (selectWord)="onSelectWord($event)" (startSearch)="searchMode.set(true)"
-        (filterChanged)="onFilterChange($event)">
-      </app-dictionary-sidebar>
-    </aside>
+        <!-- Search y Nueva Palabra -->
+        <div
+          class="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 flex-1 lg:flex-none lg:min-w-[500px]">
 
-    <!-- Main Content -->
-    <main class="flex-1 flex flex-col overflow-hidden bg-white">
-      <!-- Header -->
-      <div class="border-b border-gray-200 p-4 flex justify-between items-center">
-        <h2 class="text-lg font-medium">
-          @if (selectedWord()) {
-          <span class="capitalize">{{ selectedWord()?.word }}</span>
-          } @else {
-          Mis Palabras @if (filter() === 'active') {
-          Activas
-          } @else if (filter() === 'passive') {
-          Pasivas
-          }}
-        </h2>
-        <div class="flex gap-2">
-          <button (click)="searchMode.set(true)" class="btn btn-outline-primary btn-sm">
-            <i class="fas fa-plus mr-2"></i> Nueva Palabra
+          <!-- Search Bar -->
+          <div class="relative flex-1">
+            @if (!searchMode()) {
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <i class="fas fa-search text-gray-400"></i>
+              </div>
+              <input type="text" [(ngModel)]="searchTerm" (input)="onSearchChange()"
+                placeholder="Buscar en tu diccionario..."
+                class="block w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-activlingo-primary focus:border-transparent transition-all duration-200 text-sm font-medium">
+            </div>
+            } @else {
+            <app-dictionary-search-panel (exitSearch)="searchMode.set(false)" (wordAdded)="handleWordAdded()">
+            </app-dictionary-search-panel>
+            }
+          </div>
+
+          <!-- Nueva Palabra Button -->
+          <button (click)="searchMode.set(true)"
+            class="bg-gradient-to-r from-activlingo-primary to-activlingo-secondary hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2 whitespace-nowrap">
+            <i class="fas fa-plus"></i>
+            <span class="hidden sm:inline">Nueva Palabra</span>
+            <span class="sm:hidden">Agregar</span>
           </button>
         </div>
       </div>
 
-      <!-- Content Area -->
-      <div class="flex-1 overflow-auto p-4 md:p-6">
-        @if (searchMode()) {
-        <app-dictionary-search-panel (exitSearch)="searchMode.set(false)" (wordAdded)="handleWordAdded()">
-        </app-dictionary-search-panel> } @else {
-        @if (selectedWord()) {
-        <app-word-details [word]="selectedWord()!" (back)="selectedWord.set(null)">
-        </app-word-details>
-        } @else {
-        @if (isLoading()) {
-        <div class="flex justify-center items-center h-64">
-          <app-loading-spinner></app-loading-spinner>
+      <!-- Filtros -->
+      @if (!searchMode()) {
+      <div class="flex flex-wrap items-center justify-between pb-4 border-t border-gray-100 pt-4">
+        <div class="flex flex-wrap items-center space-x-2 mb-2 sm:mb-0">
+          <span class="text-sm font-medium text-gray-600 mr-2">Filtrar:</span>
+
+          <button (click)="onFilterChange('all')"
+            class="px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 transform hover:scale-105"
+            [ngClass]="{
+                'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg': filter() === 'all',
+                'bg-gray-100 text-gray-700 hover:bg-gray-200': filter() !== 'all'
+              }">
+            Todas ({{ totalWordCount() }})
+          </button>
+
+          <button (click)="onFilterChange('active')"
+            class="px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 transform hover:scale-105"
+            [ngClass]="{
+                'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg': filter() === 'active',
+                'bg-gray-100 text-gray-700 hover:bg-gray-200': filter() !== 'active'
+              }">
+            Activas ({{ activeWordCount() }})
+          </button>
+
+          <button (click)="onFilterChange('passive')"
+            class="px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 transform hover:scale-105"
+            [ngClass]="{
+                'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-lg': filter() === 'passive',
+                'bg-gray-100 text-gray-700 hover:bg-gray-200': filter() !== 'passive'
+              }">
+            Pasivas ({{ passiveWordCount() }})
+          </button>
         </div>
-        } @else {
-        @if (words().length > 0) {
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          @for (word of filteredWords(); track trackByWordId($index, word)) {
-          <div (click)="onSelectWord(word)"
-            class="bg-white p-4 rounded-2xl shadow-sm hover:shadow-md border border-gray-200 cursor-pointer transition-all duration-200">
-            <h3 class="text-lg font-semibold text-gray-800 capitalize mb-1">{{ word.word }}</h3>
-            <p class="text-sm text-gray-600 line-clamp-2 min-h-[40px]">{{ word.meaning }}</p>
-            <div class="mt-4 flex justify-between items-center">
-              <span class="text-xs font-medium px-2 py-1 rounded-full"
-                [class]="word.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'">
-                {{ word.status === 'active' ? 'Activa' : 'Pasiva' }}
-              </span>
-              <span class="text-xs text-gray-400">
-                Usada {{ word.usage_count || 0 }} veces
-              </span>
+
+        <!-- View Toggle -->
+        <div class="flex items-center space-x-2">
+          <span class="text-sm font-medium text-gray-600">Vista:</span>
+          <button (click)="viewMode.set('grid')" class="p-2 rounded-lg transition-all duration-200" [ngClass]="{
+                'bg-activlingo-primary text-white': viewMode() === 'grid',
+                'bg-gray-100 text-gray-600 hover:bg-gray-200': viewMode() !== 'grid'
+              }">
+            <i class="fas fa-th"></i>
+          </button>
+          <button (click)="viewMode.set('list')" class="p-2 rounded-lg transition-all duration-200" [ngClass]="{
+                'bg-activlingo-primary text-white': viewMode() === 'list',
+                'bg-gray-100 text-gray-600 hover:bg-gray-200': viewMode() !== 'list'
+              }">
+            <i class="fas fa-list"></i>
+          </button>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  @if (!searchMode()) {
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- Sección 2: Dashboard de Estadísticas -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold text-gray-900">Dashboard de Aprendizaje</h2>
+        <button class="text-activlingo-primary hover:text-activlingo-secondary text-sm font-medium">
+          Ver más estadísticas <i class="fas fa-arrow-right ml-1"></i>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <!-- Palabras Más Usadas -->
+        <div
+          class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300">
+          <div class="flex items-center justify-between mb-4">
+            <div
+              class="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+              <i class="fas fa-fire text-white"></i>
+            </div>
+            <span class="text-2xl font-bold text-gray-900">{{ mostUsedWordCount() }}</span>
+          </div>
+          <h3 class="font-semibold text-gray-900 mb-1">Palabra Estrella</h3>
+          <p class="text-sm text-gray-600 capitalize font-medium">{{ mostUsedWord()?.word || 'N/A' }}</p>
+          <div class="mt-3 flex items-center text-sm text-blue-600">
+            <i class="fas fa-chart-line mr-1"></i>
+            <span>{{ mostUsedWord()?.usage_count || 0 }} usos totales</span>
+          </div>
+        </div>
+
+        <!-- Palabras Olvidadas -->
+        <div
+          class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300">
+          <div class="flex items-center justify-between mb-4">
+            <div
+              class="w-12 h-12 bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl flex items-center justify-center">
+              <i class="fas fa-clock text-white"></i>
+            </div>
+            <span class="text-2xl font-bold text-gray-900">{{ forgottenWordsCount() }}</span>
+          </div>
+          <h3 class="font-semibold text-gray-900 mb-1">Necesitan Repaso</h3>
+          <p class="text-sm text-gray-600">Sin usar >30 días</p>
+          <div class="mt-3 flex items-center text-sm text-amber-600">
+            <i class="fas fa-exclamation-triangle mr-1"></i>
+            <span>Revisar pronto</span>
+          </div>
+        </div>
+
+        <!-- Progreso Semanal -->
+        <div
+          class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300">
+          <div class="flex items-center justify-between mb-4">
+            <div
+              class="w-12 h-12 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center">
+              <i class="fas fa-chart-line text-white"></i>
+            </div>
+            <span class="text-2xl font-bold text-gray-900">{{ weeklyProgress() }}%</span>
+          </div>
+          <h3 class="font-semibold text-gray-900 mb-1">Progreso Semanal</h3>
+          <p class="text-sm text-gray-600">Meta: 5 palabras nuevas</p>
+          <div class="mt-3">
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 h-2 rounded-full transition-all duration-500"
+                [style.width.%]="weeklyProgress()"></div>
             </div>
           </div>
+        </div>
+
+        <!-- Racha de Estudio -->
+        <div
+          class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300">
+          <div class="flex items-center justify-between mb-4">
+            <div
+              class="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
+              <i class="fas fa-medal text-white"></i>
+            </div>
+            <span class="text-2xl font-bold text-gray-900">{{ studyStreak() }}</span>
+          </div>
+          <h3 class="font-semibold text-gray-900 mb-1">Racha de Estudio</h3>
+          <p class="text-sm text-gray-600">Días consecutivos</p>
+          <div class="mt-3 flex items-center text-sm text-purple-600">
+            <i class="fas fa-crown mr-1"></i>
+            <span>¡Sigue así!</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Sección 3: Lista/Grid de Palabras MEJORADA -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold text-gray-900">
+          @if (filter() === 'all') {
+          Todas mis palabras
+          } @else if (filter() === 'active') {
+          Palabras activas
+          } @else {
+          Palabras pasivas
           }
+        </h2>
 
-
+        @if (filteredWords().length > 0) {
+        <div class="flex items-center space-x-4">
+          <span class="text-sm text-gray-600">{{ filteredWords().length }} palabras</span>
+          <!-- Ordenar -->
+          <select [(ngModel)]="sortBy" (change)="updateSort()"
+            class="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-activlingo-primary">
+            <option value="recent">Más recientes</option>
+            <option value="alphabetical">Alfabético</option>
+            <option value="most_used">Más usadas</option>
+            <option value="least_used">Menos usadas</option>
+          </select>
         </div>
-        } @else {
-        <div class="flex flex-col items-center justify-center h-64 text-center">
-          <i class="fas fa-book-open text-4xl text-gray-300 mb-4"></i>
-          <h3 class="text-lg font-medium text-gray-500">
-            No hay palabras {{ filter() === 'active' ? 'activas' : 'pasivas' }}
-          </h3>
-          <p class="text-gray-400 mb-4">
-            @if (filter() === 'active') {
-            Usa más tus palabras pasivas para activarlas
-            } @else {
-            Agrega nuevas palabras para empezar
-            }
-          </p>
-          <button (click)="searchMode.set(true)" class="btn btn-primary">
-            <i class="fas fa-plus mr-2"></i> Agregar Palabra
-          </button>
-        </div>
-        }
-        }
-        }
         }
       </div>
-    </main>
+
+      <!-- Content -->
+      @if (isLoading()) {
+      <div class="flex justify-center items-center h-64">
+        <div class="relative">
+          <div class="w-12 h-12 border-4 border-gray-200 border-t-activlingo-primary rounded-full animate-spin"></div>
+        </div>
+      </div>
+      } @else {
+      @if (filteredWords().length > 0) {
+
+      <!-- Grid View MEJORADA -->
+      @if (viewMode() === 'grid') {
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        @for (word of paginatedWords(); track trackByWordId($index, word)) {
+        <div (click)="onSelectWord(word)"
+          class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl border border-gray-100 cursor-pointer transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 overflow-hidden">
+
+          <div class="p-6">
+            <!-- Header con palabra y estado -->
+            <div class="flex justify-between items-start mb-4">
+              <h3
+                class="text-lg font-bold text-gray-900 capitalize group-hover:text-activlingo-primary transition-colors">
+                {{ word.word }}
+              </h3>
+              <!-- Footer con estado y acción -->
+              <span class="text-xs font-semibold px-3 py-1 rounded-full"
+                [class]="word.status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'">
+                {{ word.status === 'active' ? 'Activa' : 'Pasiva' }}
+              </span>
+            </div>
+
+            <!-- Significado -->
+            <p class="text-gray-600 text-sm line-clamp-3 mb-4 leading-relaxed">{{ word.meaning }}</p>
+
+            <!-- Estadísticas de uso -->
+            <div class="space-y-3 mb-4">
+              <!-- Número de usos -->
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-500 flex items-center">
+                  <i class="fas fa-eye mr-2 text-blue-500"></i>
+                  Veces usada
+                </span>
+                <span class="font-semibold text-gray-700">{{ word.usage_count || 0 }}</span>
+              </div>
+
+              <!-- Última vez usada -->
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-500 flex items-center">
+                  <i class="fas fa-clock mr-2 text-purple-500"></i>
+                  Última vez
+                </span>
+                <span class="font-semibold text-gray-700">{{ getLastUsedText(word) }}</span>
+              </div>
+
+              <!-- Nivel de dominio -->
+              <div class="space-y-2">
+                <div class="flex items-center justify-between text-sm">
+                  <span class="text-gray-500 flex items-center">
+                    <i class="fas fa-brain mr-2 text-emerald-500"></i>
+                    Dominio
+                  </span>
+                  <span class="font-semibold" [class]="getMasteryLevelClass(word)">
+                    {{ getMasteryLevel(word) }}
+                  </span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                  <div class="h-2 rounded-full transition-all duration-500" [class]="getMasteryBarClass(word)"
+                    [style.width.%]="getMasteryPercentage(word)"></div>
+                </div>
+              </div>
+            </div>
+
+
+          </div>
+        </div>
+        }
+      </div>
+      }
+
+      <!-- List View MEJORADA -->
+      @if (viewMode() === 'list') {
+      <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+        @for (word of paginatedWords(); track trackByWordId($index, word)) {
+        <div (click)="onSelectWord(word)"
+          class="group p-6 hover:bg-gray-50 cursor-pointer transition-all duration-200 border-b border-gray-100 last:border-b-0">
+
+          <div class="flex items-center justify-between">
+            <div class="flex-1">
+              <!-- Header -->
+              <div class="flex items-center space-x-4 mb-3">
+                <h3
+                  class="text-lg font-bold text-gray-900 capitalize group-hover:text-activlingo-primary transition-colors">
+                  {{ word.word }}
+                </h3>
+                <span class="text-xs font-semibold px-3 py-1 rounded-full"
+                  [class]="word.status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'">
+                  {{ word.status === 'active' ? 'Activa' : 'Pasiva' }}
+                </span>
+              </div>
+
+              <!-- Significado -->
+              <p class="text-gray-600 text-sm line-clamp-2 mb-3">{{ word.meaning }}</p>
+
+              <!-- Estadísticas en línea -->
+              <div class="flex items-center space-x-6 text-sm">
+                <div class="flex items-center space-x-2">
+                  <i class="fas fa-eye text-blue-500"></i>
+                  <span class="text-gray-500">Usos:</span>
+                  <span class="font-semibold text-gray-700">{{ word.usage_count || 0 }}</span>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                  <i class="fas fa-clock text-purple-500"></i>
+                  <span class="text-gray-500">Última vez:</span>
+                  <span class="font-semibold text-gray-700">{{ getLastUsedText(word) }}</span>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                  <i class="fas fa-brain text-emerald-500"></i>
+                  <span class="text-gray-500">Dominio:</span>
+                  <span class="font-semibold" [class]="getMasteryLevelClass(word)">
+                    {{ getMasteryLevel(word) }}
+                  </span>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                  <span class="text-gray-500">Agregada:</span>
+                  <span class="font-semibold text-gray-700">{{ formatDate(word.created_at) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <button
+              class="opacity-0 group-hover:opacity-100 text-activlingo-primary hover:text-activlingo-secondary transition-all duration-200 ml-4">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+        }
+      </div>
+      }
+
+      <!-- Pagination -->
+      @if (totalPages() > 1) {
+      <div class="flex items-center justify-center mt-8 space-x-2">
+        <button (click)="previousPage()" [disabled]="currentPage() === 1"
+          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+          <i class="fas fa-chevron-left mr-1"></i>Anterior
+        </button>
+
+        <span class="px-4 py-2 text-sm text-gray-700">
+          Página {{ currentPage() }} de {{ totalPages() }}
+        </span>
+
+        <button (click)="nextPage()" [disabled]="currentPage() === totalPages()"
+          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+          Siguiente<i class="fas fa-chevron-right ml-1"></i>
+        </button>
+      </div>
+      }
+
+      } @else {
+      <!-- Empty State -->
+      <div class="flex flex-col items-center justify-center py-16 text-center">
+        <div
+          class="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+          <i class="fas fa-book-open text-3xl text-gray-400"></i>
+        </div>
+        <h3 class="text-xl font-bold text-gray-600 mb-2">
+          @if (searchTerm()) {
+          No se encontraron palabras
+          } @else {
+          No hay palabras {{ filter() === 'active' ? 'activas' : filter() === 'passive' ? 'pasivas' : '' }}
+          }
+        </h3>
+        <p class="text-gray-500 mb-6 max-w-md leading-relaxed">
+          @if (searchTerm()) {
+          No se encontraron palabras que coincidan con "{{ searchTerm() }}"
+          } @else if (filter() === 'active') {
+          Usa más tus palabras pasivas para activarlas mediante conversaciones
+          } @else if (filter() === 'passive') {
+          Agrega nuevas palabras para empezar tu aprendizaje
+          } @else {
+          ¡Comienza agregando tu primera palabra al diccionario!
+          }
+        </p>
+        <button (click)="searchMode.set(true)"
+          class="bg-gradient-to-r from-activlingo-primary to-activlingo-secondary hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+          <i class="fas fa-plus mr-3"></i>Agregar Primera Palabra
+        </button>
+      </div>
+      }
+      }
+    </div>
   </div>
+
+  <!-- Word Details Modal -->
+  @if (selectedWord()) {
+  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+    (click)="selectedWord.set(null)">
+    <div class="max-w-2xl w-full" (click)="$event.stopPropagation()">
+      <app-word-details [word]="selectedWord()!" (back)="selectedWord.set(null)">
+      </app-word-details>
+    </div>
+  </div>
+  }
+  }
 </div>

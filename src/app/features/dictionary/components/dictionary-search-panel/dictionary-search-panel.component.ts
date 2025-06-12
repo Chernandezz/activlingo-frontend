@@ -5,7 +5,7 @@ import { DictionaryService } from '../../services/dictionary.service';
 import { WordDefinition } from '../../../../core/models/user-dictionary.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faPlus, faCheck, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faCheck, faTimes, faSearch, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-dictionary-search-panel',
@@ -22,6 +22,8 @@ export class DictionarySearchPanelComponent {
     add: faPlus,
     added: faCheck,
     close: faTimes,
+    search: faSearch,
+    spinner: faSpinner, // Agregar este icono
   };
 
   // Estados
