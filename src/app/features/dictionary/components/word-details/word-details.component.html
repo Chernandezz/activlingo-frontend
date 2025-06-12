@@ -1,104 +1,104 @@
-<div class="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/40 overflow-hidden">
-  <!-- Enhanced Header with gradient -->
-  <div class="bg-gradient-to-r from-emerald-500 to-teal-600 p-8">
-    <div class="flex items-center justify-between">
-      <div class="flex items-center space-x-4">
-        <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
-          <i class="fas fa-quote-left text-white text-2xl"></i>
-        </div>
-        <div>
-          <h2 class="text-4xl font-bold text-white capitalize mb-2">{{ word.word }}</h2>
-          <p class="text-emerald-100 text-lg font-medium">{{ word.part_of_speech || 'Palabra' }}</p>
-        </div>
+<div
+  class="bg-white rounded-2xl shadow-2xl overflow-hidden w-full max-w-3xl mx-auto transform transition-all duration-300">
+
+  <!-- Encabezado con gradiente -->
+  <div class="relative bg-gradient-to-br from-blue-600 to-indigo-600 p-6 text-white">
+    <!-- Fondo decorativo -->
+    <div class="absolute inset-0 bg-grid-pattern opacity-5"></div>
+    <div class="absolute top-2 right-2 w-20 h-20 bg-white/5 rounded-full blur-2xl animate-pulse-slow"></div>
+
+    <!-- Botón cerrar -->
+    <button (click)="back.emit()"
+      class="absolute top-4 right-4 w-8 h-8 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110">
+      <i class="fas fa-times text-white text-sm"></i>
+    </button>
+
+    <!-- Contenido principal del header -->
+    <div class="relative z-10 flex items-center space-x-3">
+      <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+        <i class="fas fa-quote-left text-lg text-white"></i>
       </div>
-      <button
-        class="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105">
-        <i class="fas fa-graduation-cap mr-2"></i>
-        Aprender Más
-      </button>
+      <div>
+        <h1 class="text-2xl font-bold capitalize">{{ word.word }}</h1>
+        <p class="text-blue-100 text-sm">{{ getWordType() }}</p>
+      </div>
     </div>
   </div>
 
-  <div class="p-8">
-    <!-- Enhanced Statistics Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 p-6 rounded-2xl shadow-lg border border-indigo-200">
-        <div class="flex items-center justify-between">
-          <div>
-            <div class="text-sm text-indigo-600 font-semibold mb-1">Usos en chats</div>
-            <div class="text-3xl font-bold text-indigo-700">{{ word.usage_count || 0 }}</div>
-          </div>
-          <div class="w-12 h-12 bg-indigo-200 rounded-xl flex items-center justify-center">
-            <i class="fas fa-comments text-indigo-600"></i>
-          </div>
-        </div>
+  <!-- Estadísticas -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 -mt-4 px-6 z-20 relative">
+    <!-- Usos -->
+    <div class="bg-indigo-50 p-3 rounded-xl text-center border border-indigo-200 hover:shadow-md">
+      <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+        <i class="fas fa-comments text-white text-xs"></i>
       </div>
+      <div class="text-lg font-bold text-indigo-700">{{ word.usage_count || 0 }}</div>
+      <div class="text-xs text-indigo-600">Usos</div>
+    </div>
 
-      <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 p-6 rounded-2xl shadow-lg border border-emerald-200">
-        <div class="flex items-center justify-between">
-          <div>
-            <div class="text-sm text-emerald-600 font-semibold mb-1">Estado</div>
-            <div class="text-3xl font-bold text-emerald-700 capitalize">{{ word.status === 'active' ? 'Activa' :
-              'Pasiva' }}</div>
-          </div>
-          <div class="w-12 h-12 bg-emerald-200 rounded-xl flex items-center justify-center">
-            <i
-              [class]="word.status === 'active' ? 'fas fa-check-circle text-emerald-600' : 'fas fa-clock text-emerald-600'"></i>
-          </div>
-        </div>
+    <!-- Estado -->
+    <div [ngClass]="word.status === 'active' ? 'bg-emerald-50 border-emerald-200' : 'bg-amber-50 border-amber-200'"
+      class="p-3 rounded-xl text-center border hover:shadow-md">
+      <div [ngClass]="word.status === 'active' ? 'bg-emerald-600' : 'bg-amber-600'"
+        class="w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-2">
+        <i class="text-white text-xs" [ngClass]="word.status === 'active' ? 'fas fa-check-circle' : 'fas fa-clock'"></i>
       </div>
-
-      <div class="bg-gradient-to-br from-amber-50 to-amber-100 p-6 rounded-2xl shadow-lg border border-amber-200">
-        <div class="flex items-center justify-between">
-          <div>
-            <div class="text-sm text-amber-600 font-semibold mb-1">Tipo</div>
-            <div class="text-3xl font-bold text-amber-700">{{ word.part_of_speech || 'N/A' }}</div>
-          </div>
-          <div class="w-12 h-12 bg-amber-200 rounded-xl flex items-center justify-center">
-            <i class="fas fa-tag text-amber-600"></i>
-          </div>
-        </div>
+      <div class="text-sm font-bold" [ngClass]="word.status === 'active' ? 'text-emerald-700' : 'text-amber-700'">
+        {{ word.status === 'active' ? 'Activa' : 'Pasiva' }}
       </div>
-
-      <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-2xl shadow-lg border border-purple-200">
-        <div class="flex items-center justify-between">
-          <div>
-            <div class="text-sm text-purple-600 font-semibold mb-1">Fuente</div>
-            <div class="text-xl font-bold text-purple-700">{{ word.source || 'Manual' }}</div>
-          </div>
-          <div class="w-12 h-12 bg-purple-200 rounded-xl flex items-center justify-center">
-            <i class="fas fa-source text-purple-600"></i>
-          </div>
-        </div>
+      <div class="text-xs" [ngClass]="word.status === 'active' ? 'text-emerald-600' : 'text-amber-600'">
+        Estado
       </div>
     </div>
 
-    <!-- Enhanced Meaning Section -->
-    <section class="mb-8">
-      <div class="flex items-center space-x-3 mb-4">
-        <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+    <!-- Tipo -->
+    <div class="bg-orange-50 p-3 rounded-xl text-center border border-orange-200 hover:shadow-md">
+      <div class="w-8 h-8 bg-orange-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+        <i class="fas fa-tag text-white text-xs"></i>
+      </div>
+      <div class="text-sm font-bold text-orange-700">{{ getWordTypeShort() }}</div>
+      <div class="text-xs text-orange-600">Tipo</div>
+    </div>
+
+    <!-- Dominio -->
+    <div class="bg-purple-50 p-3 rounded-xl text-center border border-purple-200 hover:shadow-md">
+      <div class="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center mx-auto mb-2">
+        <i class="fas fa-brain text-white text-xs"></i>
+      </div>
+      <div class="text-sm font-bold text-purple-700">{{ getMasteryPercentage() }}%</div>
+      <div class="text-xs text-purple-600">Dominio</div>
+    </div>
+  </div>
+
+  <!-- Contenido principal -->
+  <div class="p-6 space-y-6">
+
+    <!-- Significado -->
+    <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
+      <div class="flex items-center space-x-2 mb-3">
+        <div class="w-8 h-8 bg-slate-700 rounded-lg flex items-center justify-center">
           <i class="fas fa-lightbulb text-white text-sm"></i>
         </div>
-        <h3 class="text-2xl font-bold text-gray-800">Significado</h3>
+        <h3 class="text-lg font-bold text-gray-900">Significado</h3>
       </div>
-      <div class="bg-gradient-to-r from-gray-50 to-blue-50 p-6 rounded-xl border-l-4 border-blue-500">
-        <p class="text-gray-700 text-lg leading-relaxed">{{ word.meaning }}</p>
-      </div>
-    </section>
+      <p class="bg-white p-4 rounded-lg border-l-4 border-activlingo-primary text-gray-700">
+        {{ word.meaning }}
+      </p>
+    </div>
 
-    <!-- Enhanced Example Section -->
-    <section *ngIf="word.example">
-      <div class="flex items-center space-x-3 mb-4">
-        <div class="w-8 h-8 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
+    <!-- Ejemplo -->
+    <div class="bg-emerald-50 rounded-xl p-4 border border-emerald-200">
+      <div class="flex items-center space-x-2 mb-3">
+        <div class="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
           <i class="fas fa-quote-right text-white text-sm"></i>
         </div>
-        <h3 class="text-2xl font-bold text-gray-800">Ejemplo de uso</h3>
+        <h3 class="text-lg font-bold text-gray-900">Ejemplo de uso</h3>
       </div>
-      <div class="bg-gradient-to-r from-emerald-50 to-teal-50 p-6 rounded-xl border-l-4 border-emerald-500">
-        <blockquote class="text-gray-700 text-lg italic leading-relaxed">
-          "{{ word.example }}"
-        </blockquote>
-      </div>
-    </section>
+      <p class="bg-white p-4 rounded-lg border-l-4 border-emerald-500 italic text-gray-700">
+        "{{ getExampleSentence() }}"
+      </p>
+    </div>
+
+  
   </div>
 </div>

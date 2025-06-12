@@ -46,7 +46,6 @@ export class DictionaryPageComponent implements OnInit, OnDestroy {
   isLoading = signal(false);
 
   // Estados de UI
-  viewMode = signal<'grid' | 'list'>('grid');
   searchTerm = signal('');
   currentPage = signal(1);
   sortBy = signal('recent');
@@ -61,9 +60,6 @@ export class DictionaryPageComponent implements OnInit, OnDestroy {
       // Ajustar items per page según pantalla
       this.itemsPerPage =
         window.innerWidth < 768 ? 6 : window.innerWidth < 1024 ? 9 : 12;
-
-      // Guardar preferencia de vista
-      localStorage.setItem('dictionary_view_mode', this.viewMode());
     };
     window.addEventListener('resize', this.resizeListener);
 
@@ -205,12 +201,7 @@ export class DictionaryPageComponent implements OnInit, OnDestroy {
 
   // Métodos de carga de datos
   private loadUserPreferences(): void {
-    const savedViewMode = localStorage.getItem('dictionary_view_mode') as
-      | 'grid'
-      | 'list';
-    if (savedViewMode) {
-      this.viewMode.set(savedViewMode);
-    }
+   
 
     const savedSortBy = localStorage.getItem('dictionary_sort_by');
     if (savedSortBy) {
@@ -219,7 +210,6 @@ export class DictionaryPageComponent implements OnInit, OnDestroy {
   }
 
   private saveUserPreferences(): void {
-    localStorage.setItem('dictionary_view_mode', this.viewMode());
     localStorage.setItem('dictionary_sort_by', this.sortBy());
   }
 
@@ -652,11 +642,6 @@ export class DictionaryPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Métodos de configuración de vista
-  toggleViewMode(): void {
-    this.viewMode.set(this.viewMode() === 'grid' ? 'list' : 'grid');
-    this.saveUserPreferences();
-  }
 
   // Método para manejar errores de red
   private handleNetworkError(error: any): void {

@@ -1,91 +1,76 @@
 <!-- dictionary-page.component.html - DISEÑO MEJORADO CON MÁS VALOR -->
 <div class="min-h-screen bg-gradient-to-br from-gray-50 to-slate-100">
-  <!-- Header con Search y Filtros -->
+  <!-- Header Compacto con Search y Filtros -->
   <div class="sticky top-0 z-50 bg-white/90 backdrop-blur-lg border-b border-gray-200 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between py-4 space-y-4 lg:space-y-0">
+      @if (!searchMode()) {
+      <!-- Header Principal - Una sola línea -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-y-5 gap-x-4 py-4">
 
-        <!-- Search y Nueva Palabra -->
-        <div
-          class="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 flex-1 lg:flex-none lg:min-w-[500px]">
 
-          <!-- Search Bar -->
+        <!-- Lado Izquierdo: Search Bar -->
+        <div class="flex items-center space-x-3 flex-1 max-w-md">
           <div class="relative flex-1">
-            @if (!searchMode()) {
-            <div class="relative">
-              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <i class="fas fa-search text-gray-400"></i>
-              </div>
-              <input type="text" [(ngModel)]="searchTerm" (input)="onSearchChange()"
-                placeholder="Buscar en tu diccionario..."
-                class="block w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-activlingo-primary focus:border-transparent transition-all duration-200 text-sm font-medium">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <i class="fas fa-search text-gray-400 text-sm"></i>
             </div>
-            } @else {
-            <app-dictionary-search-panel (exitSearch)="searchMode.set(false)" (wordAdded)="handleWordAdded()">
-            </app-dictionary-search-panel>
-            }
+            <input type="text" [(ngModel)]="searchTerm" (input)="onSearchChange()"
+              placeholder="Buscar en tu diccionario..."
+              class="block w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-activlingo-primary focus:border-transparent transition-all duration-200 text-sm">
           </div>
 
-          <!-- Nueva Palabra Button -->
+          <!-- Botón Nueva Palabra compacto -->
           <button (click)="searchMode.set(true)"
-            class="bg-gradient-to-r from-activlingo-primary to-activlingo-secondary hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2 whitespace-nowrap">
-            <i class="fas fa-plus"></i>
-            <span class="hidden sm:inline">Nueva Palabra</span>
-            <span class="sm:hidden">Agregar</span>
+            class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 py-2.5 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg flex items-center space-x-2 whitespace-nowrap">
+            <i class="fas fa-plus text-sm"></i>
+            <span class="hidden md:inline text-sm">Nueva Palabra</span>
+            <span class="md:hidden text-sm">Agregar</span>
           </button>
+        </div>
+
+        <!-- Lado Derecho: Filtros y Vista -->
+        <div class="flex items-center space-x-4">
+
+          <!-- Filtros compactos -->
+          <div class="flex items-center space-x-1">
+            <span class="text-xs font-medium text-gray-500 mr-2 hidden sm:inline">Filtrar:</span>
+
+            <button (click)="onFilterChange('all')"
+              class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-200" [ngClass]="{
+                  'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md': filter() === 'all',
+                  'bg-gray-100 text-gray-600 hover:bg-gray-200': filter() !== 'all'
+                }">
+              <span >Todas</span>
+              <span class="ml-1 text-xs">({{ totalWordCount() }})</span>
+            </button>
+
+            <button (click)="onFilterChange('active')"
+              class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-200" [ngClass]="{
+                  'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-md': filter() === 'active',
+                  'bg-gray-100 text-gray-600 hover:bg-gray-200': filter() !== 'active'
+                }">
+              <span>Activas</span>
+              <span class="ml-1 text-xs">({{ activeWordCount() }})</span>
+            </button>
+
+            <button (click)="onFilterChange('passive')"
+              class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-200" [ngClass]="{
+                  'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-md': filter() === 'passive',
+                  'bg-gray-100 text-gray-600 hover:bg-gray-200': filter() !== 'passive'
+                }">
+              <span>Pasivas</span>
+              <span class="ml-1 text-xs">({{ passiveWordCount() }})</span>
+            </button>
+          </div>
+
+
         </div>
       </div>
-
-      <!-- Filtros -->
-      @if (!searchMode()) {
-      <div class="flex flex-wrap items-center justify-between pb-4 border-t border-gray-100 pt-4">
-        <div class="flex flex-wrap items-center space-x-2 mb-2 sm:mb-0">
-          <span class="text-sm font-medium text-gray-600 mr-2">Filtrar:</span>
-
-          <button (click)="onFilterChange('all')"
-            class="px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 transform hover:scale-105"
-            [ngClass]="{
-                'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg': filter() === 'all',
-                'bg-gray-100 text-gray-700 hover:bg-gray-200': filter() !== 'all'
-              }">
-            Todas ({{ totalWordCount() }})
-          </button>
-
-          <button (click)="onFilterChange('active')"
-            class="px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 transform hover:scale-105"
-            [ngClass]="{
-                'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg': filter() === 'active',
-                'bg-gray-100 text-gray-700 hover:bg-gray-200': filter() !== 'active'
-              }">
-            Activas ({{ activeWordCount() }})
-          </button>
-
-          <button (click)="onFilterChange('passive')"
-            class="px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 transform hover:scale-105"
-            [ngClass]="{
-                'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-lg': filter() === 'passive',
-                'bg-gray-100 text-gray-700 hover:bg-gray-200': filter() !== 'passive'
-              }">
-            Pasivas ({{ passiveWordCount() }})
-          </button>
-        </div>
-
-        <!-- View Toggle -->
-        <div class="flex items-center space-x-2">
-          <span class="text-sm font-medium text-gray-600">Vista:</span>
-          <button (click)="viewMode.set('grid')" class="p-2 rounded-lg transition-all duration-200" [ngClass]="{
-                'bg-activlingo-primary text-white': viewMode() === 'grid',
-                'bg-gray-100 text-gray-600 hover:bg-gray-200': viewMode() !== 'grid'
-              }">
-            <i class="fas fa-th"></i>
-          </button>
-          <button (click)="viewMode.set('list')" class="p-2 rounded-lg transition-all duration-200" [ngClass]="{
-                'bg-activlingo-primary text-white': viewMode() === 'list',
-                'bg-gray-100 text-gray-600 hover:bg-gray-200': viewMode() !== 'list'
-              }">
-            <i class="fas fa-list"></i>
-          </button>
-        </div>
+      } @else {
+      <!-- Modo Search Panel -->
+      <div class="py-4">
+        <app-dictionary-search-panel (exitSearch)="searchMode.set(false)" (wordAdded)="handleWordAdded()">
+        </app-dictionary-search-panel>
       </div>
       }
     </div>
@@ -99,9 +84,6 @@
     <div class="mb-8">
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-xl font-bold text-gray-900">Dashboard de Aprendizaje</h2>
-        <button class="text-activlingo-primary hover:text-activlingo-secondary text-sm font-medium">
-          Ver más estadísticas <i class="fas fa-arrow-right ml-1"></i>
-        </button>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
@@ -220,8 +202,6 @@
       } @else {
       @if (filteredWords().length > 0) {
 
-      <!-- Grid View MEJORADA -->
-      @if (viewMode() === 'grid') {
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         @for (word of paginatedWords(); track trackByWordId($index, word)) {
         <div (click)="onSelectWord(word)"
@@ -234,7 +214,6 @@
                 class="text-lg font-bold text-gray-900 capitalize group-hover:text-activlingo-primary transition-colors">
                 {{ word.word }}
               </h3>
-              <!-- Footer con estado y acción -->
               <span class="text-xs font-semibold px-3 py-1 rounded-full"
                 [class]="word.status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'">
                 {{ word.status === 'active' ? 'Activa' : 'Pasiva' }}
@@ -289,68 +268,7 @@
       </div>
       }
 
-      <!-- List View MEJORADA -->
-      @if (viewMode() === 'list') {
-      <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-        @for (word of paginatedWords(); track trackByWordId($index, word)) {
-        <div (click)="onSelectWord(word)"
-          class="group p-6 hover:bg-gray-50 cursor-pointer transition-all duration-200 border-b border-gray-100 last:border-b-0">
 
-          <div class="flex items-center justify-between">
-            <div class="flex-1">
-              <!-- Header -->
-              <div class="flex items-center space-x-4 mb-3">
-                <h3
-                  class="text-lg font-bold text-gray-900 capitalize group-hover:text-activlingo-primary transition-colors">
-                  {{ word.word }}
-                </h3>
-                <span class="text-xs font-semibold px-3 py-1 rounded-full"
-                  [class]="word.status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'">
-                  {{ word.status === 'active' ? 'Activa' : 'Pasiva' }}
-                </span>
-              </div>
-
-              <!-- Significado -->
-              <p class="text-gray-600 text-sm line-clamp-2 mb-3">{{ word.meaning }}</p>
-
-              <!-- Estadísticas en línea -->
-              <div class="flex items-center space-x-6 text-sm">
-                <div class="flex items-center space-x-2">
-                  <i class="fas fa-eye text-blue-500"></i>
-                  <span class="text-gray-500">Usos:</span>
-                  <span class="font-semibold text-gray-700">{{ word.usage_count || 0 }}</span>
-                </div>
-
-                <div class="flex items-center space-x-2">
-                  <i class="fas fa-clock text-purple-500"></i>
-                  <span class="text-gray-500">Última vez:</span>
-                  <span class="font-semibold text-gray-700">{{ getLastUsedText(word) }}</span>
-                </div>
-
-                <div class="flex items-center space-x-2">
-                  <i class="fas fa-brain text-emerald-500"></i>
-                  <span class="text-gray-500">Dominio:</span>
-                  <span class="font-semibold" [class]="getMasteryLevelClass(word)">
-                    {{ getMasteryLevel(word) }}
-                  </span>
-                </div>
-
-                <div class="flex items-center space-x-2">
-                  <span class="text-gray-500">Agregada:</span>
-                  <span class="font-semibold text-gray-700">{{ formatDate(word.created_at) }}</span>
-                </div>
-              </div>
-            </div>
-
-            <button
-              class="opacity-0 group-hover:opacity-100 text-activlingo-primary hover:text-activlingo-secondary transition-all duration-200 ml-4">
-              <i class="fas fa-chevron-right"></i>
-            </button>
-          </div>
-        </div>
-        }
-      </div>
-      }
 
       <!-- Pagination -->
       @if (totalPages() > 1) {
@@ -369,7 +287,7 @@
           Siguiente<i class="fas fa-chevron-right ml-1"></i>
         </button>
       </div>
-      }
+
 
       } @else {
       <!-- Empty State -->
