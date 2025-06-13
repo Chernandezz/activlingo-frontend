@@ -8,14 +8,14 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable, Subscription } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { take } from 'rxjs/operators';
 
 import { Chat } from '../../../../core/models/chat.model';
 import { Message } from '../../../../core/models/message.model';
 import { ChatService } from '../../services/chat.service';
 import { MessageService } from '../../services/message.service';
 import { UiService } from '../../../../shared/services/ui.service';
-import { AuthService } from '../../../../core/services/auth.service';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { OnboardingWelcomeOverlayComponent } from '../../../onboarding/pages/onboarding-welcome-overlay.component';
 
 import { ChatSidebarComponent } from '../../components/chat-sidebar/chat-sidebar.component';
@@ -23,6 +23,7 @@ import { ChatMessageComponent } from '../../components/chat-message/chat-message
 import { ChatInputComponent } from '../../components/chat-input/chat-input.component';
 import { ChatAnalysisComponent } from '../../../analysis/components/chat-analysis/chat-analysis.component';
 import { ConversationOverlayComponent } from '../../components/conversation-overlay/conversation-overlay.component';
+import { ChatWelcomeComponent } from '../../components/chat-welcome/chat-welcome.component'; // Nuevo import
 import { Task } from '../../../../core/models/task';
 import { TaskService } from '../../services/tasks.service';
 import { AudioRecorderService } from '../../services/audio-recorder.service';
@@ -39,6 +40,8 @@ import { UserService } from '../../../../core/services/user.service';
     ChatAnalysisComponent,
     ConversationOverlayComponent,
     OnboardingWelcomeOverlayComponent,
+    ChatWelcomeComponent, // Añadido el nuevo componente
+    FontAwesomeModule,
   ],
   templateUrl: './chat-page.component.html',
 })
@@ -47,7 +50,6 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
 
   // Observables
   chats$: Observable<Chat[]>;
-
   currentChat$: Observable<Chat | null>;
   messages$: Observable<Message[]>;
   overlayVisible$: Observable<boolean>;
@@ -173,7 +175,7 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     if (!currentChat) return Promise.resolve();
 
     this.isLoading = true;
-    // Llamamos a la versión que “espera” la respuesta de la IA
+    // Llamamos a la versión que "espera" la respuesta de la IA
     return this.messageService
       .sendVoiceMessageAndWait(currentChat.id, audioBlob)
       .then(() => {
@@ -208,7 +210,7 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
       const audioBlob = await this.audioRecorder.stopRecording();
       if (audioBlob && currentChat) {
         await this.handleAudioRecording(audioBlob);
-        this.chatService.bumpChatToTop(currentChat.id); 
+        this.chatService.bumpChatToTop(currentChat.id);
       }
 
       // Ahora que la IA ya respondió, reestablecemos el flag

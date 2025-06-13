@@ -1,21 +1,19 @@
 <app-onboarding-welcome-overlay *ngIf="showOnboarding" (startFreeTrial)="handleStartFreeTrial()">
 </app-onboarding-welcome-overlay>
 
-
-<div class="flex h-full">
-  <!-- Sidebar Desktop -->
+<div class="flex h-full bg-gray-50/30">
+  <!-- Sidebar Desktop - siempre visible -->
   <div class="hidden md:flex w-[25rem] flex-shrink-0 h-full">
     <app-chat-sidebar [chats]="(chats$ | async) ?? []" [currentChatId]="currentChatId"
       [hideAIResponses]="(hideAIResponses$ | async) ?? false" [isCreatingChat]="isCreatingChat" [showModal]="showModal"
       (toggleSidebar)="ui.toggleSidebar()" (select)="handleSelectChat($event)" (startChat)="handleStartNewChat($event)"
-      (toggleAI)="ui.toggleHideAIResponses()" (deleteChat)="handleDeleteChat($event)"
-      (openModal)="openModal()" (closeModal)="closeModal()"
-      class="w-full h-full"></app-chat-sidebar>
+      (toggleAI)="ui.toggleHideAIResponses()" (deleteChat)="handleDeleteChat($event)" (openModal)="openModal()"
+      (closeModal)="closeModal()" class="w-full h-full"></app-chat-sidebar>
   </div>
 
-  <!-- Sidebar Mobile -->
-  <div *ngIf="isSidebarOpen" class="fixed inset-0 z-50 flex lg:hidden h-full">
-    <div class="w-[320px] bg-white shadow-xl">
+  <!-- Sidebar Mobile - siempre disponible -->
+  <div *ngIf="isSidebarOpen" class="fixed inset-0 z-[999] flex lg:hidden h-full">
+    <div class="w-[320px] bg-white shadow-2xl">
       <app-chat-sidebar [chats]="(chats$ | async) ?? []" [currentChatId]="currentChatId"
         [hideAIResponses]="(hideAIResponses$ | async) ?? false" [isCreatingChat]="isCreatingChat"
         [showModal]="showModal" (toggleSidebar)="ui.toggleSidebar()" (select)="handleSelectChat($event)"
@@ -23,66 +21,129 @@
         (toggleAI)="ui.toggleHideAIResponses()" (openModal)="openModal()"
         (closeModal)="closeModal()"></app-chat-sidebar>
     </div>
-    <div class="flex-1 bg-black/20" (click)="ui.closeSidebar()"></div>
+    <div class="flex-1 bg-black/30" (click)="ui.closeSidebar()"></div>
   </div>
 
   <!-- Main Content -->
-  <div class="flex-grow flex flex-col h-full overflow-hidden position-relative">
-    <!-- Chat Header -->
-    <div *ngIf="currentChat$ | async" class="bg-transparent p-4 flex items-center justify-end z-10 pointer-events-none">
-      <div
-        class="pointer-events-auto flex gap-2 items-center shadow-lg backdrop-blur-md bg-white/80 border border-gray-200 px-4 py-2 rounded-full">
-        <button (click)="toggleAnalysisView()"
-          class="inline-flex items-center gap-2 text-sm font-semibold px-3 py-1.5 rounded-full border transition"
-          [ngClass]="showAnalysis
-            ? 'bg-blue-600 text-white border-blue-600'
-            : 'bg-green-600 text-white border-green-600 hover:bg-green-700'">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-          </svg>
-          {{ showAnalysis ? 'Regresar' : 'Analizar Chat' }}
-        </button>
+  <div class="flex-grow flex flex-col h-full overflow-hidden bg-white shadow-sm rounded-l-2xl">
 
-        <button (click)="closeCurrentChat()"
-          class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition" title="Cerrar chat">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
+    <!-- Chat Header mejorado -->
+    <div *ngIf="currentChat$ | async"
+      class="flex-shrink-0 bg-white/95 backdrop-blur-sm border-b border-gray-200/50 px-6 py-4">
+      <div class="flex items-center justify-between">
+
+        <!-- Info del chat actual -->
+        <div class="flex items-center gap-4">
+          <!-- Botón sidebar móvil integrado -->
+          <button (click)="ui.toggleSidebar()"
+            class="md:hidden p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200">
+            <i class="fas fa-bars text-lg"></i>
+          </button>
+
+          <div class=" hidden sm:block">
+            <div class="flex items-center gap-3">
+              <!-- Avatar del chat -->
+              <div
+                class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-sm">
+                <i class="fas fa-comments text-white"></i>
+              </div>
+
+              <!-- Info del chat - oculta en móvil -->
+              <div>
+                <h2 class="text-lg font-semibold text-gray-900 capitalize">{{ (currentChat$ | async)?.title }}</h2>
+                <p class="text-sm text-gray-500">Práctica de conversación en inglés</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="flex items-center gap-2">
+          <button (click)="toggleAnalysisView()"
+            class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 text-sm font-semibold rounded-xl transition-all duration-200 border"
+            [ngClass]="showAnalysis
+              ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'
+              : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-transparent hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg'">
+            <i [class]="showAnalysis ? 'fas fa-arrow-left' : 'fas fa-chart-bar'"></i>
+            <span>{{ showAnalysis ? 'Regresar' : 'Analizar Chat' }}</span>
+          </button>
+
+          <button (click)="closeCurrentChat()"
+            class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all duration-200"
+            title="Cerrar chat">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Header móvil cuando no hay chat -->
+    <div *ngIf="!(currentChat$ | async)"
+      class="md:hidden flex-shrink-0 bg-white/95 backdrop-blur-sm border-b border-gray-200/50 px-4 py-3">
+      <div class="flex items-center justify-between">
+        <button (click)="ui.toggleSidebar()"
+          class="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200">
+          <i class="fas fa-bars text-lg"></i>
         </button>
+        <h1 class="text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          Activlingo
+        </h1>
+        <div class="w-9"></div> <!-- Spacer -->
       </div>
     </div>
 
     <div class="flex-grow flex flex-col overflow-hidden">
       <!-- Chat Messages View -->
       <div *ngIf="!showAnalysis && (currentChat$ | async)" class="flex-grow flex flex-col overflow-hidden">
-        <div class="flex-grow overflow-y-auto bg-white h-100" #messagesContainer>
-          <div *ngIf="(messages$ | async)?.length === 0" class="flex items-center justify-center h-full px-4">
+        <div class="flex-grow overflow-y-auto bg-gradient-to-b from-gray-50/20 to-white" #messagesContainer>
+
+          <!-- Estado vacío del chat -->
+          <div *ngIf="(messages$ | async)?.length === 0" class="flex items-center justify-center h-full px-6">
             <div class="text-center max-w-md">
-              <h3 class="text-lg font-semibold text-gray-900 mb-2">Start your conversation</h3>
-              <p class="text-gray-500 text-sm mb-6">
-                Begin practicing your English conversation skills. Type a message or use voice recording below.
+              <div
+                class="w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <i class="fas fa-comments text-white text-2xl"></i>
+              </div>
+              <h3 class="text-xl font-bold text-gray-900 mb-2">¡Comienza tu conversación!</h3>
+              <p class="text-gray-600 mb-6 leading-relaxed">
+                Practica tu inglés conversacional. Puedes escribir un mensaje o usar la grabación de voz.
               </p>
+              <div class="flex items-center justify-center gap-2 text-sm text-gray-500">
+                <i class="fas fa-lightbulb text-amber-500"></i>
+                <span>Tip: Habla naturalmente, como si fuera una conversación real</span>
+              </div>
             </div>
           </div>
 
-          <div *ngIf="(messages$ | async)?.length! > 0" class="px-4 py-6 space-y-4 overflow-y-hidden">
+          <!-- Mensajes -->
+          <div *ngIf="(messages$ | async)?.length! > 0" class="px-4 sm:px-6 py-6 space-y-4">
             <app-chat-message *ngFor="let message of messages$ | async; trackBy: trackByMessage" [message]="message"
               [hideAIResponses]="(hideAIResponses$ | async) ?? false"></app-chat-message>
+
+            <!-- Indicador de cargando -->
+            <div *ngIf="isLoading" class="flex items-center gap-3 px-4 py-3 bg-blue-50 rounded-xl max-w-xs">
+              <div
+                class="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center">
+                <i class="fas fa-robot text-white text-sm"></i>
+              </div>
+              <div class="flex items-center gap-1">
+                <div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
+                <div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                <div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+              </div>
+            </div>
           </div>
         </div>
 
         <!-- OVERLAY -->
-        <app-conversation-overlay *ngIf="overlayVisible$ | async" [message]="overlayMessage" [isNaturalMode]="isNaturalMode"
-          [tasks]="tasksList" [isRecordingManual]="isRecordingManual" [isProcessing]="isProcessing"
-          (close)="endConversationMode()" (toggleMode)="toggleConversationMode()" (sendVoice)="handleAudioRecording($event)"
-          (startRecording)="handleManualRecording()">
+        <app-conversation-overlay *ngIf="overlayVisible$ | async" [message]="overlayMessage"
+          [isNaturalMode]="isNaturalMode" [tasks]="tasksList" [isRecordingManual]="isRecordingManual"
+          [isProcessing]="isProcessing" (close)="endConversationMode()" (toggleMode)="toggleConversationMode()"
+          (sendVoice)="handleAudioRecording($event)" (startRecording)="handleManualRecording()">
         </app-conversation-overlay>
-      
-      
 
-        <!-- Chat Input -->
-        <div class="bg-white p-4 flex-shrink-0">
+        <!-- Chat Input mejorado -->
+        <div class="flex-shrink-0 bg-white border-t border-gray-200/50 p-4 sm:p-6">
           <app-chat-input [message]="message" [isRecording]="isRecording" [isProcessing]="isProcessing"
             [recordingDuration]="recordingDuration" (messageChange)="message = $event"
             (send)="handleSendMessage(message)" (sendVoice)="handleAudioRecording($event)"
@@ -91,18 +152,37 @@
       </div>
 
       <!-- Analysis View -->
-      <div *ngIf="showAnalysis && chatForAnalysis" class="flex-grow overflow-y-scroll h-100">
+      <div *ngIf="showAnalysis && chatForAnalysis" class="flex-grow overflow-y-auto bg-gray-50/30">
         <app-chat-analysis [chatId]="chatForAnalysis.id" class="min-h-full"></app-chat-analysis>
       </div>
 
-      <!-- No Chat Selected -->
-      <div *ngIf="!(currentChat$ | async)" class="flex-grow flex items-center justify-center bg-white">
-        <div class="text-center max-w-md px-8">
-          <h2 class="text-2xl font-bold text-gray-900 mb-4">Welcome to Activlingo</h2>
-          <p class="text-gray-500 mb-8 leading-relaxed">
-            Select an existing conversation from the sidebar or create a new one to start practicing your English
-            conversation skills.
-          </p>
+      <!-- Welcome View with Scenarios -->
+      <div *ngIf="!(currentChat$ | async)" class="flex-grow overflow-hidden">
+        <app-chat-welcome (startChat)="handleStartNewChat($event)"></app-chat-welcome>
+      </div>
+    </div>
+
+    <!-- Quick Actions Bar (solo cuando hay chat activo) -->
+    <div *ngIf="(currentChat$ | async) && !showAnalysis"
+      class="hidden sm:flex flex-shrink-0 bg-gray-50/50 border-t border-gray-200/50 px-6 py-3">
+      <div class="flex items-center justify-between w-full">
+        <div class="flex items-center gap-4 text-sm text-gray-600">
+          <div class="flex items-center gap-2">
+            <i class="fas fa-comments text-blue-500"></i>
+            <span>{{ (messages$ | async)?.length || 0 }} mensajes</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <i class="fas fa-clock text-green-500"></i>
+            <span>Sesión activa</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button (click)="startConversationMode()"
+            class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
+            <i class="fas fa-microphone text-xs"></i>
+            Modo Conversación
+          </button>
         </div>
       </div>
     </div>
