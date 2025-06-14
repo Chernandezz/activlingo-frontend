@@ -1,188 +1,314 @@
 <div class="h-full bg-gradient-to-br from-gray-50 to-blue-50/30 overflow-y-auto">
-  <div class="max-w-5xl mx-auto p-6 space-y-6">
+  <div class="max-w-5xl mx-auto p-4 md:p-6 space-y-6">
 
-    <!-- Header Simple -->
-    <div class="bg-white rounded-2xl shadow-lg border border-gray-200/50 p-6">
-      <div class="flex items-center gap-4">
-        <div
-          class="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-md">
-          <i class="fas fa-chart-line text-white text-lg"></i>
-        </div>
-        <div>
-          <h1 class="text-2xl font-bold text-gray-900">Análisis de tu Conversación</h1>
-          <p class="text-gray-600">{{ points.length }} puntos de mejora identificados</p>
-        </div>
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex items-center justify-center py-16">
+      <div class="text-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <p class="text-gray-600">Analizando tu conversación...</p>
       </div>
     </div>
 
-    <!-- Stats Cards Simples pero Efectivas -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      <!-- Grammar -->
-      <div
-        class="bg-white rounded-xl shadow-md border border-gray-200/50 p-5 hover:shadow-lg transition-all duration-200">
-        <div class="flex items-center justify-between mb-3">
-          <div class="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center">
-            <i class="fas fa-spell-check text-pink-600"></i>
-          </div>
-          <span class="text-2xl font-bold text-gray-900">{{ getCategoryCount('grammar') }}</span>
-        </div>
-        <h3 class="font-semibold text-gray-900 mb-1">Gramática</h3>
-        <p class="text-sm text-gray-600">Errores corregidos</p>
-      </div>
-
-      <!-- Vocabulary -->
-      <div
-        class="bg-white rounded-xl shadow-md border border-gray-200/50 p-5 hover:shadow-lg transition-all duration-200">
-        <div class="flex items-center justify-between mb-3">
-          <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-            <i class="fas fa-book-open text-orange-600"></i>
-          </div>
-          <span class="text-2xl font-bold text-gray-900">{{ getCategoryCount('vocabulary') }}</span>
-        </div>
-        <h3 class="font-semibold text-gray-900 mb-1">Vocabulario</h3>
-        <p class="text-sm text-gray-600">Palabras nuevas</p>
-      </div>
-
-      <!-- Expressions -->
-      <div
-        class="bg-white rounded-xl shadow-md border border-gray-200/50 p-5 hover:shadow-lg transition-all duration-200">
-        <div class="flex items-center justify-between mb-3">
-          <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-            <i class="fas fa-comments text-blue-600"></i>
-          </div>
-          <span class="text-2xl font-bold text-gray-900">{{ getCategoryCount('expression') }}</span>
-        </div>
-        <h3 class="font-semibold text-gray-900 mb-1">Expresiones</h3>
-        <p class="text-sm text-gray-600">Frases mejoradas</p>
-      </div>
-
-      <!-- Score Total -->
-      <div class="bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl shadow-md p-5 text-white">
-        <div class="flex items-center justify-between mb-3">
-          <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-            <i class="fas fa-star text-white"></i>
-          </div>
-          <span class="text-2xl font-bold">{{ getOverallScore() }}%</span>
-        </div>
-        <h3 class="font-semibold mb-1">Tu Progreso</h3>
-        <p class="text-sm text-emerald-100">¡Sigue mejorando!</p>
-      </div>
+    <!-- Error State -->
+    <div *ngIf="error && !isLoading" class="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+      <i class="fas fa-exclamation-triangle text-red-500 text-2xl mb-3"></i>
+      <h3 class="text-lg font-semibold text-red-800 mb-2">Error al cargar análisis</h3>
+      <p class="text-red-600 mb-4">{{ error }}</p>
+      <button (click)="loadAnalysisData()"
+        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+        Reintentar
+      </button>
     </div>
 
-    <!-- Palabras de tu Diccionario Usadas (MVP Feature) -->
-    <div *ngIf="getWordsFromDictionary().length > 0"
-      class="bg-white rounded-xl shadow-md border border-gray-200/50 p-6">
-      <div class="flex items-center gap-3 mb-4">
-        <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-          <i class="fas fa-user-graduate text-white"></i>
-        </div>
-        <div>
-          <h2 class="text-lg font-bold text-gray-900">¡Usaste palabras de tu diccionario!</h2>
-          <p class="text-gray-600">Excelente trabajo practicando tu vocabulario personal</p>
-        </div>
-      </div>
-
-      <div class="flex flex-wrap gap-2">
-        <span *ngFor="let word of getWordsFromDictionary()"
-          class="px-3 py-2 bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800 rounded-lg text-sm font-medium border border-purple-200">
-          {{ word }}
-        </span>
-      </div>
+    <!-- No Data State -->
+    <div *ngIf="!isLoading && !error && !hasAnalysisData()" class="text-center py-16">
+      <i class="fas fa-comment-alt text-gray-400 text-4xl mb-4"></i>
+      <h3 class="text-xl font-semibold text-gray-600 mb-2">Sin análisis disponible</h3>
+      <p class="text-gray-500">Envía algunos mensajes para ver el análisis de tu conversación</p>
     </div>
 
-    <!-- Lista de Análisis Simplificada -->
-    <div class="space-y-4">
-      <div class="flex items-center justify-between">
-        <h2 class="text-xl font-bold text-gray-900">Puntos de Mejora</h2>
-        <span class="text-sm text-gray-600">Haz clic para ver detalles</span>
+    <!-- Main Content -->
+    <div *ngIf="!isLoading && !error && hasAnalysisData()">
+
+      <!-- Header del Análisis -->
+      <div class="bg-white rounded-2xl shadow-lg border border-gray-200/50 p-4 md:p-6 mb-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="flex items-center gap-4">
+            <div
+              class="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-md">
+              <i class="fas fa-chart-line text-white text-lg"></i>
+            </div>
+            <div>
+              <h1 class="text-2xl font-bold text-gray-900">Análisis de Conversación</h1>
+              <p class="text-gray-600">Mejora tu inglés con retroalimentación personalizada</p>
+            </div>
+          </div>
+          <div class="bg-gradient-to-r from-emerald-100 to-blue-100 px-4 py-2 rounded-xl">
+            <span class="text-sm font-semibold text-gray-700">{{ points.length }} puntos analizados</span>
+          </div>
+        </div>
       </div>
 
-      <div *ngFor="let point of points; trackBy: trackByPoint"
-        class="bg-white rounded-xl shadow-md border border-gray-200/50 overflow-hidden hover:shadow-lg transition-all duration-200">
-
-        <!-- Header Clickeable -->
-        <div class="p-5 cursor-pointer" (click)="toggle(point.id)">
-          <div class="flex items-start justify-between">
-            <div class="flex-1 space-y-3">
-              <!-- Error -->
-              <div class="flex items-start gap-3 bg-red-50 rounded-lg p-3 border-l-4 border-red-400">
-                <i class="fas fa-times text-red-600 mt-0.5"></i>
-                <div>
-                  <p class="text-sm font-medium text-red-800 mb-1">Error encontrado:</p>
-                  <p class="text-sm text-red-700">{{ point.mistake }}</p>
-                </div>
+      <!-- Stats Cards Mejoradas -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <!-- Grammar Card -->
+        <div class="group cursor-pointer transform transition-all duration-300 hover:scale-105">
+          <div
+            class="bg-white rounded-xl border border-gray-200/50 p-4 md:p-6 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-pink-50/30">
+            <div class="flex items-center justify-between mb-3">
+              <div
+                class="w-10 h-10 bg-gradient-to-r from-pink-500 to-rose-500 rounded-xl flex items-center justify-center shadow-md">
+                <i class="fas fa-spell-check text-white"></i>
               </div>
-
-              <!-- Corrección -->
-              <div class="flex items-start gap-3 bg-emerald-50 rounded-lg p-3 border-l-4 border-emerald-400">
-                <i class="fas fa-check text-emerald-600 mt-0.5"></i>
-                <div>
-                  <p class="text-sm font-medium text-emerald-800 mb-1">Corrección:</p>
-                  <p class="text-sm text-emerald-700">{{ point.suggestion }}</p>
-                </div>
+              <div
+                class="bg-gradient-to-r from-pink-600 to-rose-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold shadow-md">
+                {{ getCategoryCount('grammar') }}
               </div>
             </div>
-
-            <!-- Categoría y Expandir -->
-            <div class="flex flex-col items-end gap-2 ml-4">
-              <span class="px-3 py-1 text-xs font-semibold rounded-full" [class]="getCategoryStyle(point.category)">
-                {{ getCategoryLabel(point.category) }}
-              </span>
-              <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200"
-                [class.rotate-180]="isExpanded(point.id)"></i>
+            <h3 class="text-gray-900 font-bold mb-1">Gramática</h3>
+            <p class="text-gray-600 text-xs">Errores detectados y corregidos</p>
+            <div class="mt-2 flex items-center text-xs text-pink-600 font-medium">
+              <i class="fas fa-trending-up mr-1"></i>
+              <span>+{{ getCategoryCount('grammar') * 2 }} puntos XP</span>
             </div>
           </div>
         </div>
 
-        <!-- Explicación Expandible -->
-        <div *ngIf="isExpanded(point.id)" class="bg-gray-50 p-5 border-t border-gray-100">
-          <div class="bg-white rounded-lg p-4 border border-blue-200">
-            <h4 class="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-              <i class="fas fa-info-circle text-blue-600"></i>
-              ¿Por qué es importante?
-            </h4>
-            <p class="text-gray-700 leading-relaxed">{{ point.explanation }}</p>
+        <!-- Vocabulary Card -->
+        <div class="group cursor-pointer transform transition-all duration-300 hover:scale-105">
+          <div
+            class="bg-white rounded-xl border border-gray-200/50 p-4 md:p-6 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-orange-50/30">
+            <div class="flex items-center justify-between mb-3">
+              <div
+                class="w-10 h-10 bg-gradient-to-r from-orange-500 to-amber-500 rounded-xl flex items-center justify-center shadow-md">
+                <i class="fas fa-book-open text-white"></i>
+              </div>
+              <div
+                class="bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold shadow-md">
+                {{ getCategoryCount('vocabulary') }}
+              </div>
+            </div>
+            <h3 class="text-gray-900 font-bold mb-1">Vocabulario</h3>
+            <p class="text-gray-600 text-xs">Palabras nuevas descubiertas</p>
+            <div class="mt-2 flex items-center text-xs text-orange-600 font-medium">
+              <i class="fas fa-plus-circle mr-1"></i>
+              <span>{{ getCategoryCount('vocabulary') }} añadidas al diccionario</span>
+            </div>
           </div>
+        </div>
 
-          <!-- Botón Simple para Añadir al Diccionario (solo vocabulario) -->
-          <div *ngIf="point.category === 'vocabulary'" class="mt-4 flex justify-end">
-            <button (click)="addToDictionary(point)"
-              class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
-              <i class="fas fa-plus"></i>
+        <!-- Phrasal Verbs Card -->
+        <div class="group cursor-pointer transform transition-all duration-300 hover:scale-105">
+          <div
+            class="bg-white rounded-xl border border-gray-200/50 p-4 md:p-6 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-blue-50/30">
+            <div class="flex items-center justify-between mb-3">
+              <div
+                class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-md">
+                <i class="fas fa-link text-white"></i>
+              </div>
+              <div
+                class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold shadow-md">
+                {{ getCategoryCount('phrasal_verb') + getCategoryCount('expression') }}
+              </div>
+            </div>
+            <h3 class="text-gray-900 font-bold mb-1">Phrasal Verbs</h3>
+            <p class="text-gray-600 text-xs">Expresiones compuestas</p>
+            <div class="mt-2 flex items-center text-xs text-blue-600 font-medium">
+              <i class="fas fa-star mr-1"></i>
+              <span>Nivel avanzado</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Personal Dictionary Integration -->
+        <div class="group cursor-pointer transform transition-all duration-300 hover:scale-105">
+          <div
+            class="bg-white rounded-xl border border-gray-200/50 p-4 md:p-6 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-emerald-50/30">
+            <div class="flex items-center justify-between mb-3">
+              <div
+                class="w-10 h-10 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center shadow-md">
+                <i class="fas fa-user-graduate text-white"></i>
+              </div>
+              <div
+                class="bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold shadow-md">
+                {{ getWordsFromDictionary().length }}
+              </div>
+            </div>
+            <h3 class="text-gray-900 font-bold mb-1">Mi Diccionario</h3>
+            <p class="text-gray-600 text-xs">Palabras personales usadas</p>
+            <div class="mt-2 flex items-center text-xs text-emerald-600 font-medium">
+              <i class="fas fa-check-circle mr-1"></i>
+              <span>¡Excelente progreso!</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recomendaciones del Diccionario Personal -->
+      <div *ngIf="getWordsFromDictionary().length > 0"
+        class="bg-white rounded-xl shadow-lg border border-gray-200/50 p-4 md:p-6 mb-8">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+            <i class="fas fa-lightbulb text-white"></i>
+          </div>
+          <div>
+            <h2 class="font-bold text-gray-900">¡Usaste palabras de tu diccionario!</h2>
+            <p class="text-sm text-gray-600">Excelente trabajo practicando tu vocabulario personal</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+          <div *ngFor="let word of getWordsFromDictionary(); trackBy: trackByWord"
+            class="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-3 hover:shadow-md transition-all duration-200 cursor-pointer text-center">
+            <div class="mb-2">
+              <h3 class="font-semibold text-purple-800 capitalize text-sm">{{ word.word }}</h3>
+            </div>
+            <span class="text-xs bg-purple-200 text-purple-800 px-2 py-1 rounded-full font-medium">
+              {{ word.usage_count }} usos
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Análisis Detallado con Mejoras -->
+      <div *ngIf="points.length > 0" class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-bold text-gray-900">Análisis Detallado</h2>
+          <div class="flex items-center gap-2">
+            <button
+              class="px-3 py-1.5 text-xs font-medium bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors">
+              <i class="fas fa-download mr-1"></i>
+              Exportar PDF
+            </button>
+            <button
+              class="px-3 py-1.5 text-xs font-medium bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition-colors">
+              <i class="fas fa-plus mr-1"></i>
               Añadir al Diccionario
             </button>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Resumen Final Simple -->
-    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg text-white p-6">
-      <div class="flex items-center justify-between">
-        <div>
-          <h2 class="text-xl font-bold mb-2">¡Buen trabajo en esta conversación!</h2>
-          <p class="text-blue-100">Sigue practicando para mejorar tu inglés</p>
-        </div>
-        <div class="text-right">
-          <div class="text-2xl font-bold">{{ points.length }}</div>
-          <div class="text-blue-200 text-sm">puntos mejorados</div>
+        <div *ngFor="let point of points; trackBy: trackByPoint"
+          class="bg-white rounded-xl shadow-lg border border-gray-200/50 overflow-hidden">
+          <!-- Header mejorado -->
+          <div class="p-6 cursor-pointer hover:bg-gray-50/50 transition-colors" (click)="toggle(point.id)">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex-1 space-y-4">
+                <!-- Error con mejor estilo -->
+                <div class="flex items-start gap-3 bg-red-50 border-l-4 border-red-400 rounded-r-lg p-4">
+                  <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-times text-red-600 text-sm"></i>
+                  </div>
+                  <div class="flex-1">
+                    <h4 class="font-semibold text-red-800 mb-1">Error Detectado</h4>
+                    <p class="text-red-700 text-sm leading-relaxed">{{ point.mistake }}</p>
+                  </div>
+                </div>
+
+                <!-- Sugerencia con mejor estilo -->
+                <div class="flex items-start gap-3 bg-emerald-50 border-l-4 border-emerald-400 rounded-r-lg p-4">
+                  <div class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-check text-emerald-600 text-sm"></i>
+                  </div>
+                  <div class="flex-1">
+                    <h4 class="font-semibold text-emerald-800 mb-1">Corrección Sugerida</h4>
+                    <p class="text-emerald-700 text-sm leading-relaxed">{{ point.suggestion }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Categoría y expandir -->
+              <div class="flex flex-col items-end gap-2">
+                <span class="px-3 py-1 text-xs font-semibold rounded-full" [class]="getCategoryStyle(point.category)">
+                  {{ getCategoryLabel(point.category) }}
+                </span>
+                <div class="text-gray-400 transition-transform duration-200" [class.rotate-180]="isExpanded(point.id)">
+                  <i class="fas fa-chevron-down"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Expanded details mejorado -->
+          <div *ngIf="isExpanded(point.id)"
+            class="bg-gradient-to-r from-blue-50/50 to-indigo-50/50 border-t border-gray-100">
+            <div class="p-6 space-y-6">
+              <!-- Explicación detallada -->
+              <div class="bg-white rounded-lg border border-blue-200 p-4">
+                <h4 class="flex items-center gap-2 text-base font-semibold text-gray-900 mb-3">
+                  <i class="fas fa-info-circle text-blue-600"></i>
+                  Explicación Detallada
+                </h4>
+                <p class="text-gray-700 leading-relaxed">{{ point.explanation }}</p>
+              </div>
+
+              <!-- Contexto del error -->
+              <div *ngIf="point.issue && point.issue !== point.explanation"
+                class="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                <h5 class="flex items-center gap-2 text-sm font-semibold text-amber-800 mb-2">
+                  <i class="fas fa-exclamation-triangle text-amber-600"></i>
+                  Contexto del Error
+                </h5>
+                <p class="text-amber-700 text-sm leading-relaxed">{{ point.issue }}</p>
+              </div>
+
+              <!-- Acciones disponibles -->
+              <div class="flex items-center gap-3 pt-4 border-t border-gray-200">
+                <button (click)="addToDictionary(point)"
+                  class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+                  <i class="fas fa-plus"></i>
+                  Añadir al Diccionario
+                </button>
+                <button
+                  class="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium">
+                  <i class="fas fa-check"></i>
+                  Marcar como Aprendido
+                </button>
+                <button
+                  class="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium">
+                  <i class="fas fa-bookmark"></i>
+                  Guardar para Repasar
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="mt-4 grid grid-cols-3 gap-4 text-center">
-        <div class="bg-white/10 rounded-lg p-3">
-          <div class="font-bold">{{ getCategoryCount('grammar') }}</div>
-          <div class="text-xs text-blue-200">Gramática</div>
+      <!-- Resumen de Progreso -->
+      <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-xl text-white p-8">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-bold mb-2">¡Excelente Progreso!</h2>
+            <p class="text-blue-100 text-lg">Has identificado {{ points.length }} áreas de mejora en esta conversación
+            </p>
+          </div>
+          <div class="text-right">
+            <div class="text-3xl font-bold">+{{ points.length * 10 }}</div>
+            <div class="text-blue-200">Puntos XP ganados</div>
+          </div>
         </div>
-        <div class="bg-white/10 rounded-lg p-3">
-          <div class="font-bold">{{ getCategoryCount('vocabulary') }}</div>
-          <div class="text-xs text-blue-200">Vocabulario</div>
-        </div>
-        <div class="bg-white/10 rounded-lg p-3">
-          <div class="font-bold">{{ getCategoryCount('expression') }}</div>
-          <div class="text-xs text-blue-200">Expresiones</div>
+
+        <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="bg-white/10 rounded-lg p-3 text-center">
+            <div class="text-xl font-bold">{{ getCategoryCount('grammar') }}</div>
+            <div class="text-xs text-blue-200">Gramática</div>
+          </div>
+          <div class="bg-white/10 rounded-lg p-3 text-center">
+            <div class="text-xl font-bold">{{ getCategoryCount('vocabulary') }}</div>
+            <div class="text-xs text-blue-200">Vocabulario</div>
+          </div>
+          <div class="bg-white/10 rounded-lg p-3 text-center">
+            <div class="text-xl font-bold">{{ getCategoryCount('phrasal_verb') + getCategoryCount('expression') }}</div>
+            <div class="text-xs text-blue-200">Phrasal Verbs</div>
+          </div>
+          <div class="bg-white/10 rounded-lg p-3 text-center">
+            <div class="text-xl font-bold">{{ getWordsFromDictionary().length }}</div>
+            <div class="text-xs text-blue-200">Palabras Personales</div>
+          </div>
         </div>
       </div>
+
     </div>
   </div>
 </div>

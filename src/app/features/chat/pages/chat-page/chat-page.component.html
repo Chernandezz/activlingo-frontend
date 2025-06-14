@@ -3,7 +3,7 @@
 
 <div class="flex h-full bg-gray-50/30">
   <!-- Sidebar Desktop - siempre visible -->
-  <div class="hidden md:flex w-[25rem] flex-shrink-0 h-full">
+  <div class="hidden lg:flex w-[25rem] flex-shrink-0 h-full">
     <app-chat-sidebar [chats]="(chats$ | async) ?? []" [currentChatId]="currentChatId"
       [hideAIResponses]="(hideAIResponses$ | async) ?? false" [isCreatingChat]="isCreatingChat" [showModal]="showModal"
       (toggleSidebar)="ui.toggleSidebar()" (select)="handleSelectChat($event)" (startChat)="handleStartNewChat($event)"
