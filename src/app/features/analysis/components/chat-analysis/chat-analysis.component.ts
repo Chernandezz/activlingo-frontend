@@ -1,4 +1,4 @@
-// chat-analysis.component.ts - CON FILTROS Y DICCIONARIO REAL
+// chat-analysis.component.ts - VERSIÓN MEJORADA CON TODAS LAS CATEGORÍAS
 import { Component, Input, OnChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -24,7 +24,7 @@ export class ChatAnalysisComponent implements OnChanges {
 
   // Estado del componente
   points: LanguageAnalysisPoint[] = [];
-  filteredPoints: LanguageAnalysisPoint[] = []; // 🆕 Para filtros
+  filteredPoints: LanguageAnalysisPoint[] = [];
   dictionaryWords: DictionaryWord[] = [];
   overallScore: number = 100;
   categoryStats: Record<string, number> = {};
@@ -32,11 +32,11 @@ export class ChatAnalysisComponent implements OnChanges {
   isLoading = true;
   error: string | null = null;
 
-  // 🆕 Estado de filtros
+  // Estado de filtros mejorado
   selectedFilter: string | null = null;
   availableFilters: Array<{ key: string; label: string; count: number }> = [];
 
-  // 🆕 Estado para añadir al diccionario
+  // Estado para acciones
   addingToDictionary = new Set<string>();
   successMessages = new Map<string, string>();
 
@@ -47,7 +47,6 @@ export class ChatAnalysisComponent implements OnChanges {
     this.loadAnalysisData();
   }
 
-  // 🆕 Cargar todos los datos del análisis
   public loadAnalysisData(): void {
     if (!this.chatId) {
       this.resetData();
@@ -66,7 +65,6 @@ export class ChatAnalysisComponent implements OnChanges {
         this.overallScore = summary.stats.overall_score;
         this.categoryStats = summary.stats.by_category;
 
-        // 🆕 Configurar filtros y aplicar filtro actual
         this.setupFilters();
         this.applyFilter();
 
@@ -81,39 +79,29 @@ export class ChatAnalysisComponent implements OnChanges {
     });
   }
 
-  // 🆕 Configurar filtros disponibles
+  // Configurar filtros con todas las categorías
   private setupFilters(): void {
+    const allCategories = [
+      { key: 'grammar', label: 'Gramática', icon: 'spell-check' },
+      { key: 'vocabulary', label: 'Vocabulario', icon: 'book-open' },
+      { key: 'phrasal_verb', label: 'Phrasal Verbs', icon: 'link' },
+      { key: 'expression', label: 'Expresiones', icon: 'comments' },
+      { key: 'collocation', label: 'Colocaciones', icon: 'puzzle-piece' },
+      { key: 'context_appropriateness', label: 'Contexto', icon: 'user-tie' },
+    ];
+
     this.availableFilters = [
       { key: 'all', label: 'Todos', count: this.points.length },
-      {
-        key: 'grammar',
-        label: 'Gramática',
-        count: this.getCategoryCount('grammar'),
-      },
-      {
-        key: 'vocabulary',
-        label: 'Vocabulario',
-        count: this.getCategoryCount('vocabulary'),
-      },
-      {
-        key: 'phrasal_verb',
-        label: 'Phrasal Verbs',
-        count: this.getCategoryCount('phrasal_verb'),
-      },
-      {
-        key: 'expression',
-        label: 'Expresiones',
-        count: this.getCategoryCount('expression'),
-      },
-      {
-        key: 'collocation',
-        label: 'Colocaciones',
-        count: this.getCategoryCount('collocation'),
-      },
-    ].filter((filter) => filter.count > 0); // Solo mostrar filtros que tengan elementos
+      ...allCategories
+        .map((cat) => ({
+          key: cat.key,
+          label: cat.label,
+          count: this.getCategoryCount(cat.key),
+        }))
+        .filter((filter) => filter.count > 0),
+    ];
   }
 
-  // 🆕 Aplicar filtro seleccionado
   private applyFilter(): void {
     if (!this.selectedFilter || this.selectedFilter === 'all') {
       this.filteredPoints = [...this.points];
@@ -124,14 +112,12 @@ export class ChatAnalysisComponent implements OnChanges {
     }
   }
 
-  // 🆕 Cambiar filtro (llamado desde el template)
   setFilter(filterKey: string): void {
     this.selectedFilter = filterKey === 'all' ? null : filterKey;
     this.applyFilter();
     this.expandedPoints.clear(); // Colapsar todos al cambiar filtro
   }
 
-  // 🆕 Verificar si un filtro está activo
   isFilterActive(filterKey: string): boolean {
     if (filterKey === 'all') {
       return !this.selectedFilter;
@@ -178,9 +164,9 @@ export class ChatAnalysisComponent implements OnChanges {
     return this.dictionaryWords;
   }
 
-  // 🆕 FUNCIONALIDAD REAL PARA AÑADIR AL DICCIONARIO
+  // FUNCIONALIDAD MEJORADA PARA AÑADIR AL DICCIONARIO
   addToDictionary(point: LanguageAnalysisPoint): void {
-    const word = this.extractWordFromSuggestion(point.suggestion);
+    const word = this.extractMainWord(point.suggestion);
 
     if (!word) {
       this.showMessage(point.id, 'No se pudo extraer la palabra', 'error');
@@ -190,15 +176,16 @@ export class ChatAnalysisComponent implements OnChanges {
     // Marcar como cargando
     this.addingToDictionary.add(point.id);
 
-    // Preparar datos para el diccionario
+    // Preparar datos mejorados para el diccionario
     const wordData = {
       word: word,
-      meaning: point.explanation,
-      part_of_speech: this.mapCategoryToPartOfSpeech(point.category) as any, // Usar 'as any' para evitar problemas de tipo
-      example: `Error: "${point.mistake}" → Corrección: "${point.suggestion}"`,
+      meaning: this.createMeaningFromPoint(point),
+      part_of_speech: this.mapCategoryToPartOfSpeech(point.category) as any,
+      example: `❌ "${point.mistake}" → ✅ "${point.suggestion}"`,
       source: 'chat_analysis',
       usage_context: 'conversacion',
-      is_idiomatic: point.category === 'expression',
+      is_idiomatic:
+        point.category === 'expression' || point.category === 'phrasal_verb',
       status: 'passive' as const,
     };
 
@@ -213,15 +200,11 @@ export class ChatAnalysisComponent implements OnChanges {
           `"${word}" añadida al diccionario!`,
           'success'
         );
-
-        // Opcional: Recargar palabras del diccionario
-        // this.loadAnalysisData();
       },
       error: (error) => {
         console.error('❌ Error adding word to dictionary:', error);
         this.addingToDictionary.delete(point.id);
 
-        // Manejar errores específicos
         if (
           error.status === 400 &&
           error.error?.detail?.includes('Duplicate')
@@ -242,7 +225,25 @@ export class ChatAnalysisComponent implements OnChanges {
     });
   }
 
-  // 🆕 Mapear categoría de análisis a part_of_speech del diccionario
+  // Crear significado contextual según la categoría
+  private createMeaningFromPoint(point: LanguageAnalysisPoint): string {
+    switch (point.category) {
+      case 'vocabulary':
+        return `Palabra correcta: ${point.suggestion}. ${point.explanation}`;
+      case 'phrasal_verb':
+        return `Phrasal verb: ${point.suggestion}. ${point.explanation}`;
+      case 'expression':
+        return `Expresión natural: ${point.suggestion}. ${point.explanation}`;
+      case 'collocation':
+        return `Combinación correcta: ${point.suggestion}. ${point.explanation}`;
+      case 'context_appropriateness':
+        return `Registro apropiado: ${point.suggestion}. ${point.explanation}`;
+      default:
+        return point.explanation;
+    }
+  }
+
+  // Mapear categoría a part_of_speech del diccionario
   private mapCategoryToPartOfSpeech(category: string): string {
     const mapping: Record<string, string> = {
       vocabulary: 'noun',
@@ -250,35 +251,39 @@ export class ChatAnalysisComponent implements OnChanges {
       phrasal_verb: 'verb',
       expression: 'expression',
       collocation: 'other',
+      context_appropriateness: 'other',
     };
     return mapping[category] || 'other';
   }
 
-  // 🆕 Verificar si se está añadiendo una palabra
-  isAddingToDictionary(pointId: string): boolean {
-    return this.addingToDictionary.has(pointId);
-  }
+  // Extraer palabra principal de la sugerencia (mejorado)
+  extractMainWord(suggestion: string): string | null {
+    if (!suggestion) return null;
 
-  // 🆕 Mostrar mensaje temporal
-  private showMessage(
-    pointId: string,
-    message: string,
-    type: 'success' | 'error' | 'warning'
-  ): void {
-    this.successMessages.set(pointId, message);
+    // Para phrasal verbs, tomar todo el phrasal verb
+    if (
+      suggestion.includes(' up') ||
+      suggestion.includes(' off') ||
+      suggestion.includes(' on') ||
+      suggestion.includes(' out') ||
+      suggestion.includes(' in') ||
+      suggestion.includes(' down')
+    ) {
+      const words = suggestion.split(' ');
+      const verbIndex = words.findIndex((word) =>
+        ['up', 'off', 'on', 'out', 'in', 'down', 'away', 'back'].includes(
+          word.toLowerCase()
+        )
+      );
+      if (verbIndex > 0) {
+        return words
+          .slice(0, verbIndex + 1)
+          .join(' ')
+          .toLowerCase();
+      }
+    }
 
-    // Limpiar mensaje después de 3 segundos
-    setTimeout(() => {
-      this.successMessages.delete(pointId);
-    }, 3000);
-  }
-
-  // 🆕 Obtener mensaje para un punto
-  getMessage(pointId: string): string | null {
-    return this.successMessages.get(pointId) || null;
-  }
-
-  private extractWordFromSuggestion(suggestion: string): string | null {
+    // Para expresiones largas, tomar las primeras 2-3 palabras significativas
     const words = suggestion.split(' ');
     const meaningfulWords = words.filter(
       (word) =>
@@ -312,21 +317,54 @@ export class ChatAnalysisComponent implements OnChanges {
         ].includes(word.toLowerCase())
     );
 
+    // Si es una expresión, tomar hasta 3 palabras
+    if (meaningfulWords.length > 1) {
+      return meaningfulWords
+        .slice(0, 3)
+        .join(' ')
+        .toLowerCase()
+        .replace(/[.,!?;:"'()]/g, '');
+    }
+
+    // Para palabras simples
     return (
       meaningfulWords[0]?.toLowerCase().replace(/[.,!?;:"'()]/g, '') || null
     );
   }
 
-  // Estilos para categorías
+  isAddingToDictionary(pointId: string): boolean {
+    return this.addingToDictionary.has(pointId);
+  }
+
+  private showMessage(
+    pointId: string,
+    message: string,
+    type: 'success' | 'error' | 'warning'
+  ): void {
+    this.successMessages.set(pointId, message);
+
+    // Limpiar mensaje después de 3 segundos
+    setTimeout(() => {
+      this.successMessages.delete(pointId);
+    }, 3000);
+  }
+
+  getMessage(pointId: string): string | null {
+    return this.successMessages.get(pointId) || null;
+  }
+
+  // Estilos mejorados para todas las categorías
   getCategoryStyle(category: string): string {
     const styles: Record<string, string> = {
-      grammar: 'bg-pink-100 text-pink-800',
-      vocabulary: 'bg-orange-100 text-orange-800',
-      phrasal_verb: 'bg-blue-100 text-blue-800',
-      expression: 'bg-emerald-100 text-emerald-800',
-      collocation: 'bg-purple-100 text-purple-800',
+      grammar: 'bg-pink-100 text-pink-800 border-pink-200',
+      vocabulary: 'bg-orange-100 text-orange-800 border-orange-200',
+      phrasal_verb: 'bg-blue-100 text-blue-800 border-blue-200',
+      expression: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+      collocation: 'bg-purple-100 text-purple-800 border-purple-200',
+      context_appropriateness:
+        'bg-indigo-100 text-indigo-800 border-indigo-200',
     };
-    return styles[category] || 'bg-gray-100 text-gray-800';
+    return styles[category] || 'bg-gray-100 text-gray-800 border-gray-200';
   }
 
   getCategoryLabel(category: string): string {
@@ -336,10 +374,25 @@ export class ChatAnalysisComponent implements OnChanges {
       phrasal_verb: 'Phrasal Verb',
       expression: 'Expresión',
       collocation: 'Colocación',
+      context_appropriateness: 'Contexto',
     };
     return labels[category] || category;
   }
 
+  // Obtener icono por categoría
+  getCategoryIcon(category: string): string {
+    const icons: Record<string, string> = {
+      grammar: 'fas fa-spell-check',
+      vocabulary: 'fas fa-book-open',
+      phrasal_verb: 'fas fa-link',
+      expression: 'fas fa-comments',
+      collocation: 'fas fa-puzzle-piece',
+      context_appropriateness: 'fas fa-user-tie',
+    };
+    return icons[category] || 'fas fa-tag';
+  }
+
+  // Track by functions
   trackByPoint(index: number, point: LanguageAnalysisPoint): string {
     return point.id;
   }
@@ -350,22 +403,6 @@ export class ChatAnalysisComponent implements OnChanges {
 
   trackByFilter(index: number, filter: any): string {
     return filter.key;
-  }
-
-  // Configuración para compatibilidad legacy
-  getTypeConfig(type: string): {
-    gradient: string;
-    icon: string;
-    label: string;
-  } {
-    const configs: Record<string, any> = {
-      grammar: { gradient: 'pink', icon: '📝', label: 'Gramática' },
-      vocabulary: { gradient: 'orange', icon: '📚', label: 'Vocabulario' },
-      phrasal_verb: { gradient: 'blue', icon: '🔗', label: 'Phrasal Verbs' },
-      expression: { gradient: 'emerald', icon: '💬', label: 'Expresiones' },
-      collocation: { gradient: 'purple', icon: '🎯', label: 'Colocaciones' },
-    };
-    return configs[type] || { gradient: 'gray', icon: '📋', label: type };
   }
 
   // Métodos de utilidad para la UI
@@ -385,5 +422,18 @@ export class ChatAnalysisComponent implements OnChanges {
     if (this.overallScore >= 70) return '👍';
     if (this.overallScore >= 50) return '💪';
     return '📚';
+  }
+
+  // Método para obtener descripción de la categoría
+  getCategoryDescription(category: string): string {
+    const descriptions: Record<string, string> = {
+      grammar: 'Tiempos verbales, artículos, preposiciones',
+      vocabulary: 'Palabras incorrectas o inexistentes',
+      phrasal_verb: 'Verbos compuestos (take off, give up)',
+      expression: 'Expresiones más naturales y fluidas',
+      collocation: 'Combinaciones naturales de palabras',
+      context_appropriateness: 'Registro apropiado para el contexto',
+    };
+    return descriptions[category] || '';
   }
 }
