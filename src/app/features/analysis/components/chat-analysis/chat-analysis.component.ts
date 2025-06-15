@@ -1,4 +1,4 @@
-// chat-analysis.component.ts - VERSIÓN MEJORADA CON TODAS LAS CATEGORÍAS
+// chat-analysis.component.ts - VERSIÓN FINAL
 import { Component, Input, OnChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -32,7 +32,7 @@ export class ChatAnalysisComponent implements OnChanges {
   isLoading = true;
   error: string | null = null;
 
-  // Estado de filtros mejorado
+  // Estado de filtros
   selectedFilter: string | null = null;
   availableFilters: Array<{ key: string; label: string; count: number }> = [];
 
@@ -82,12 +82,12 @@ export class ChatAnalysisComponent implements OnChanges {
   // Configurar filtros con todas las categorías
   private setupFilters(): void {
     const allCategories = [
-      { key: 'grammar', label: 'Gramática', icon: 'spell-check' },
-      { key: 'vocabulary', label: 'Vocabulario', icon: 'book-open' },
-      { key: 'phrasal_verb', label: 'Phrasal Verbs', icon: 'link' },
-      { key: 'expression', label: 'Expresiones', icon: 'comments' },
-      { key: 'collocation', label: 'Colocaciones', icon: 'puzzle-piece' },
-      { key: 'context_appropriateness', label: 'Contexto', icon: 'user-tie' },
+      { key: 'grammar', label: 'Gramática' },
+      { key: 'vocabulary', label: 'Vocabulario' },
+      { key: 'phrasal_verb', label: 'Phrasal Verbs' },
+      { key: 'expression', label: 'Expresiones' },
+      { key: 'collocation', label: 'Colocaciones' },
+      { key: 'context_appropriateness', label: 'Contexto' },
     ];
 
     this.availableFilters = [
@@ -164,7 +164,7 @@ export class ChatAnalysisComponent implements OnChanges {
     return this.dictionaryWords;
   }
 
-  // FUNCIONALIDAD MEJORADA PARA AÑADIR AL DICCIONARIO
+  // FUNCIONALIDAD PARA AÑADIR AL DICCIONARIO (solo vocabulary)
   addToDictionary(point: LanguageAnalysisPoint): void {
     const word = this.extractMainWord(point.suggestion);
 
@@ -176,16 +176,15 @@ export class ChatAnalysisComponent implements OnChanges {
     // Marcar como cargando
     this.addingToDictionary.add(point.id);
 
-    // Preparar datos mejorados para el diccionario
+    // Preparar datos para el diccionario
     const wordData = {
       word: word,
-      meaning: this.createMeaningFromPoint(point),
-      part_of_speech: this.mapCategoryToPartOfSpeech(point.category) as any,
+      meaning: `Palabra correcta: ${point.suggestion}. ${point.explanation}`,
+      part_of_speech: 'noun' as any,
       example: `❌ "${point.mistake}" → ✅ "${point.suggestion}"`,
       source: 'chat_analysis',
       usage_context: 'conversacion',
-      is_idiomatic:
-        point.category === 'expression' || point.category === 'phrasal_verb',
+      is_idiomatic: false,
       status: 'passive' as const,
     };
 
@@ -225,65 +224,11 @@ export class ChatAnalysisComponent implements OnChanges {
     });
   }
 
-  // Crear significado contextual según la categoría
-  private createMeaningFromPoint(point: LanguageAnalysisPoint): string {
-    switch (point.category) {
-      case 'vocabulary':
-        return `Palabra correcta: ${point.suggestion}. ${point.explanation}`;
-      case 'phrasal_verb':
-        return `Phrasal verb: ${point.suggestion}. ${point.explanation}`;
-      case 'expression':
-        return `Expresión natural: ${point.suggestion}. ${point.explanation}`;
-      case 'collocation':
-        return `Combinación correcta: ${point.suggestion}. ${point.explanation}`;
-      case 'context_appropriateness':
-        return `Registro apropiado: ${point.suggestion}. ${point.explanation}`;
-      default:
-        return point.explanation;
-    }
-  }
-
-  // Mapear categoría a part_of_speech del diccionario
-  private mapCategoryToPartOfSpeech(category: string): string {
-    const mapping: Record<string, string> = {
-      vocabulary: 'noun',
-      grammar: 'other',
-      phrasal_verb: 'verb',
-      expression: 'expression',
-      collocation: 'other',
-      context_appropriateness: 'other',
-    };
-    return mapping[category] || 'other';
-  }
-
-  // Extraer palabra principal de la sugerencia (mejorado)
+  // Extraer palabra principal de la sugerencia
   extractMainWord(suggestion: string): string | null {
     if (!suggestion) return null;
 
-    // Para phrasal verbs, tomar todo el phrasal verb
-    if (
-      suggestion.includes(' up') ||
-      suggestion.includes(' off') ||
-      suggestion.includes(' on') ||
-      suggestion.includes(' out') ||
-      suggestion.includes(' in') ||
-      suggestion.includes(' down')
-    ) {
-      const words = suggestion.split(' ');
-      const verbIndex = words.findIndex((word) =>
-        ['up', 'off', 'on', 'out', 'in', 'down', 'away', 'back'].includes(
-          word.toLowerCase()
-        )
-      );
-      if (verbIndex > 0) {
-        return words
-          .slice(0, verbIndex + 1)
-          .join(' ')
-          .toLowerCase();
-      }
-    }
-
-    // Para expresiones largas, tomar las primeras 2-3 palabras significativas
+    // Limpiar y tomar la primera palabra significativa
     const words = suggestion.split(' ');
     const meaningfulWords = words.filter(
       (word) =>
@@ -317,16 +262,6 @@ export class ChatAnalysisComponent implements OnChanges {
         ].includes(word.toLowerCase())
     );
 
-    // Si es una expresión, tomar hasta 3 palabras
-    if (meaningfulWords.length > 1) {
-      return meaningfulWords
-        .slice(0, 3)
-        .join(' ')
-        .toLowerCase()
-        .replace(/[.,!?;:"'()]/g, '');
-    }
-
-    // Para palabras simples
     return (
       meaningfulWords[0]?.toLowerCase().replace(/[.,!?;:"'()]/g, '') || null
     );
@@ -334,6 +269,13 @@ export class ChatAnalysisComponent implements OnChanges {
 
   isAddingToDictionary(pointId: string): boolean {
     return this.addingToDictionary.has(pointId);
+  }
+
+  // Determinar si mostrar el botón de agregar al diccionario
+  shouldShowAddToDictionaryButton(point: LanguageAnalysisPoint): boolean {
+    return (
+      point.category === 'vocabulary' && !this.isAddingToDictionary(point.id)
+    );
   }
 
   private showMessage(
@@ -353,7 +295,7 @@ export class ChatAnalysisComponent implements OnChanges {
     return this.successMessages.get(pointId) || null;
   }
 
-  // Estilos mejorados para todas las categorías
+  // Estilos para las categorías
   getCategoryStyle(category: string): string {
     const styles: Record<string, string> = {
       grammar: 'bg-pink-100 text-pink-800 border-pink-200',
@@ -379,19 +321,6 @@ export class ChatAnalysisComponent implements OnChanges {
     return labels[category] || category;
   }
 
-  // Obtener icono por categoría
-  getCategoryIcon(category: string): string {
-    const icons: Record<string, string> = {
-      grammar: 'fas fa-spell-check',
-      vocabulary: 'fas fa-book-open',
-      phrasal_verb: 'fas fa-link',
-      expression: 'fas fa-comments',
-      collocation: 'fas fa-puzzle-piece',
-      context_appropriateness: 'fas fa-user-tie',
-    };
-    return icons[category] || 'fas fa-tag';
-  }
-
   // Track by functions
   trackByPoint(index: number, point: LanguageAnalysisPoint): string {
     return point.id;
@@ -405,7 +334,7 @@ export class ChatAnalysisComponent implements OnChanges {
     return filter.key;
   }
 
-  // Métodos de utilidad para la UI
+  // Métodos de utilidad
   hasAnalysisData(): boolean {
     return this.points.length > 0 || this.dictionaryWords.length > 0;
   }
@@ -422,18 +351,5 @@ export class ChatAnalysisComponent implements OnChanges {
     if (this.overallScore >= 70) return '👍';
     if (this.overallScore >= 50) return '💪';
     return '📚';
-  }
-
-  // Método para obtener descripción de la categoría
-  getCategoryDescription(category: string): string {
-    const descriptions: Record<string, string> = {
-      grammar: 'Tiempos verbales, artículos, preposiciones',
-      vocabulary: 'Palabras incorrectas o inexistentes',
-      phrasal_verb: 'Verbos compuestos (take off, give up)',
-      expression: 'Expresiones más naturales y fluidas',
-      collocation: 'Combinaciones naturales de palabras',
-      context_appropriateness: 'Registro apropiado para el contexto',
-    };
-    return descriptions[category] || '';
   }
 }

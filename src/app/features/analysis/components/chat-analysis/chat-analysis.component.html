@@ -49,8 +49,9 @@
         </div>
       </div>
 
-      <!-- Stats Cards Mejoradas con todas las categorías -->
+      <!-- Stats Cards -->
       <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+
         <!-- Grammar Card -->
         <div class="group cursor-pointer transform transition-all duration-300 hover:scale-105"
           (click)="setFilter('grammar')">
@@ -177,9 +178,10 @@
             <p class="text-gray-600 text-xs">Registro apropiado</p>
           </div>
         </div>
+
       </div>
 
-      <!-- Filtros de categorías -->
+      <!-- Filtros -->
       <div *ngIf="availableFilters.length > 1" class="bg-white rounded-xl shadow-lg border border-gray-200/50 p-4 mb-6">
         <div class="flex flex-wrap gap-2">
           <button *ngFor="let filter of availableFilters; trackBy: trackByFilter" (click)="setFilter(filter.key)"
@@ -192,7 +194,7 @@
         </div>
       </div>
 
-      <!-- Recomendaciones del Diccionario Personal -->
+      <!-- Palabras del Diccionario Usadas -->
       <div *ngIf="getWordsFromDictionary().length > 0"
         class="bg-white rounded-xl shadow-lg border border-gray-200/50 p-4 md:p-6 mb-8">
         <div class="flex items-center gap-3 mb-4">
@@ -218,7 +220,7 @@
         </div>
       </div>
 
-      <!-- Análisis Detallado Mejorado -->
+      <!-- Lista de Errores -->
       <div *ngIf="filteredPoints.length > 0" class="space-y-4">
         <div class="flex items-center justify-between">
           <h2 class="text-xl font-bold text-gray-900">
@@ -235,10 +237,9 @@
         <div *ngFor="let point of filteredPoints; trackBy: trackByPoint"
           class="bg-white rounded-xl shadow-lg border border-gray-200/50 overflow-hidden">
 
-          <!-- Header simplificado y más útil -->
           <div class="p-6">
+            <!-- Header -->
             <div class="flex items-start justify-between gap-4 mb-4">
-              <!-- Categoría prominente -->
               <div class="flex items-center gap-3">
                 <span class="px-3 py-1 text-sm font-semibold rounded-full" [class]="getCategoryStyle(point.category)">
                   {{ getCategoryLabel(point.category) }}
@@ -249,14 +250,13 @@
                 </div>
               </div>
 
-              <!-- Botón expandir más pequeño -->
               <button (click)="toggle(point.id)" class="text-gray-400 hover:text-gray-600 transition-colors">
                 <i class="fas fa-chevron-down transition-transform duration-200"
                   [class.rotate-180]="isExpanded(point.id)"></i>
               </button>
             </div>
 
-            <!-- Error y corrección lado a lado -->
+            <!-- Error y corrección -->
             <div class="grid md:grid-cols-2 gap-4 mb-4">
               <!-- Error -->
               <div class="bg-red-50 border-l-4 border-red-400 rounded-r-lg p-4">
@@ -271,55 +271,18 @@
               </div>
             </div>
 
-            <!-- Acción contextual inteligente -->
+            <!-- Tip y botón de acción -->
             <div *ngIf="point.learning_tip" class="flex items-center justify-between">
               <div class="flex-1">
                 <p class="text-gray-700 text-sm">{{ point.learning_tip }}</p>
               </div>
 
-              <!-- Botón contextual según categoría -->
+              <!-- Botón SOLO para vocabulary -->
               <div class="ml-4">
-                <!-- Para vocabulary: añadir al diccionario -->
-                <button *ngIf="point.category === 'vocabulary' && !isAddingToDictionary(point.id)"
-                  (click)="addToDictionary(point)"
+                <button *ngIf="shouldShowAddToDictionaryButton(point)" (click)="addToDictionary(point)"
                   class="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium">
                   <i class="fas fa-plus"></i>
                   Añadir "{{ extractMainWord(point.suggestion) }}" al diccionario
-                </button>
-
-                <!-- Para phrasal_verb: aprender phrasal verb -->
-                <button *ngIf="point.category === 'phrasal_verb'"
-                  class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
-                  <i class="fas fa-link"></i>
-                  Practicar phrasal verb
-                </button>
-
-                <!-- Para expression: guardar expresión -->
-                <button *ngIf="point.category === 'expression'"
-                  class="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium">
-                  <i class="fas fa-bookmark"></i>
-                  Guardar expresión
-                </button>
-
-                <!-- Para collocation: practicar combinación -->
-                <button *ngIf="point.category === 'collocation'"
-                  class="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium">
-                  <i class="fas fa-puzzle-piece"></i>
-                  Practicar combinación
-                </button>
-
-                <!-- Para context_appropriateness: aprender registro -->
-                <button *ngIf="point.category === 'context_appropriateness'"
-                  class="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium">
-                  <i class="fas fa-user-tie"></i>
-                  Aprender registro
-                </button>
-
-                <!-- Para grammar: repasar regla -->
-                <button *ngIf="point.category === 'grammar'"
-                  class="flex items-center gap-2 px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-colors text-sm font-medium">
-                  <i class="fas fa-book"></i>
-                  Repasar regla
                 </button>
 
                 <!-- Loading state -->
@@ -331,7 +294,7 @@
               </div>
             </div>
 
-            <!-- Detalles expandibles simplificados -->
+            <!-- Detalles expandibles -->
             <div *ngIf="isExpanded(point.id)" class="mt-4 pt-4 border-t border-gray-200">
               <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <h5 class="text-sm font-semibold text-blue-800 mb-2">💡 Consejo de aprendizaje</h5>
@@ -342,7 +305,7 @@
         </div>
       </div>
 
-      <!-- Mensaje cuando no hay resultados con filtro -->
+      <!-- Sin resultados -->
       <div *ngIf="filteredPoints.length === 0 && points.length > 0"
         class="text-center py-8 bg-white rounded-xl shadow-lg border border-gray-200/50">
         <i class="fas fa-filter text-gray-400 text-2xl mb-3"></i>
@@ -353,7 +316,6 @@
           Mostrar Todos
         </button>
       </div>
-
 
     </div>
   </div>
