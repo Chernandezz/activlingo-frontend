@@ -3,20 +3,24 @@
 <!-- Encabezado optimizado -->
 <div class="text-center mb-8">
 
-  <!-- Acción principal -->
-  <button (click)="openChats()"
+  <div class="text-center mb-8 lg:hidden">
+
+    
+    <!-- Acción principal -->
+    <button (click)="openChats()"
     class="w-full max-w-xs mx-auto mb-3 px-5 py-3 text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-base font-semibold rounded-xl shadow-md flex items-center justify-center gap-3 transition-all duration-200">
     <i class="fas fa-comments text-lg"></i>
     <span>Ver mis chats</span>
   </button>
-
+  
   <!-- Línea divisoria con texto -->
   <div class="flex items-center justify-center gap-3 mb-4 text-gray-400 text-sm">
     <div class="flex-grow border-t border-gray-300"></div>
     <span class="whitespace-nowrap">o explora nuestros escenarios listos para practicar</span>
     <div class="flex-grow border-t border-gray-300"></div>
   </div>
-
+  
+</div>
   <!-- Título y descripción -->
   <h1
     class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent mb-2">
@@ -55,18 +59,6 @@
     </button>
   </div>
 
-  <!-- Acceso rápido a chats - SOLO DESKTOP -->
-  <div class="hidden md:flex justify-center mb-8">
-    <button (click)="openChats()"
-      class="inline-flex items-center gap-3 bg-white hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-xl shadow-md border border-gray-200 hover:shadow-lg transition-all duration-200">
-      <i class="fas fa-comments text-blue-600 text-lg"></i>
-      <div class="text-left">
-        <div class="font-semibold text-sm">Ver Conversaciones</div>
-        <div class="text-xs text-gray-500">Continúa donde lo dejaste</div>
-      </div>
-      <i class="fas fa-arrow-right text-gray-400"></i>
-    </button>
-  </div>
 
   <!-- Scenarios Grid -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
