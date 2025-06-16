@@ -1,0 +1,111 @@
+<div class="h-full bg-gradient-to-br from-emerald-50 via-white to-blue-50 p-6 overflow-y-auto">
+  <!-- Header -->
+  <div class="text-center mb-8">
+    <div
+      class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-2xl mb-4 shadow-lg">
+      <fa-icon [icon]="faSearch" class="text-white text-2xl"></fa-icon>
+    </div>
+    <h1 class="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent mb-2">
+      ¡Comencemos a Practicar!
+    </h1>
+    <p class="text-gray-600 text-lg max-w-2xl mx-auto">
+      Elige un escenario y sumérgete en conversaciones reales en inglés
+    </p>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="max-w-md mx-auto mb-8">
+    <div class="relative">
+      <fa-icon [icon]="faSearch" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></fa-icon>
+      <input type="text" [(ngModel)]="searchTerm" (input)="filterScenarios()" placeholder="Buscar escenarios..."
+        class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent shadow-sm" />
+    </div>
+  </div>
+
+  <!-- Category Filters -->
+  <div class="flex flex-wrap justify-center gap-3 mb-8">
+    <button *ngFor="let category of categories" (click)="
+            selectedCategory =
+              selectedCategory === category.key ? null : category.key;
+            filterScenarios()
+          " class="px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 shadow-sm" [class]="
+            selectedCategory === category.key
+              ? 'bg-gradient-to-r from-emerald-500 to-blue-500 text-white shadow-md transform scale-105'
+              : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 hover:shadow-md'
+          ">
+      <fa-icon [icon]="category.icon" class="mr-2"></fa-icon>
+      {{ category.name }}
+    </button>
+  </div>
+
+  <!-- Scenarios Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+    <div *ngFor="let scenario of filteredScenarios" (click)="selectScenario(scenario)"
+      class="group bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100 hover:border-emerald-200 hover:-translate-y-1">
+      <!-- Icon and Category -->
+      <div class="flex items-start justify-between mb-4">
+        <div
+          class="inline-flex items-center justify-center w-12 h-12 rounded-xl shadow-sm group-hover:shadow-md transition-shadow"
+          [class]="getCategoryColor(scenario.category)">
+          <fa-icon [icon]="scenario.icon" class="text-white text-xl"></fa-icon>
+        </div>
+        <div class="flex flex-col items-end">
+          <span class="text-xs font-semibold px-2 py-1 rounded-full" [class]="getCategoryBadgeColor(scenario.category)">
+            {{ getCategoryName(scenario.category) }}
+          </span>
+          <span class="text-xs mt-1 px-2 py-1 rounded-full" [class]="getDifficultyColor(scenario.difficulty)">
+            {{ getDifficultyName(scenario.difficulty) }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="mb-4">
+        <h3 class="text-lg font-bold text-gray-900 mb-2 group-hover:text-emerald-600 transition-colors">
+          {{ scenario.title }}
+        </h3>
+        <p class="text-gray-600 text-sm leading-relaxed line-clamp-3">
+          {{ scenario.description }}
+        </p>
+      </div>
+
+      <!-- Tags -->
+      <div class="flex flex-wrap gap-1 mb-4">
+        <span *ngFor="let tag of scenario.tags.slice(0, 3)"
+          class="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-md">
+          {{ tag }}
+        </span>
+        <span *ngIf="scenario.tags.length > 3" class="text-xs px-2 py-1 bg-gray-100 text-gray-500 rounded-md">
+          +{{ scenario.tags.length - 3 }}
+        </span>
+      </div>
+
+      <!-- Action -->
+      <div class="pt-4 border-t border-gray-100">
+        <div class="flex items-center justify-between">
+          <span class="text-sm text-gray-500">Haz clic para comenzar</span>
+          <div
+            class="w-8 h-8 bg-emerald-50 rounded-full flex items-center justify-center group-hover:bg-emerald-100 transition-colors">
+            <svg class="w-4 h-4 text-emerald-600 transform group-hover:translate-x-0.5 transition-transform" fill="none"
+              stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="filteredScenarios.length === 0" class="text-center py-16">
+    <div class="w-20 h-20 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
+      <fa-icon [icon]="faSearch" class="text-gray-400 text-2xl"></fa-icon>
+    </div>
+    <h3 class="text-xl font-semibold text-gray-900 mb-2">
+      No se encontraron escenarios
+    </h3>
+    <p class="text-gray-500 max-w-sm mx-auto">
+      Intenta con otros términos de búsqueda o crea tu propio escenario.
+    </p>
+  </div>
+</div>

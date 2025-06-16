@@ -1,188 +1,208 @@
 <!-- header.component.html -->
-<header class="w-full bg-white/95 backdrop-blur-sm border-b border-gray-200/80 shadow-sm sticky top-0 z-40">
-  <div class="w-full px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center h-16">
+<header class="sticky top-0 z-999 w-full bg-white border-b border-gray-200 shadow-sm">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="flex h-16 items-center justify-between">
 
-      <!-- Left Section: Logo -->
+      <!-- Logo Section -->
       <div class="flex items-center">
-        <!-- Logo -->
-        <div class="flex items-center cursor-pointer group" routerLink="/chat">
-          <div
-            class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center mr-3 shadow-md group-hover:shadow-lg transition-all duration-200">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-            </svg>
-          </div>
-          <h1
-            class="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent group-hover:from-blue-700 group-hover:to-indigo-700 transition-all duration-200">
+        <div class="flex cursor-pointer items-center space-x-2" routerLink="/chat">
+          <h1 class="text-xl font-bold text-blue-600 sm:text-2xl">
             Activlingo
           </h1>
         </div>
       </div>
 
-      <!-- Center Section: Navigation (Desktop) -->
-      <nav class="hidden md:flex items-center space-x-2">
-        <!-- Chat Link -->
-        <a routerLink="/chat" routerLinkActive="!text-blue-700 !bg-blue-100 !border-blue-200"
-          [routerLinkActiveOptions]="{ exact: true }"
-          class="nav-button relative px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center space-x-2 text-gray-600 hover:bg-blue-50 hover:text-blue-700 border border-transparent hover:border-blue-200 group">
-          <fa-icon [icon]="faComments"
-            class="w-4 h-4 group-hover:scale-110 transition-transform duration-200"></fa-icon>
+      <!-- Desktop Navigation -->
+      <nav class="hidden items-center space-x-6 md:flex">
+        <a routerLink="/chat" routerLinkActive="text-blue-600 font-semibold" [routerLinkActiveOptions]="{ exact: true }"
+          class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors">
+          <i class="fas fa-comments"></i>
           <span>Conversaciones</span>
-          <div
-            class="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-indigo-600/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 -z-10">
-          </div>
         </a>
 
-        <!-- Dictionary Link -->
-        <a routerLink="/dictionary" routerLinkActive="!text-blue-700 !bg-blue-100 !border-blue-200"
+        <a routerLink="/dictionary" routerLinkActive="text-blue-600 font-semibold"
           [routerLinkActiveOptions]="{ exact: true }"
-          class="nav-button relative px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center space-x-2 text-gray-600 hover:bg-blue-50 hover:text-blue-700 border border-transparent hover:border-blue-200 group">
-          <fa-icon [icon]="faBookOpen"
-            class="w-4 h-4 group-hover:scale-110 transition-transform duration-200"></fa-icon>
+          class="flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors">
+          <i class="fas fa-book-open"></i>
           <span>Mis Palabras</span>
-          <div
-            class="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-indigo-600/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 -z-10">
-          </div>
         </a>
       </nav>
 
-      <!-- Right Section: User Menu -->
-      <div class="flex items-center">
-        <div class="relative">
-          <!-- User Button -->
-          <button (click)="toggleUserMenu()"
-            class="user-button flex items-center space-x-2 sm:space-x-3 p-2 sm:p-2.5 rounded-xl hover:bg-blue-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 group">
+      <!-- Desktop User Menu -->
+      <div class="hidden md:block relative">
+        <button (click)="toggleUserMenu()"
+          class="flex items-center space-x-3 rounded-lg p-2 hover:bg-gray-50 transition-colors">
 
-            <!-- User Stats (Hidden on Mobile) -->
-            <div class="hidden sm:flex flex-col items-end">
-              <span class="text-sm font-semibold text-gray-900">{{ userStats.streak }} días</span>
-              <span class="text-xs text-gray-500">Racha actual</span>
-            </div>
+          <!-- User Stats -->
+          <div class="flex flex-col items-end">
+            <span class="text-sm font-semibold text-gray-900">{{ userStats.streak }} días</span>
+            <span class="text-xs text-gray-500">Racha actual</span>
+          </div>
 
-            <!-- Avatar -->
-            <div
-              class="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white font-semibold shadow-md ring-2 ring-white group-hover:shadow-lg group-hover:scale-105 transition-all duration-200">
-              <fa-icon [icon]="faUser" class="w-4 h-4 sm:w-5 sm:h-5 text-white"></fa-icon>
-            </div>
+          <!-- Avatar -->
+          <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white shadow-md">
+            <i class="fas fa-user"></i>
+          </div>
 
-            <!-- Dropdown Arrow -->
-            <svg class="w-4 h-4 text-gray-400 transition-all duration-200 group-hover:text-blue-600"
-              [class.rotate-180]="showUserMenu" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-            </svg>
-          </button>
+          <!-- Dropdown Arrow -->
+          <i class="fas fa-chevron-down text-sm text-gray-400" [class.rotate-180]="showUserMenu"></i>
+        </button>
 
-          <!-- Dropdown Menu -->
-          <div *ngIf="showUserMenu"
-            class="dropdown-menu absolute right-0 mt-3 w-80 sm:w-84 bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200/50 py-2 z-50 animate-in slide-in-from-top-2 duration-200 overflow-hidden">
+        <!-- Desktop Dropdown Menu -->
+        <div *ngIf="showUserMenu"
+          class="absolute right-0 mt-2 w-72 rounded-lg border border-gray-200 bg-white py-2 shadow-lg">
 
-            <!-- User Info Header -->
-            <div class="px-6 pb-4 pt-2 border-b border-gray-100/80">
-              <div class="flex items-center gap-4 mb-4">
-                <div
-                  class="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">
-                  <fa-icon [icon]="faUser" class="w-6 h-6 text-white"></fa-icon>
-                </div>
-                <div>
-                  <h3 class="font-semibold text-gray-900">Mi Progreso</h3>
-                  <p class="text-sm text-gray-500">Nivel B2 - Intermedio</p>
-                </div>
+          <!-- User Header -->
+          <div class="border-b border-gray-100 px-4 pb-3">
+            <div class="flex items-center space-x-3">
+              <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-white">
+                <i class="fas fa-user text-lg"></i>
               </div>
-
-              <!-- Quick Stats -->
-              <div class="grid grid-cols-3 gap-3 text-center">
-                <div
-                  class="stat-card bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-3 hover:shadow-md transition-all duration-200">
-                  <div
-                    class="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                    {{ userStats.streak }}</div>
-                  <div class="text-xs text-gray-600 font-medium">Racha</div>
-                </div>
-                <div
-                  class="stat-card bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-3 hover:shadow-md transition-all duration-200">
-                  <div
-                    class="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                    {{ userStats.chats }}</div>
-                  <div class="text-xs text-gray-600 font-medium">Chats</div>
-                </div>
-                <div
-                  class="stat-card bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-3 hover:shadow-md transition-all duration-200">
-                  <div
-                    class="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                    B2</div>
-                  <div class="text-xs text-gray-600 font-medium">Nivel</div>
-                </div>
+              <div>
+                <h3 class="font-semibold text-gray-900">Mi Progreso</h3>
+                <p class="text-sm text-gray-500">Nivel {{ userStats.level }}</p>
               </div>
             </div>
 
-            <!-- Menu Items -->
-            <div class="py-2">
-              <button (click)="viewProfile()"
-                class="menu-item w-full flex items-center px-6 py-3 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 group">
-                <div
-                  class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-blue-200 transition-colors duration-200">
-                  <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                  </svg>
-                </div>
-                Ver Perfil
-              </button>
-
-              <button (click)="viewSettings()"
-                class="menu-item w-full flex items-center px-6 py-3 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 group">
-                <div
-                  class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-blue-200 transition-colors duration-200">
-                  <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z">
-                    </path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                  </svg>
-                </div>
-                Configuración
-              </button>
-
-              <div class="border-t border-gray-100/80 my-2 mx-6"></div>
-
-              <button (click)="logout()"
-                class="menu-item w-full flex items-center px-6 py-3 text-sm font-medium text-red-600 hover:bg-red-50 transition-all duration-200 group">
-                <div
-                  class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-red-200 transition-colors duration-200">
-                  <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
-                    </path>
-                  </svg>
-                </div>
-                Cerrar Sesión
-              </button>
+            <!-- Quick Stats -->
+            <div class="mt-3 grid grid-cols-3 gap-2 text-center">
+              <div class="rounded-lg bg-blue-50 p-2">
+                <div class="text-lg font-bold text-blue-600">{{ userStats.streak }}</div>
+                <div class="text-xs text-gray-600">Racha</div>
+              </div>
+              <div class="rounded-lg bg-blue-50 p-2">
+                <div class="text-lg font-bold text-blue-600">{{ userStats.chats }}</div>
+                <div class="text-xs text-gray-600">Chats</div>
+              </div>
+              <div class="rounded-lg bg-blue-50 p-2">
+                <div class="text-lg font-bold text-blue-600">B2</div>
+                <div class="text-xs text-gray-600">Nivel</div>
+              </div>
             </div>
+          </div>
+
+          <!-- Menu Items -->
+          <div class="py-1">
+            <button (click)="viewProfile()"
+              class="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+              <i class="fas fa-user mr-3 w-4"></i>
+              Ver Perfil
+            </button>
+
+            <button (click)="viewSettings()"
+              class="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+              <i class="fas fa-cog mr-3 w-4"></i>
+              Configuración
+            </button>
+
+            <hr class="my-1">
+
+            <button (click)="logout()" class="flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+              <i class="fas fa-sign-out-alt mr-3 w-4"></i>
+              Cerrar Sesión
+            </button>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Mobile Navigation -->
-    <div class="md:hidden border-t border-gray-200/80 bg-white/50 backdrop-blur-sm">
-      <nav class="flex justify-around py-2">
-        <a routerLink="/chat" routerLinkActive="!text-blue-700 !bg-blue-100" [routerLinkActiveOptions]="{ exact: true }"
-          class="flex flex-col items-center py-2 px-4 rounded-lg text-gray-600 hover:text-blue-700 hover:bg-blue-50 transition-all duration-200 group">
-          <fa-icon [icon]="faComments"
-            class="w-5 h-5 mb-1 group-hover:scale-110 transition-transform duration-200"></fa-icon>
-          <span class="text-xs font-medium">Chats</span>
-        </a>
-        <a routerLink="/dictionary" routerLinkActive="!text-blue-700 !bg-blue-100"
-          [routerLinkActiveOptions]="{ exact: true }"
-          class="flex flex-col items-center py-2 px-4 rounded-lg text-gray-600 hover:text-blue-700 hover:bg-blue-50 transition-all duration-200 group">
-          <fa-icon [icon]="faBookOpen"
-            class="w-5 h-5 mb-1 group-hover:scale-110 transition-transform duration-200"></fa-icon>
-          <span class="text-xs font-medium">Palabras</span>
-        </a>
-      </nav>
+      <!-- Mobile Menu Button -->
+      <button (click)="toggleSidebar()" class="rounded-lg p-2 text-gray-600 hover:bg-gray-100 md:hidden">
+        <i class="fas fa-bars text-xl"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Sidebar -->
+  <div *ngIf="isMobileSidebarOpen" class="fixed inset-0 z-50 md:hidden">
+
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-black/70" (click)="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <div class="fixed right-0 top-0 h-full w-80 bg-white shadow-xl">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between border-b border-gray-200 p-4">
+        <h2 class="text-lg font-semibold text-gray-900">Menú</h2>
+        <button (click)="toggleSidebar()" class="rounded-lg p-2 text-gray-500 hover:bg-gray-100">
+          <i class="fas fa-times text-lg"></i>
+        </button>
+      </div>
+
+      <!-- User Profile Section -->
+      <div class="border-b border-gray-200 p-4">
+        <div class="flex items-center space-x-3 mb-4">
+          <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-white">
+            <i class="fas fa-user text-lg"></i>
+          </div>
+          <div>
+            <h3 class="font-semibold text-gray-900">Mi Progreso</h3>
+            <p class="text-sm text-gray-500">Nivel {{ userStats.level }}</p>
+          </div>
+        </div>
+
+        <!-- Mobile Stats -->
+        <div class="grid grid-cols-3 gap-3">
+          <div class="rounded-lg bg-blue-50 p-3 text-center">
+            <div class="text-lg font-bold text-blue-600">{{ userStats.streak }}</div>
+            <div class="text-xs text-gray-600">Racha</div>
+          </div>
+          <div class="rounded-lg bg-blue-50 p-3 text-center">
+            <div class="text-lg font-bold text-blue-600">{{ userStats.chats }}</div>
+            <div class="text-xs text-gray-600">Chats</div>
+          </div>
+          <div class="rounded-lg bg-blue-50 p-3 text-center">
+            <div class="text-lg font-bold text-blue-600">B2</div>
+            <div class="text-xs text-gray-600">Nivel</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="p-4">
+        <h3 class="mb-3 text-sm font-semibold text-gray-500 uppercase tracking-wide">Navegación</h3>
+        <nav class="space-y-1">
+          <a routerLink="/chat" routerLinkActive="bg-blue-50 text-blue-600 border-blue-200"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="flex items-center space-x-3 rounded-lg border border-transparent px-3 py-3 text-gray-700 hover:bg-gray-50"
+            (click)="toggleSidebar()">
+            <i class="fas fa-comments text-lg w-5"></i>
+            <span class="font-medium">Conversaciones</span>
+          </a>
+
+          <a routerLink="/dictionary" routerLinkActive="bg-blue-50 text-blue-600 border-blue-200"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="flex items-center space-x-3 rounded-lg border border-transparent px-3 py-3 text-gray-700 hover:bg-gray-50"
+            (click)="toggleSidebar()">
+            <i class="fas fa-book-open text-lg w-5"></i>
+            <span class="font-medium">Mis Palabras</span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- Profile Actions -->
+      <div class="border-t border-gray-200 p-4">
+        <h3 class="mb-3 text-sm font-semibold text-gray-500 uppercase tracking-wide">Cuenta</h3>
+        <div class="space-y-1">
+          <button (click)="viewProfile(); toggleSidebar()"
+            class="flex w-full items-center space-x-3 rounded-lg px-3 py-3 text-gray-700 hover:bg-gray-50">
+            <i class="fas fa-user text-lg w-5"></i>
+            <span class="font-medium">Ver Perfil</span>
+          </button>
+
+          <button (click)="viewSettings(); toggleSidebar()"
+            class="flex w-full items-center space-x-3 rounded-lg px-3 py-3 text-gray-700 hover:bg-gray-50">
+            <i class="fas fa-cog text-lg w-5"></i>
+            <span class="font-medium">Configuración</span>
+          </button>
+
+          <button (click)="logout()"
+            class="flex w-full items-center space-x-3 rounded-lg px-3 py-3 text-red-600 hover:bg-red-50">
+            <i class="fas fa-sign-out-alt text-lg w-5"></i>
+            <span class="font-medium">Cerrar Sesión</span>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </header>
