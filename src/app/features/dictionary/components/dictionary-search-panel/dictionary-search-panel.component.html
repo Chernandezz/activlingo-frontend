@@ -1,79 +1,150 @@
-<div class="bg-white rounded-xl shadow-xl p-6 max-w-3xl mx-auto h-full md:h-auto md:my-8">
-  <!-- Header -->
-  <div class="flex justify-between items-center mb-6">
-    <h2 class="text-xl font-semibold text-gray-800">Agregar Nueva Palabra</h2>
-    <button (click)="closeSearch()" class="btn btn-ghost btn-circle btn-sm">
-      <fa-icon [icon]="icons.close"></fa-icon>
-    </button>
+<!-- dictionary-search-panel.component.html - DISEÑO SIMPLE Y PROFESIONAL -->
+<div class="bg-white rounded-xl shadow-lg overflow-hidden w-full max-w-2xl mx-auto max-h-[90vh] flex flex-col">
+
+  <!-- Header simple -->
+  <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-4">
+    <div class="flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <i class="fas fa-book-open text-white text-lg"></i>
+        <div>
+          <h2 class="text-lg font-semibold text-white">Agregar Palabra</h2>
+          <p class="text-blue-100 text-sm">Encuentra y guarda nuevas palabras</p>
+        </div>
+      </div>
+      <button (click)="closeSearch()"
+        class="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-lg flex items-center justify-center transition-colors">
+        <i class="fas fa-times text-white"></i>
+      </button>
+    </div>
   </div>
 
   <!-- Search Input -->
-  <div class="relative mb-6">
-    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-      <fa-icon [icon]="icons.search" class="text-gray-400"></fa-icon>
+  <div class="p-4 border-b border-gray-200">
+    <div class="relative">
+      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <i class="fas fa-search text-gray-400"></i>
+      </div>
+      <input type="text" [(ngModel)]="searchTerm" (keyup.enter)="searchWord()" (input)="onSearchInput()"
+        [placeholder]="searchPlaceholder"
+        class="w-full pl-10 pr-20 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+
+      <button (click)="searchWord()" [disabled]="!isSearchValid || loading()"
+        class="absolute right-2 top-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white px-3 py-1.5 rounded-md text-sm font-medium transition-colors disabled:cursor-not-allowed">
+        Buscar
+      </button>
     </div>
-    <input type="text" [(ngModel)]="searchTerm" (keyup.enter)="searchWord()"
-      placeholder="Escribe una palabra para buscar..."
-      class="w-full pl-10 pr-24 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-    <button (click)="searchWord()" [disabled]="!searchTerm() || loading()"
-      class="absolute right-2 top-2 btn btn-primary btn-sm gap-2">
-      <span class="hidden sm:inline">Buscar</span>
-      <fa-icon [icon]="icons.search"></fa-icon>
-    </button>
   </div>
 
   <!-- Results -->
-  @if (loading()) {
-  <div class="flex flex-col items-center justify-center py-12">
-    <fa-icon [icon]="icons.spinner" spin class="text-blue-500 text-3xl mb-4"></fa-icon>
-    <p class="text-gray-500">Buscando definiciones...</p>
-  </div>
-  } @else {
-  @if (searchPerformed() && results().length === 0) {
-  <div class="text-center py-12">
-    <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-      <fa-icon [icon]="icons.search" class="text-gray-400 text-2xl"></fa-icon>
+  <div class="flex-1 overflow-y-auto">
+
+    <!-- Loading -->
+    <div *ngIf="loading()" class="flex flex-col items-center justify-center py-12">
+      <div class="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mb-3"></div>
+      <p class="text-gray-600 text-sm">Buscando definiciones...</p>
     </div>
-    <h3 class="text-lg font-medium text-gray-700 mb-2">No se encontraron resultados</h3>
-    <p class="text-gray-500">No hay definiciones para "{{ searchTerm() }}"</p>
-  </div>
-  } @else {
-  <div class="space-y-4 max-h-[calc(100vh-250px)] overflow-y-auto pr-2">
-    @for (def of results(); track trackByMeaning($index, def)) {
-    <div class="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow bg-white">
-      <div class="flex justify-between items-start gap-4">
-        <div class="flex-1">
-          <h3 class="font-medium text-gray-800">{{ def.meaning }}</h3>
-          @if (def.example) {
-          <p class="mt-2 text-sm text-gray-600 italic">"{{ def.example }}"</p>
-          }
-          <div class="mt-3 flex flex-wrap gap-2">
-            <span class="badge badge-info">
-              {{ def.part_of_speech }}
+
+    <!-- Empty state -->
+    <div *ngIf="searchPerformed() && !loading() && results().length === 0" class="text-center py-12 px-4">
+      <i class="fas fa-search text-gray-300 text-3xl mb-4"></i>
+      <h3 class="text-lg font-medium text-gray-700 mb-2">No se encontraron definiciones</h3>
+      <p class="text-gray-500 text-sm">Intenta con otra palabra o verifica la ortografía</p>
+    </div>
+
+    <!-- Results -->
+    <div *ngIf="!loading() && results().length > 0" class="p-4">
+      <!-- Header de resultados -->
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-base font-semibold text-gray-800 flex items-center">
+          <i class="fas fa-list text-blue-600 mr-2"></i>
+          {{ results().length }} definiciones encontradas
+        </h3>
+      </div>
+
+      <!-- Lista de definiciones -->
+      <div class="space-y-3">
+        <div *ngFor="let def of results(); trackBy: trackByMeaning"
+          class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow" [class.bg-blue-50]="def.added"
+          [class.border-blue-200]="def.added">
+
+          <!-- Definición principal simple -->
+          <div class="flex justify-between items-start gap-4 mb-3">
+            <div class="flex-1">
+              <h4 class="font-medium text-gray-800 mb-2">{{ capitalizeSentence(def.meaning) }}</h4>
+
+
+              <!-- Palabra y tipo simple -->
+              <div class="flex items-center space-x-2 text-sm text-gray-600">
+                <span class="font-medium">{{ searchTerm() }}</span>
+                <span>→</span>
+                <span>{{ getPartOfSpeechLabel(def.part_of_speech) }}</span>
+              </div>
+            </div>
+
+            <!-- Botón agregar minimalista -->
+            <button (click)="addDefinitionToDictionary(def)" [disabled]="def.added || isAdding() === def.meaning"
+              class="px-4 py-2 rounded text-sm font-medium transition-colors" [ngClass]="{
+                'bg-blue-600 hover:bg-blue-700 text-white': !def.added && isAdding() !== def.meaning,
+                'bg-gray-100 text-gray-500': def.added,
+                'bg-blue-600 text-white': isAdding() === def.meaning
+              }">
+
+              <span *ngIf="isAdding() === def.meaning">Agregando...</span>
+              <span *ngIf="def.added">✓ Agregada</span>
+              <span *ngIf="!def.added && isAdding() !== def.meaning">+ Agregar</span>
+            </button>
+          </div>
+
+          <!-- Ejemplo simple -->
+          <div *ngIf="def.example" class="mb-3 p-3 bg-gray-50 border-l-3 border-blue-500 rounded-r">
+            <p class="text-sm text-gray-700 italic capitalize">"{{ def.example }}"</p>
+          </div>
+
+          <!-- Tags simples -->
+          <div class="flex flex-wrap gap-2 mb-3 text-xs">
+            <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded">
+              {{ getPartOfSpeechLabel(def.part_of_speech) }}
             </span>
-            @if (def.is_idiomatic) {
-            <span class="badge badge-warning">Idiomático</span>
-            }
-            <span class="badge">Formal</span>
+
+            <span *ngIf="def.is_idiomatic" class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded">
+              Idiomática
+            </span>
+
+            <span *ngIf="def.usage_context && def.usage_context !== 'general'"
+              class="bg-purple-100 text-purple-700 px-2 py-1 rounded capitalize">
+              {{ def.usage_context }}
+            </span>
+          </div>
+
+          <!-- Sinónimos simples -->
+          <div *ngIf="def.synonyms && def.synonyms.length > 0" class="text-sm">
+            <p class="text-gray-500 mb-2">Sinónimos:</p>
+            <div class="flex flex-wrap gap-1">
+              <span *ngFor="let synonym of def.synonyms.slice(0, 4)"
+                class="bg-indigo-50 text-indigo-700 px-2 py-1 rounded text-xs">
+                {{ synonym }}
+              </span>
+              <span *ngIf="def.synonyms.length > 4" class="bg-gray-50 text-gray-500 px-2 py-1 rounded text-xs">
+                +{{ def.synonyms.length - 4 }} más
+              </span>
+            </div>
           </div>
         </div>
-        <button (click)="addDefinitionToDictionary(def)" [disabled]="def.added" class="btn btn-sm gap-2 min-w-[100px]"
-          [ngClass]="{
-                'btn-success': !def.added,
-                'btn-disabled': def.added
-              }">
-          @if (def.added) {
-          <fa-icon [icon]="icons.added"></fa-icon>
-          <span class="hidden sm:inline">Agregada</span>
-          } @else {
-          <fa-icon [icon]="icons.add"></fa-icon>
-          <span class="hidden sm:inline">Agregar</span>
-          }
-        </button>
       </div>
     </div>
-    }
+
+    <!-- Initial state -->
+    <div *ngIf="!searchPerformed() && !loading()" class="text-center py-12 px-4">
+      <i class="fas fa-search text-blue-600 text-3xl mb-4"></i>
+      <h3 class="text-lg font-medium text-gray-700 mb-2">Busca una palabra</h3>
+      <p class="text-gray-500 text-sm mb-6">Escribe al menos 3 caracteres en inglés para encontrar definiciones</p>
+
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-700 max-w-sm mx-auto">
+        <div class="flex items-center justify-center space-x-2">
+          <i class="fas fa-magic"></i>
+          <span class="font-medium">Definiciones detalladas con ejemplos</span>
+        </div>
+      </div>
+    </div>
   </div>
-  }
-  }
 </div>

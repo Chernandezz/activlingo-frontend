@@ -1,15 +1,23 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './features/auth/guards/auth.guard';
 import { GuestGuard } from './features/auth/guards/guest.guard';
-
 export const routes: Routes = [
   {
     path: 'auth',
-    canActivate: [GuestGuard],
+    canActivate: [GuestGuard], // 👈 SÍ usarlo, pero la versión inteligente
     loadComponent: () =>
       import('./features/auth/pages/auth-page/auth-page.component').then(
         (c) => c.AuthPageComponent
       ),
+  },
+
+  {
+    path: 'auth/callback',
+    // 👈 SIN guard - debe ser libre para OAuth callbacks
+    loadComponent: () =>
+      import(
+        './features/auth/pages/auth-callback/auth-callback.component'
+      ).then((c) => c.AuthCallbackComponent),
   },
 
   {
@@ -46,6 +54,6 @@ export const routes: Routes = [
   { path: '', redirectTo: 'chat', pathMatch: 'full' },
   {
     path: '**',
-    redirectTo: 'chat', 
+    redirectTo: 'chat',
   },
 ];

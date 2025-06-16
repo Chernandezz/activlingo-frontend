@@ -1,69 +1,67 @@
-<!-- dictionary-page.component.html - DISEÑO MEJORADO CON MÁS VALOR -->
+<!-- dictionary-page.component.html - DISEÑO RESPONSIVE MEJORADO -->
 <div class="min-h-screen bg-gradient-to-br from-gray-50 to-slate-100">
-  <!-- Header Compacto con Search y Filtros -->
+  <!-- Header Compacto con Search y Filtros - Optimizado para móvil -->
   <div class="sticky top-0 z-50 bg-white/90 backdrop-blur-lg border-b border-gray-200 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
       @if (!searchMode()) {
-      <!-- Header Principal - Una sola línea -->
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-y-5 gap-x-4 py-4">
+      <!-- Header Principal - Responsive -->
+      <div class="flex flex-col gap-3 py-3 sm:py-4">
 
-
-        <!-- Lado Izquierdo: Search Bar -->
-        <div class="flex items-center space-x-3 flex-1 max-w-md">
+        <!-- Primera fila: Search y botón nueva palabra -->
+        <div class="flex items-center gap-2 sm:gap-3">
+          <!-- Search Bar - Más compacto en móvil -->
           <div class="relative flex-1">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <i class="fas fa-search text-gray-400 text-sm"></i>
+            <div class="absolute inset-y-0 left-0 pl-2 sm:pl-3 flex items-center pointer-events-none">
+              <i class="fas fa-search text-gray-400 text-xs sm:text-sm"></i>
             </div>
-            <input type="text" [(ngModel)]="searchTerm" (input)="onSearchChange()"
-              placeholder="Buscar en tu diccionario..."
-              class="block w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-activlingo-primary focus:border-transparent transition-all duration-200 text-sm">
+            <input type="text" [(ngModel)]="searchTerm" (input)="onSearchChange()" placeholder="Buscar palabras..."
+              class="block w-full pl-7 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 bg-white border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm">
           </div>
 
-          <!-- Botón Nueva Palabra compacto -->
+          <!-- Botón Nueva Palabra - Icono solo en móvil -->
           <button (click)="searchMode.set(true)"
-            class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 py-2.5 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg flex items-center space-x-2 whitespace-nowrap">
-            <i class="fas fa-plus text-sm"></i>
-            <span class="hidden md:inline text-sm">Nueva Palabra</span>
-            <span class="md:hidden text-sm">Agregar</span>
+            class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-purple-700 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg flex items-center gap-1 sm:gap-2 whitespace-nowrap">
+            <i class="fas fa-plus text-xs sm:text-sm"></i>
+            <span class="hidden xs:inline text-xs sm:text-sm">Agregar</span>
+            <span class="hidden sm:inline text-sm">Palabra</span>
           </button>
         </div>
 
-        <!-- Lado Derecho: Filtros y Vista -->
-        <div class="flex items-center space-x-4">
+        <!-- Segunda fila: Filtros - Scroll horizontal en móvil -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+          <span class="text-xs font-medium text-gray-500 whitespace-nowrap hidden sm:inline">Filtrar:</span>
 
-          <!-- Filtros compactos -->
-          <div class="flex items-center space-x-1">
-            <span class="text-xs font-medium text-gray-500 mr-2 hidden sm:inline">Filtrar:</span>
-
+          <div class="flex items-center gap-1 sm:gap-1.5 min-w-max">
             <button (click)="onFilterChange('all')"
-              class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-200" [ngClass]="{
-                  'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md': filter() === 'all',
-                  'bg-gray-100 text-gray-600 hover:bg-gray-200': filter() !== 'all'
-                }">
-              <span >Todas</span>
-              <span class="ml-1 text-xs">({{ totalWordCount() }})</span>
+              class="px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold rounded-md transition-all duration-200 whitespace-nowrap"
+              [ngClass]="{
+                'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md': filter() === 'all',
+                'bg-gray-100 text-gray-600 hover:bg-gray-200': filter() !== 'all'
+              }">
+              <span>Todas</span>
+              <span class="ml-1">({{ totalWordCount() }})</span>
             </button>
 
             <button (click)="onFilterChange('active')"
-              class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-200" [ngClass]="{
-                  'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-md': filter() === 'active',
-                  'bg-gray-100 text-gray-600 hover:bg-gray-200': filter() !== 'active'
-                }">
+              class="px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold rounded-md transition-all duration-200 whitespace-nowrap"
+              [ngClass]="{
+                'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-md': filter() === 'active',
+                'bg-gray-100 text-gray-600 hover:bg-gray-200': filter() !== 'active'
+              }">
               <span>Activas</span>
-              <span class="ml-1 text-xs">({{ activeWordCount() }})</span>
+              <span class="ml-1">({{ activeWordCount() }})</span>
             </button>
 
             <button (click)="onFilterChange('passive')"
-              class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-200" [ngClass]="{
-                  'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-md': filter() === 'passive',
-                  'bg-gray-100 text-gray-600 hover:bg-gray-200': filter() !== 'passive'
-                }">
+              class="px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold rounded-md transition-all duration-200 whitespace-nowrap"
+              [ngClass]="{
+                'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-md': filter() === 'passive',
+                'bg-gray-100 text-gray-600 hover:bg-gray-200': filter() !== 'passive'
+              }">
               <span>Pasivas</span>
-              <span class="ml-1 text-xs">({{ passiveWordCount() }})</span>
+              <span class="ml-1">({{ passiveWordCount() }})</span>
             </button>
           </div>
-
-
         </div>
       </div>
       } @else {
@@ -78,46 +76,51 @@
 
   <!-- Main Content -->
   @if (!searchMode()) {
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
 
-    <!-- Sección 2: Dashboard de Estadísticas -->
-    <div class="mb-8">
-      <div class="flex items-center justify-between mb-6">
-        <h2 class="text-xl font-bold text-gray-900">Tus estadisticas</h2>
+    <!-- Sección de Estadísticas - Grid 2x2 en móvil, 4 columnas en desktop -->
+    <div class="mb-6 sm:mb-8">
+      <div class="flex items-center justify-between mb-4 sm:mb-6">
+        <h2 class="text-lg sm:text-xl font-bold text-gray-900">Tus estadísticas</h2>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-        <!-- Palabras Más Usadas -->
+      <!-- Grid responsivo: 2x2 en móvil, 4 columnas en desktop -->
+      <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+
+        <!-- Palabra Estrella -->
         <div
-          class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300">
-          <div class="flex items-center justify-between mb-4">
+          class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 border border-gray-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+          <div class="flex flex-row items-center justify-between mb-3 sm:mb-4">
             <div
-              class="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
-              <i class="fas fa-fire text-white"></i>
+              class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg sm:rounded-xl flex items-center justify-center">
+              <i class="fas fa-fire text-white text-sm sm:text-base"></i>
             </div>
-            <span class="text-2xl font-bold text-gray-900">{{ mostUsedWordCount() }}</span>
+            <span class="text-xl sm:text-2xl font-bold text-gray-900 self-auto">{{ mostUsedWordCount()
+              }}</span>
           </div>
-          <h3 class="font-semibold text-gray-900 mb-1">Palabra Estrella</h3>
-          <p class="text-sm text-gray-600 capitalize font-medium">{{ mostUsedWord()?.word || 'N/A' }}</p>
-          <div class="mt-3 flex items-center text-sm text-blue-600">
+          <h3 class="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Palabra Estrella</h3>
+          <p class="text-xs sm:text-sm text-gray-600 capitalize font-medium mb-2 sm:mb-3 truncate">{{
+            mostUsedWord()?.word || 'N/A' }}</p>
+          <div class="flex items-center text-xs sm:text-sm text-blue-600">
             <i class="fas fa-chart-line mr-1"></i>
-            <span>{{ mostUsedWord()?.usage_count || 0 }} usos totales</span>
+            <span class="truncate">{{ mostUsedWord()?.usage_count || 0 }} usos totales</span>
           </div>
         </div>
 
         <!-- Palabras Olvidadas -->
         <div
-          class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300">
-          <div class="flex items-center justify-between mb-4">
+          class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 border border-gray-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4">
             <div
-              class="w-12 h-12 bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl flex items-center justify-center">
-              <i class="fas fa-clock text-white"></i>
+              class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-amber-500 to-amber-600 rounded-lg sm:rounded-xl flex items-center justify-center mb-2 sm:mb-0">
+              <i class="fas fa-clock text-white text-sm sm:text-base"></i>
             </div>
-            <span class="text-2xl font-bold text-gray-900">{{ forgottenWordsCount() }}</span>
+            <span class="text-xl sm:text-2xl font-bold text-gray-900 self-end sm:self-auto">{{ forgottenWordsCount()
+              }}</span>
           </div>
-          <h3 class="font-semibold text-gray-900 mb-1">Necesitan Repaso</h3>
-          <p class="text-sm text-gray-600">Sin usar >30 días</p>
-          <div class="mt-3 flex items-center text-sm text-amber-600">
+          <h3 class="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Necesitan Repaso</h3>
+          <p class="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3">Sin usar >30 días</p>
+          <div class="flex items-center text-xs sm:text-sm text-amber-600">
             <i class="fas fa-exclamation-triangle mr-1"></i>
             <span>Revisar pronto</span>
           </div>
@@ -125,49 +128,48 @@
 
         <!-- Progreso Semanal -->
         <div
-          class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300">
-          <div class="flex items-center justify-between mb-4">
+          class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 border border-gray-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4">
             <div
-              class="w-12 h-12 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center">
-              <i class="fas fa-chart-line text-white"></i>
+              class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-lg sm:rounded-xl flex items-center justify-center mb-2 sm:mb-0">
+              <i class="fas fa-chart-line text-white text-sm sm:text-base"></i>
             </div>
-            <span class="text-2xl font-bold text-gray-900">{{ weeklyProgress() }}%</span>
+            <span class="text-xl sm:text-2xl font-bold text-gray-900 self-end sm:self-auto">{{ weeklyProgress()
+              }}%</span>
           </div>
-          <h3 class="font-semibold text-gray-900 mb-1">Progreso Semanal</h3>
-          <p class="text-sm text-gray-600">Meta: 5 palabras nuevas</p>
-          <div class="mt-3">
-            <div class="w-full bg-gray-200 rounded-full h-2">
-              <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 h-2 rounded-full transition-all duration-500"
-                [style.width.%]="weeklyProgress()"></div>
-            </div>
+          <h3 class="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Progreso Semanal</h3>
+          <p class="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3">Meta: 5 palabras nuevas</p>
+          <div class="w-full bg-gray-200 rounded-full h-1.5 sm:h-2">
+            <div
+              class="bg-gradient-to-r from-emerald-500 to-emerald-600 h-1.5 sm:h-2 rounded-full transition-all duration-500"
+              [style.width.%]="weeklyProgress()"></div>
           </div>
         </div>
 
         <!-- Racha de Estudio -->
         <div
-          class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300">
-          <div class="flex items-center justify-between mb-4">
+          class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 border border-gray-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4">
             <div
-              class="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
-              <i class="fas fa-medal text-white"></i>
+              class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center mb-2 sm:mb-0">
+              <i class="fas fa-medal text-white text-sm sm:text-base"></i>
             </div>
-            <span class="text-2xl font-bold text-gray-900">{{ studyStreak() }}</span>
+            <span class="text-xl sm:text-2xl font-bold text-gray-900 self-end sm:self-auto">{{ studyStreak() }}</span>
           </div>
-          <h3 class="font-semibold text-gray-900 mb-1">Racha de Estudio</h3>
-          <p class="text-sm text-gray-600">Días consecutivos</p>
-          <div class="mt-3 flex items-center text-sm text-purple-600">
+          <h3 class="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Racha de Estudio</h3>
+          <p class="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3">Días consecutivos</p>
+          <div class="flex items-center text-xs sm:text-sm text-purple-600">
             <i class="fas fa-crown mr-1"></i>
             <span>¡Sigue así!</span>
           </div>
         </div>
       </div>
-
     </div>
 
-    <!-- Sección 3: Lista/Grid de Palabras MEJORADA -->
+    <!-- Sección 3: Lista/Grid de Palabras RESPONSIVE -->
     <div class="mb-8">
-      <div class="flex items-center justify-between mb-6">
-        <h2 class="text-xl font-bold text-gray-900">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+        <h2 class="text-lg sm:text-xl font-bold text-gray-900">
           @if (filter() === 'all') {
           Todas mis palabras
           } @else if (filter() === 'active') {
@@ -178,11 +180,11 @@
         </h2>
 
         @if (filteredWords().length > 0) {
-        <div class="flex items-center space-x-4">
+        <div class="flex flex-col xs:flex-row items-start xs:items-center gap-2 xs:gap-4">
           <span class="text-sm text-gray-600">{{ filteredWords().length }} palabras</span>
           <!-- Ordenar -->
           <select [(ngModel)]="sortBy" (change)="updateSort()"
-            class="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-activlingo-primary">
+            class="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-0 w-full xs:w-auto">
             <option value="recent">Más recientes</option>
             <option value="alphabetical">Alfabético</option>
             <option value="most_used">Más usadas</option>
@@ -196,40 +198,42 @@
       @if (isLoading()) {
       <div class="flex justify-center items-center h-64">
         <div class="relative">
-          <div class="w-12 h-12 border-4 border-gray-200 border-t-activlingo-primary rounded-full animate-spin"></div>
+          <div class="w-12 h-12 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
         </div>
       </div>
       } @else {
       @if (filteredWords().length > 0) {
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <!-- Grid responsivo de palabras -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
         @for (word of paginatedWords(); track trackByWordId($index, word)) {
         <div (click)="onSelectWord(word)"
-          class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl border border-gray-100 cursor-pointer transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 overflow-hidden">
+          class="group bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl border border-gray-100 cursor-pointer transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 overflow-hidden">
 
-          <div class="p-6">
+          <div class="p-4 sm:p-6">
             <!-- Header con palabra y estado -->
-            <div class="flex justify-between items-start mb-4">
+            <div class="flex justify-between items-start mb-3 sm:mb-4">
               <h3
-                class="text-lg font-bold text-gray-900 capitalize group-hover:text-activlingo-primary transition-colors">
+                class="text-base sm:text-lg font-bold text-gray-900 capitalize group-hover:text-blue-600 transition-colors truncate flex-1 mr-2">
                 {{ word.word }}
               </h3>
-              <span class="text-xs font-semibold px-3 py-1 rounded-full"
+              <span class="text-xs font-semibold px-2 sm:px-3 py-1 rounded-full flex-shrink-0"
                 [class]="word.status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'">
                 {{ word.status === 'active' ? 'Activa' : 'Pasiva' }}
               </span>
             </div>
 
             <!-- Significado -->
-            <p class="text-gray-600 text-sm line-clamp-3 mb-4 leading-relaxed">{{ word.meaning }}</p>
+            <p class="text-gray-600 text-sm line-clamp-3 mb-3 sm:mb-4 leading-relaxed">{{ word.meaning }}</p>
 
             <!-- Estadísticas de uso -->
-            <div class="space-y-3 mb-4">
+            <div class="space-y-2 sm:space-y-3 mb-3 sm:mb-4">
               <!-- Número de usos -->
               <div class="flex items-center justify-between text-sm">
                 <span class="text-gray-500 flex items-center">
-                  <i class="fas fa-eye mr-2 text-blue-500"></i>
-                  Veces usada
+                  <i class="fas fa-eye mr-2 text-blue-500 text-xs"></i>
+                  <span class="hidden xs:inline">Veces usada</span>
+                  <span class="xs:hidden">Usos</span>
                 </span>
                 <span class="font-semibold text-gray-700">{{ word.usage_count || 0 }}</span>
               </div>
@@ -237,8 +241,9 @@
               <!-- Última vez usada -->
               <div class="flex items-center justify-between text-sm">
                 <span class="text-gray-500 flex items-center">
-                  <i class="fas fa-clock mr-2 text-purple-500"></i>
-                  Última vez
+                  <i class="fas fa-clock mr-2 text-purple-500 text-xs"></i>
+                  <span class="hidden xs:inline">Última vez</span>
+                  <span class="xs:hidden">Último</span>
                 </span>
                 <span class="font-semibold text-gray-700">{{ getLastUsedText(word) }}</span>
               </div>
@@ -247,63 +252,61 @@
               <div class="space-y-2">
                 <div class="flex items-center justify-between text-sm">
                   <span class="text-gray-500 flex items-center">
-                    <i class="fas fa-brain mr-2 text-emerald-500"></i>
-                    Dominio
+                    <i class="fas fa-brain mr-2 text-emerald-500 text-xs"></i>
+                    <span>Dominio</span>
                   </span>
-                  <span class="font-semibold" [class]="getMasteryLevelClass(word)">
+                  <span class="font-semibold text-xs sm:text-sm" [class]="getMasteryLevelClass(word)">
                     {{ getMasteryLevel(word) }}
                   </span>
                 </div>
-                <div class="w-full bg-gray-200 rounded-full h-2">
-                  <div class="h-2 rounded-full transition-all duration-500" [class]="getMasteryBarClass(word)"
+                <div class="w-full bg-gray-200 rounded-full h-1.5 sm:h-2">
+                  <div class="h-1.5 sm:h-2 rounded-full transition-all duration-500" [class]="getMasteryBarClass(word)"
                     [style.width.%]="getMasteryPercentage(word)"></div>
                 </div>
               </div>
             </div>
-
-
           </div>
         </div>
         }
       </div>
       }
 
-
-
-      <!-- Pagination -->
+      <!-- Pagination - Responsive -->
       @if (totalPages() > 1) {
-      <div class="flex items-center justify-center mt-8 space-x-2">
+      <div class="flex items-center justify-center mt-6 sm:mt-8 space-x-2">
         <button (click)="previousPage()" [disabled]="currentPage() === 1"
-          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-          <i class="fas fa-chevron-left mr-1"></i>Anterior
+          class="px-3 sm:px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+          <i class="fas fa-chevron-left mr-1"></i>
+          <span class="hidden xs:inline">Anterior</span>
         </button>
 
-        <span class="px-4 py-2 text-sm text-gray-700">
-          Página {{ currentPage() }} de {{ totalPages() }}
+        <span class="px-3 sm:px-4 py-2 text-sm text-gray-700">
+          <span class="hidden xs:inline">Página </span>{{ currentPage() }}<span class="hidden xs:inline"> de {{
+            totalPages() }}</span>
+          <span class="xs:hidden">/{{ totalPages() }}</span>
         </span>
 
         <button (click)="nextPage()" [disabled]="currentPage() === totalPages()"
-          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-          Siguiente<i class="fas fa-chevron-right ml-1"></i>
+          class="px-3 sm:px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+          <span class="hidden xs:inline">Siguiente</span>
+          <i class="fas fa-chevron-right ml-1"></i>
         </button>
       </div>
-
-
       } @else {
-      <!-- Empty State -->
-      <div class="flex flex-col items-center justify-center py-16 text-center">
+      <!-- Empty State - Responsive -->
+      <div class="flex flex-col items-center justify-center py-12 sm:py-16 text-center px-4">
         <div
-          class="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
-          <i class="fas fa-book-open text-3xl text-gray-400"></i>
+          class="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+          <i class="fas fa-book-open text-2xl sm:text-3xl text-gray-400"></i>
         </div>
-        <h3 class="text-xl font-bold text-gray-600 mb-2">
+        <h3 class="text-lg sm:text-xl font-bold text-gray-600 mb-2">
           @if (searchTerm()) {
           No se encontraron palabras
           } @else {
           No hay palabras {{ filter() === 'active' ? 'activas' : filter() === 'passive' ? 'pasivas' : '' }}
           }
         </h3>
-        <p class="text-gray-500 mb-6 max-w-md leading-relaxed">
+        <p class="text-gray-500 mb-6 max-w-md leading-relaxed text-sm sm:text-base">
           @if (searchTerm()) {
           No se encontraron palabras que coincidan con "{{ searchTerm() }}"
           } @else if (filter() === 'active') {
@@ -315,8 +318,8 @@
           }
         </p>
         <button (click)="searchMode.set(true)"
-          class="bg-gradient-to-r from-activlingo-primary to-activlingo-secondary hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
-          <i class="fas fa-plus mr-3"></i>Agregar Primera Palabra
+          class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl text-sm sm:text-base">
+          <i class="fas fa-plus mr-2 sm:mr-3"></i>Agregar Primera Palabra
         </button>
       </div>
       }
@@ -324,11 +327,11 @@
     </div>
   </div>
 
-  <!-- Word Details Modal -->
+  <!-- Word Details Modal - Responsive -->
   @if (selectedWord()) {
-  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4"
     (click)="selectedWord.set(null)">
-    <div class="max-w-2xl w-full" (click)="$event.stopPropagation()">
+    <div class="max-w-2xl w-full max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
       <app-word-details [word]="selectedWord()!" (back)="selectedWord.set(null)">
       </app-word-details>
     </div>
