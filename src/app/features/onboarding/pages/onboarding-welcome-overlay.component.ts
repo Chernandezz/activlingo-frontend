@@ -20,25 +20,28 @@ export class OnboardingWelcomeOverlayComponent implements OnInit {
 
   @Output() startFreeTrial = new EventEmitter<void>();
 
-  trialEndDate: string = '';
+  trialEndDate: Date = new Date();
   loading = true;
 
   ngOnInit(): void {
+    // Calcular fecha de fin de prueba (3 días desde hoy)
+    const today = new Date();
+    this.trialEndDate = new Date(today.getTime() + 3 * 24 * 60 * 60 * 1000);
+
     this.userService.getTrialInfo().subscribe({
       next: (res: TrialStatus) => {
         if (res.trial_active && !res.is_subscribed) {
-          this.trialEndDate = new Date(res.trial_end).toLocaleDateString();
+          this.trialEndDate = new Date(res.trial_end);
         }
         this.loading = false;
       },
       error: () => {
         this.loading = false;
-        this.startFreeTrial.emit(); // Emitimos para cerrar el overlay aunque falle
       },
     });
   }
 
-  /** El usuario hace clic en “Iniciar mi prueba” */
+  /** El usuario hace clic en "Iniciar mi prueba gratuita" */
   confirmStartTrial(): void {
     this.userService.markOnboardingSeen().subscribe({
       next: () => {
@@ -51,16 +54,26 @@ export class OnboardingWelcomeOverlayComponent implements OnInit {
     });
   }
 
-  goToPricing(): void {
+  /** Seleccionar un plan específico */
+  selectPlan(planType: 'basic' | 'premium'): void {
+    console.log(`🎯 Plan seleccionado: ${planType}`);
+
+    // Crear checkout session con el plan seleccionado
     this.http
       .post<{ url: string }>(
         `${environment.apiUrl}/stripe/create-checkout-session`,
-        {}
+        {
+          plan_type: planType,
+          price_id:
+            planType === 'basic'
+              ? 'price_basic_monthly' // ID del precio en Stripe para plan básico
+              : 'price_premium_monthly', // ID del precio en Stripe para plan premium
+        }
       )
       .subscribe({
         next: (res) => {
           if (res.url) {
-            window.location.href = res.url; 
+            window.location.href = res.url;
           }
         },
         error: (err) => {
@@ -70,5 +83,10 @@ export class OnboardingWelcomeOverlayComponent implements OnInit {
           );
         },
       });
+  }
+
+  /** Legacy method para compatibilidad */
+  goToPricing(): void {
+    this.selectPlan('premium'); // Default a premium
   }
 }

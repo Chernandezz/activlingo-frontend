@@ -5,7 +5,6 @@ import {
   EventEmitter,
   computed,
   signal,
-  OnInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -38,17 +37,28 @@ export class DictionarySidebarComponent {
   @Input() totalCount: number = 0;
   @Input() loading: boolean = false;
 
-  // Outputs
+  // Outputs - CORREGIDO: ahora emite 'all' | WordStatus
   @Output() selectWord = new EventEmitter<UserDictionaryEntry>();
   @Output() startSearch = new EventEmitter<void>();
-  @Output() filterChanged = new EventEmitter<WordStatus>();
+  @Output() filterChanged = new EventEmitter<'all' | WordStatus>();
 
   // Estado local
   searchTerm = signal('');
-  selectedFilter = signal<WordStatus>('active');
 
-  // Manejar cambio de filtro
-  onFilterSelect(filter: WordStatus): void {
+  // Computed para filtrar palabras basado en término de búsqueda
+  filteredWords = computed(() => {
+    const term = this.searchTerm().toLowerCase().trim();
+    if (!term) return this.words;
+
+    return this.words.filter(
+      (word) =>
+        word.word.toLowerCase().includes(term) ||
+        word.meaning.toLowerCase().includes(term)
+    );
+  });
+
+  // Manejar cambio de filtro - CORREGIDO: acepta 'all' | WordStatus
+  onFilterSelect(filter: 'all' | WordStatus): void {
     this.filterChanged.emit(filter);
   }
 
@@ -60,5 +70,10 @@ export class DictionarySidebarComponent {
   // TrackBy function
   trackByWordId(index: number, word: UserDictionaryEntry): string {
     return word.id;
+  }
+
+  // Limpiar búsqueda
+  clearSearch(): void {
+    this.searchTerm.set('');
   }
 }
