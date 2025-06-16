@@ -1,9 +1,4 @@
-export interface AuthResponse {
-  access_token: string;
-  refresh_token: string;
-  expires_in: number;
-  user: any; // puedes definir una interfaz de usuario si quieres
-}
+// core/models/auth.model.ts - MODELOS ACTUALIZADOS
 
 export interface LoginRequest {
   email: string;
@@ -11,7 +6,38 @@ export interface LoginRequest {
 }
 
 export interface SignUpRequest {
-  name: string;
+  name?: string;
   email: string;
   password: string;
+}
+
+export interface AuthUser {
+  id: string;
+  email: string;
+  name?: string;
+  avatar_url?: string;
+  email_confirmed?: boolean;
+  created_at?: string;
+  provider?: string;
+}
+
+export interface AuthSession {
+  access_token: string;
+  refresh_token: string;
+  expires_in: number;
+  token_type: string;
+  user: AuthUser;
+}
+
+export interface AuthResponse {
+  access_token: string;
+  refresh_token: string;
+  user: AuthUser;
+  session?: AuthSession;
+  profile?: any;
+}
+
+export interface AuthError {
+  error: string;
+  success: false;
 }
