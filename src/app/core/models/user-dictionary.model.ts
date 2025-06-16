@@ -42,6 +42,7 @@ export interface UserDictionaryEntry extends WordDefinition {
   last_used_context?: string;
   difficulty?: number; // 1-5 scale
   tags?: string[];
+  personal_notes?: string; // Notas personales del usuario
 }
 
 export interface WordCreateDto {
@@ -52,6 +53,7 @@ export interface WordCreateDto {
   source?: string;
   usage_context?: string;
   is_idiomatic?: boolean;
+  personal_notes?: string; // Notas personales del usuario
 }
 
 export interface WordUpdateDto {
@@ -60,4 +62,5 @@ export interface WordUpdateDto {
   status?: 'active' | 'passive';
   difficulty?: number;
   tags?: string[];
+  personal_notes?: string; // Notas personales del usuario
 }
