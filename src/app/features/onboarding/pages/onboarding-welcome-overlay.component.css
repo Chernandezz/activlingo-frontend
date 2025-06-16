@@ -1,4 +1,4 @@
-/* onboarding-welcome-overlay.component.css */
+/* onboarding-welcome-overlay.component.css - RESPONSIVE MEJORADO */
 
 /* Keyframes para la animación fadeInUp */
 @keyframes fadeInUp {
@@ -15,4 +15,103 @@
 /* Clase utilitaria que dispara la animación */
 .animate-fadeInUp {
   animation: fadeInUp 0.4s ease-out forwards;
+}
+
+/* Overlay principal con scroll */
+.fixed.inset-0 {
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Modal responsivo */
+.modal-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+/* Contenido del modal */
+.modal-content {
+  max-height: 95vh;
+  max-height: 95dvh; /* Para Safari */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Scroll interno para el contenido */
+.modal-body {
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+}
+
+/* Mejoras para pantallas muy pequeñas */
+@media (max-height: 600px) {
+  .modal-content {
+    max-height: 100vh;
+    max-height: 100dvh;
+    margin: 0;
+    border-radius: 0;
+  }
+  
+  .fixed.inset-0 {
+    padding: 0;
+  }
+}
+
+/* Para iPhones en horizontal */
+@media (max-height: 500px) and (orientation: landscape) {
+  .modal-content {
+    max-height: 100vh;
+    max-height: 100dvh;
+    border-radius: 0;
+  }
+  
+  .modal-body {
+    max-height: calc(100vh - 80px);
+    max-height: calc(100dvh - 80px);
+  }
+}
+
+/* Scrollbar personalizado para webkit */
+.modal-body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.5);
+  border-radius: 2px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.8);
+}
+
+/* Animaciones suaves para los botones */
+button {
+  transition: all 0.2s ease-in-out;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* Mejora para touch devices */
+@media (hover: none) and (pointer: coarse) {
+  button:hover {
+    transform: none;
+  }
+  
+  button:active {
+    transform: scale(0.95);
+  }
 }

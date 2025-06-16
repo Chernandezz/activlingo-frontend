@@ -77,6 +77,8 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
 
   private subscriptions = new Subscription();
 
+  
+
   constructor(
     private chatService: ChatService,
     private messageService: MessageService,
@@ -288,6 +290,8 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
   trackByMessage(index: number, message: Message): string {
     return message.id;
   }
+
+  
 
   handleStartFreeTrial(): void {
     this.userService.markOnboardingSeen().subscribe({
