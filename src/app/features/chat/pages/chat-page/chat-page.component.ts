@@ -291,6 +291,8 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     return message.id;
   }
 
+  
+
   handleStartFreeTrial(): void {
     this.userService.markOnboardingSeen().subscribe({
       next: () => {
