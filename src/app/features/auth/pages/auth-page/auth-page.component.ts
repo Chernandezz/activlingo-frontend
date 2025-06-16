@@ -5,6 +5,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { Router, RouterModule } from '@angular/router';
 import { supabase } from '../../../../core/utils/supabase-client';
 import { Subject, debounceTime, takeUntil } from 'rxjs';
+import { environment } from '../../../../../environments/environment';
 
 interface ValidationMessage {
   type: 'error' | 'success' | 'warning';
@@ -446,7 +447,7 @@ export class AuthPageComponent implements OnInit, OnDestroy {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/chat`,
+          redirectTo: environment.supabaseRedirectTo,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -473,7 +474,7 @@ export class AuthPageComponent implements OnInit, OnDestroy {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'facebook',
         options: {
-          redirectTo: `${window.location.origin}/chat`,
+          redirectTo: environment.supabaseRedirectTo,
         },
       });
 

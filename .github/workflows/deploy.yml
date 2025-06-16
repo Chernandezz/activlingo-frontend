@@ -24,6 +24,8 @@ jobs:
           sed -i "s|REPLACE_API_URL|${{ secrets.ENV_API_URL }}|" src/environments/environment.ts
           sed -i "s|REPLACE_SUPABASE_URL|${{ secrets.ENV_SUPABASE_URL }}|" src/environments/environment.ts
           sed -i "s|REPLACE_SUPABASE_ANON_KEY|${{ secrets.ENV_SUPABASE_ANON_KEY }}|" src/environments/environment.ts
+          sed -i "s|REPLACE_SUPABASE_REDIRECT_TO|${{ secrets.ENV_SUPABASE_REDIRECT_TO }}|" src/environments/environment.ts
+
 
       - name: Build Angular
         run: npm run build -- --configuration=production
