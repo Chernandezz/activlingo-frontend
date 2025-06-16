@@ -77,6 +77,8 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
 
   private subscriptions = new Subscription();
 
+  
+
   constructor(
     private chatService: ChatService,
     private messageService: MessageService,

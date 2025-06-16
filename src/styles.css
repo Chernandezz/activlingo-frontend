@@ -1,6 +1,24 @@
 /* You can add global styles to this file, and also import other style files */
 @import "tailwindcss";
+:root {
+  --vh: 1vh;
+  --dvh: 1dvh;
+}
 
-html, body, app-root {
-  height: 100%;
+/* Fallback para navegadores que no soportan dvh */
+@supports not (height: 100dvh) {
+  :root {
+    --viewport-height: 100vh;
+  }
+}
+
+@supports (height: 100dvh) {
+  :root {
+    --viewport-height: 100dvh;
+  }
+}
+
+.app-container,
+.full-height {
+  height: var(--viewport-height);
 }
