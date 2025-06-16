@@ -1,46 +1,49 @@
-<!-- onboarding-welcome-overlay.component.html - ACTUALIZADO -->
-<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
-  <!-- Modal mejorado para 2 planes -->
+<!-- onboarding-welcome-overlay.component.html - RESPONSIVE MEJORADO -->
+<div
+  class="fixed inset-0 z-9999 flex items-center justify-center bg-black/30 backdrop-blur-sm p-2 sm:p-4 overflow-y-auto">
+  <!-- Modal responsivo con scroll -->
   <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl
              transform opacity-0 
              animate-fadeInUp
-             overflow-hidden">
+             overflow-hidden
+             max-h-[95vh] my-auto">
 
     <!-- Header -->
-    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white text-center">
-      <h1 class="text-3xl font-bold mb-2">
+    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-4 sm:p-6 text-white text-center">
+      <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold mb-2">
         🎉 ¡Bienvenido a Activlingo!
       </h1>
-      <p class="text-indigo-100">
+      <p class="text-sm sm:text-base text-indigo-100">
         Aprende inglés conversacional con IA especializada en tiempo real
       </p>
     </div>
 
-    <!-- Planes de suscripción -->
-    <div class="p-6">
-      <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">
+    <!-- Contenido con scroll interno -->
+    <div class="p-3 sm:p-6 max-h-[calc(95vh-120px)] overflow-y-auto">
+      <h2 class="text-xl sm:text-2xl font-bold text-gray-800 text-center mb-4 sm:mb-6">
         Elige tu plan perfecto
       </h2>
 
-      <!-- Grid de 2 planes -->
-      <div class="grid md:grid-cols-2 gap-4 mb-6">
+      <!-- Grid responsivo de planes -->
+      <div class="flex flex-col lg:grid lg:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
 
         <!-- Plan Básico -->
-        <div class="bg-white border-2 border-gray-200 rounded-xl p-5 hover:border-blue-300 transition-colors">
-          <div class="text-center mb-4">
-            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-              <i class="fas fa-user text-blue-600 text-lg"></i>
+        <div class="bg-white border-2 border-gray-200 rounded-xl p-3 sm:p-5 hover:border-blue-300 transition-colors">
+          <div class="text-center mb-3 sm:mb-4">
+            <div
+              class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
+              <i class="fas fa-user text-blue-600 text-sm sm:text-lg"></i>
             </div>
-            <h3 class="text-lg font-bold text-gray-800 mb-2">Plan Básico</h3>
+            <h3 class="text-base sm:text-lg font-bold text-gray-800 mb-2">Plan Básico</h3>
             <div class="flex items-baseline justify-center mb-1">
-              <span class="text-2xl font-bold text-gray-900">$9.00</span>
-              <span class="text-gray-500 ml-1 text-sm">/ mes</span>
+              <span class="text-xl sm:text-2xl font-bold text-gray-900">$9.00</span>
+              <span class="text-gray-500 ml-1 text-xs sm:text-sm">/ mes</span>
             </div>
             <p class="text-gray-500 text-xs">Para comenzar tu aprendizaje</p>
           </div>
 
           <!-- Características Básico -->
-          <ul class="space-y-2 mb-5 text-sm">
+          <ul class="space-y-1.5 sm:space-y-2 mb-4 sm:mb-5 text-xs sm:text-sm">
             <li class="flex items-start">
               <span class="mr-2 text-green-500 mt-0.5 text-xs">✔️</span>
               <span class="text-gray-700"><strong>IA básica</strong> detecta errores principales</span>
@@ -64,40 +67,40 @@
           </ul>
 
           <button
-            class="w-full bg-blue-600 text-white py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition-colors text-sm"
+            class="w-full bg-blue-600 text-white py-2 sm:py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition-colors text-xs sm:text-sm"
             (click)="selectPlan('basic')">
             Comenzar con Básico
           </button>
         </div>
 
         <!-- Plan Premium - DESTACADO -->
-        <div class="bg-white border-2 border-purple-400 rounded-xl p-5 relative 
+        <div class="bg-white border-2 border-purple-400 rounded-xl p-3 sm:p-5 relative 
                     hover:border-purple-500 transition-colors
                     ring-2 ring-purple-100">
 
           <!-- Badge "Más Popular" -->
-          <div class="absolute -top-2.5 left-1/2 transform -translate-x-1/2">
+          <div class="absolute -top-2 sm:-top-2.5 left-1/2 transform -translate-x-1/2">
             <span
-              class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+              class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-semibold">
               🌟 MÁS POPULAR
             </span>
           </div>
 
-          <div class="text-center mb-4">
+          <div class="text-center mb-3 sm:mb-4">
             <div
-              class="w-12 h-12 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-3">
-              <i class="fas fa-crown text-purple-600 text-lg"></i>
+              class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-3">
+              <i class="fas fa-crown text-purple-600 text-sm sm:text-lg"></i>
             </div>
-            <h3 class="text-lg font-bold text-gray-800 mb-2">Plan Premium</h3>
+            <h3 class="text-base sm:text-lg font-bold text-gray-800 mb-2">Plan Premium</h3>
             <div class="flex items-baseline justify-center mb-1">
-              <span class="text-2xl font-bold text-purple-600">$15.00</span>
-              <span class="text-gray-500 ml-1 text-sm">/ mes</span>
+              <span class="text-xl sm:text-2xl font-bold text-purple-600">$15.00</span>
+              <span class="text-gray-500 ml-1 text-xs sm:text-sm">/ mes</span>
             </div>
             <p class="text-gray-500 text-xs">Para dominar el inglés completamente</p>
           </div>
 
           <!-- Características Premium -->
-          <ul class="space-y-2 mb-5 text-sm">
+          <ul class="space-y-1.5 sm:space-y-2 mb-4 sm:mb-5 text-xs sm:text-sm">
             <li class="flex items-start">
               <span class="mr-2 text-purple-500 mt-0.5 text-xs">✨</span>
               <span class="text-gray-700"><strong>IA súper inteligente</strong> - Nuestro mejor modelo</span>
@@ -129,8 +132,9 @@
             </li>
           </ul>
 
-          <button class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-2.5 rounded-lg font-semibold 
-                         hover:from-purple-700 hover:to-pink-700 transition-all transform hover:scale-105 text-sm"
+          <button
+            class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-2 sm:py-2.5 rounded-lg font-semibold 
+                         hover:from-purple-700 hover:to-pink-700 transition-all transform hover:scale-105 text-xs sm:text-sm"
             (click)="selectPlan('premium')">
             ¡Quiero Premium!
           </button>
@@ -138,18 +142,20 @@
       </div>
 
       <!-- Prueba gratuita destacada -->
-      <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-xl p-5 text-center">
-        <div class="flex items-center justify-center mb-3">
-          <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center mr-3">
-            <i class="fas fa-gift text-emerald-600"></i>
+      <div
+        class="bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-xl p-3 sm:p-5 text-center">
+        <div class="flex flex-col sm:flex-row items-center justify-center mb-3">
+          <div
+            class="w-8 h-8 sm:w-10 sm:h-10 bg-emerald-100 rounded-full flex items-center justify-center mb-2 sm:mb-0 sm:mr-3">
+            <i class="fas fa-gift text-emerald-600 text-sm sm:text-base"></i>
           </div>
           <div>
-            <h3 class="text-lg font-bold text-emerald-800">¡Prueba gratuita de 3 días!</h3>
-            <p class="text-emerald-600 text-sm">Experimenta todas las funciones Premium sin pagar nada</p>
+            <h3 class="text-base sm:text-lg font-bold text-emerald-800">¡Prueba gratuita de 3 días!</h3>
+            <p class="text-emerald-600 text-xs sm:text-sm">Experimenta todas las funciones Premium sin pagar nada</p>
           </div>
         </div>
 
-        <button class="bg-emerald-600 text-white px-6 py-2.5 rounded-lg font-bold
+        <button class="bg-emerald-600 text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg font-bold text-xs sm:text-sm
                        hover:bg-emerald-700 transition-colors transform hover:scale-105" (click)="confirmStartTrial()">
           🚀 Iniciar mi prueba gratuita Premium
         </button>
@@ -160,7 +166,7 @@
       </div>
 
       <!-- Garantía -->
-      <div class="text-center mt-4 text-gray-500 text-xs">
+      <div class="text-center mt-3 sm:mt-4 text-gray-500 text-xs">
         <i class="fas fa-shield-alt text-green-500 mr-1"></i>
         <strong>Garantía de 30 días</strong> - Si no estás satisfecho, te devolvemos tu dinero
       </div>
