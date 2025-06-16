@@ -1,4 +1,4 @@
-// chat-analysis.component.ts - VERSIÓN FINAL
+// chat-analysis.component.ts - VERSIÓN FINAL CON PAYWALL SUTIL
 import { Component, Input, OnChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -8,6 +8,7 @@ import {
 } from '../../../chat/services/analysis.service';
 import { DictionaryService } from '../../../dictionary/services/dictionary.service';
 import { LanguageAnalysisPoint } from '../../../chat/models/language-analysis.model';
+import { UserService } from '../../../../core/services/user.service';
 
 @Component({
   selector: 'app-chat-analysis',
@@ -21,6 +22,7 @@ export class ChatAnalysisComponent implements OnChanges {
   // Servicios
   private analysisService = inject(AnalysisService);
   private dictionaryService = inject(DictionaryService);
+  private userService = inject(UserService);
 
   // Estado del componente
   points: LanguageAnalysisPoint[] = [];
@@ -32,6 +34,13 @@ export class ChatAnalysisComponent implements OnChanges {
   isLoading = true;
   error: string | null = null;
 
+  // Estado del plan del usuario
+  userPlan: string = 'basic';
+  isPremium: boolean = false;
+
+  // Categorías que requieren premium (las últimas 3)
+  premiumCategories = ['expression', 'collocation', 'context_appropriateness'];
+
   // Estado de filtros
   selectedFilter: string | null = null;
   availableFilters: Array<{ key: string; label: string; count: number }> = [];
@@ -40,11 +49,30 @@ export class ChatAnalysisComponent implements OnChanges {
   addingToDictionary = new Set<string>();
   successMessages = new Map<string, string>();
 
+  // Estado del paywall
+  showPaywall = false;
+
   ngOnChanges(): void {
     console.log('🔍 Analyzing chatId:', this.chatId);
     this.expandedPoints.clear();
     this.resetFilters();
+    this.loadUserPlan();
     this.loadAnalysisData();
+  }
+
+  private loadUserPlan(): void {
+    this.userService.getCurrentUser().subscribe({
+      next: (user) => {
+        this.userPlan = user?.subscription_type || 'basic';
+        this.isPremium = this.userPlan === 'premium';
+        console.log(`👤 User plan: ${this.userPlan}`);
+      },
+      error: (error) => {
+        console.warn('Could not get user plan, defaulting to basic');
+        this.userPlan = 'basic';
+        this.isPremium = false;
+      },
+    });
   }
 
   public loadAnalysisData(): void {
@@ -77,6 +105,31 @@ export class ChatAnalysisComponent implements OnChanges {
         this.resetData();
       },
     });
+  }
+
+  // Verificar si una categoría requiere premium
+  isLockedCategory(category: string): boolean {
+    return !this.isPremium && this.premiumCategories.includes(category);
+  }
+
+  // Obtener puntos bloqueados para usuarios básicos
+  getLockedPoints(): LanguageAnalysisPoint[] {
+    if (this.isPremium) {
+      return [];
+    }
+    return this.filteredPoints.filter((point) =>
+      this.premiumCategories.includes(point.category)
+    );
+  }
+
+  // Obtener puntos visibles para usuarios básicos
+  getVisiblePoints(): LanguageAnalysisPoint[] {
+    if (this.isPremium) {
+      return this.filteredPoints;
+    }
+    return this.filteredPoints.filter(
+      (point) => !this.premiumCategories.includes(point.category)
+    );
   }
 
   // Configurar filtros con todas las categorías
@@ -113,9 +166,15 @@ export class ChatAnalysisComponent implements OnChanges {
   }
 
   setFilter(filterKey: string): void {
+    // Si es una categoría premium y el usuario no es premium, mostrar paywall
+    if (!this.isPremium && this.premiumCategories.includes(filterKey)) {
+      this.showPaywall = true;
+      return;
+    }
+
     this.selectedFilter = filterKey === 'all' ? null : filterKey;
     this.applyFilter();
-    this.expandedPoints.clear(); // Colapsar todos al cambiar filtro
+    this.expandedPoints.clear();
   }
 
   isFilterActive(filterKey: string): boolean {
@@ -164,8 +223,57 @@ export class ChatAnalysisComponent implements OnChanges {
     return this.dictionaryWords;
   }
 
+  // Generar preview intrigante de la explicación
+  getIntriguingPreview(explanation: string): string {
+    if (!explanation) return '';
+
+    // Cortar en un punto que genere curiosidad (entre 60-80 caracteres)
+    const maxLength = 75;
+
+    if (explanation.length <= maxLength) {
+      return explanation;
+    }
+
+    // Buscar el último espacio antes del límite para no cortar palabras
+    let cutPoint = maxLength;
+    while (cutPoint > 50 && explanation[cutPoint] !== ' ') {
+      cutPoint--;
+    }
+
+    // Si no encontramos espacio, cortar directamente
+    if (cutPoint <= 50) {
+      cutPoint = maxLength;
+    }
+
+    let preview = explanation.substring(0, cutPoint);
+
+    // Asegurar que termine de manera intrigante
+    if (
+      !preview.endsWith('.') &&
+      !preview.endsWith(',') &&
+      !preview.endsWith(':')
+    ) {
+      // Si termina a mitad de palabra o frase, es perfecto para generar curiosidad
+      return preview;
+    }
+
+    // Si termina muy "completo", acortar un poco más para generar expectativa
+    const lastSpace = preview.lastIndexOf(' ');
+    if (lastSpace > 40) {
+      preview = preview.substring(0, lastSpace);
+    }
+
+    return preview;
+  }
+
   // FUNCIONALIDAD PARA AÑADIR AL DICCIONARIO (solo vocabulary)
   addToDictionary(point: LanguageAnalysisPoint): void {
+    // Verificar si es premium para la funcionalidad del diccionario
+    if (!this.isPremium) {
+      this.showPaywall = true;
+      return;
+    }
+
     const word = this.extractMainWord(point.suggestion);
 
     if (!word) {
@@ -173,10 +281,8 @@ export class ChatAnalysisComponent implements OnChanges {
       return;
     }
 
-    // Marcar como cargando
     this.addingToDictionary.add(point.id);
 
-    // Preparar datos para el diccionario
     const wordData = {
       word: word,
       meaning: `Palabra correcta: ${point.suggestion}. ${point.explanation}`,
@@ -224,11 +330,9 @@ export class ChatAnalysisComponent implements OnChanges {
     });
   }
 
-  // Extraer palabra principal de la sugerencia
   extractMainWord(suggestion: string): string | null {
     if (!suggestion) return null;
 
-    // Limpiar y tomar la primera palabra significativa
     const words = suggestion.split(' ');
     const meaningfulWords = words.filter(
       (word) =>
@@ -271,7 +375,6 @@ export class ChatAnalysisComponent implements OnChanges {
     return this.addingToDictionary.has(pointId);
   }
 
-  // Determinar si mostrar el botón de agregar al diccionario
   shouldShowAddToDictionaryButton(point: LanguageAnalysisPoint): boolean {
     return (
       point.category === 'vocabulary' && !this.isAddingToDictionary(point.id)
@@ -285,7 +388,6 @@ export class ChatAnalysisComponent implements OnChanges {
   ): void {
     this.successMessages.set(pointId, message);
 
-    // Limpiar mensaje después de 3 segundos
     setTimeout(() => {
       this.successMessages.delete(pointId);
     }, 3000);
@@ -351,5 +453,17 @@ export class ChatAnalysisComponent implements OnChanges {
     if (this.overallScore >= 70) return '👍';
     if (this.overallScore >= 50) return '💪';
     return '📚';
+  }
+
+  // Funciones del paywall
+  closePaywall(): void {
+    this.showPaywall = false;
+  }
+
+  upgradeToPremium(): void {
+    // Aquí integrarías con tu sistema de pagos (Stripe, PayPal, etc.)
+    console.log('Redirecting to payment...');
+    // Ejemplo: this.router.navigate(['/upgrade']);
+    // O abrir Stripe checkout, etc.
   }
 }
