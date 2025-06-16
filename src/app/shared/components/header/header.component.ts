@@ -65,20 +65,19 @@ export class HeaderComponent implements OnInit {
   closeUserMenu(): void {
     this.showUserMenu = false;
   }
-
-  logout(): void {
-    this.authService.logout().subscribe({
-      next: () => {
-        this.closeUserMenu();
-        this.router.navigate(['/auth']);
-      },
-      error: (err) => {
-        console.error('Logout failed:', err);
-        this.closeUserMenu();
-      },
-    });
+  
+  async logout(): Promise<void> {
+    try {
+      await this.authService.logout();
+      this.closeUserMenu();
+      this.router.navigate(['/auth']);
+    } catch (err) {
+      console.error('Logout failed:', err);
+      this.closeUserMenu();
+      // Opcional: navegar a auth de todas formas
+      this.router.navigate(['/auth']);
+    }
   }
-
   viewProfile(): void {
     this.closeUserMenu();
     console.log('View profile...');

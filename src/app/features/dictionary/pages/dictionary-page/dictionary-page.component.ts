@@ -491,19 +491,6 @@ export class DictionaryPageComponent implements OnInit, OnDestroy {
 
   onSelectWord(word: UserDictionaryEntry): void {
     this.selectedWord.set(word);
-
-    // Registrar visualización de palabra
-    this.dictionaryService.logWordUsage(word.id, 'view-details').subscribe({
-      next: () => {
-        // Actualizar contador de uso localmente
-        const updatedWord = {
-          ...word,
-          usage_count: (word.usage_count || 0) + 1,
-        };
-        this.handleWordUpdated(updatedWord);
-      },
-      error: (err) => console.error('Error logging word usage:', err),
-    });
   }
 
   onFilterChange(filter: 'all' | WordStatus): void {

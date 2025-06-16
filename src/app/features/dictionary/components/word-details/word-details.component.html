@@ -1,104 +1,127 @@
-<div
-  class="bg-white rounded-2xl shadow-2xl overflow-hidden w-full max-w-3xl mx-auto transform transition-all duration-300">
+<!-- word-details.component.html - VERSIÓN COMPACTA PARA MÓVIL -->
+<div class="bg-white rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden w-full max-w-2xl mx-auto">
 
-  <!-- Encabezado con gradiente -->
-  <div class="relative bg-gradient-to-br from-blue-600 to-indigo-600 p-6 text-white">
-    <!-- Fondo decorativo -->
-    <div class="absolute inset-0 bg-grid-pattern opacity-5"></div>
-    <div class="absolute top-2 right-2 w-20 h-20 bg-white/5 rounded-full blur-2xl animate-pulse-slow"></div>
-
-    <!-- Botón cerrar -->
+  <!-- Header -->
+  <div class="relative bg-gradient-to-r from-blue-600 to-indigo-600 p-4 text-white">
     <button (click)="back.emit()"
-      class="absolute top-4 right-4 w-8 h-8 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110">
+      class="absolute top-3 right-3 w-8 h-8 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all duration-200">
       <i class="fas fa-times text-white text-sm"></i>
     </button>
 
-    <!-- Contenido principal del header -->
-    <div class="relative z-10 flex items-center space-x-3">
-      <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-        <i class="fas fa-quote-left text-lg text-white"></i>
-      </div>
-      <div>
-        <h1 class="text-2xl font-bold capitalize">{{ word.word }}</h1>
-        <p class="text-blue-100 text-sm">{{ getWordType() }}</p>
+    <div class="pr-12">
+      <h1 class="text-xl font-bold capitalize mb-1">{{ word.word }}</h1>
+      <div class="flex items-center gap-2">
+        <span class="text-blue-100 text-sm">{{ getWordType() }}</span>
+        <span *ngIf="word.is_idiomatic" class="bg-blue-500 text-xs px-2 py-0.5 rounded-full">idiomática</span>
       </div>
     </div>
   </div>
 
-  <!-- Estadísticas -->
-  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 -mt-4 px-6 z-20 relative">
-    <!-- Usos -->
-    <div class="bg-indigo-50 p-3 rounded-xl text-center border border-indigo-200 hover:shadow-md">
-      <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center mx-auto mb-2">
-        <i class="fas fa-comments text-white text-xs"></i>
-      </div>
-      <div class="text-lg font-bold text-indigo-700">{{ word.usage_count || 0 }}</div>
-      <div class="text-xs text-indigo-600">Usos</div>
+  <!-- Stats compactas -->
+  <div class="grid grid-cols-2 gap-3 -mt-3 px-4 z-10 relative">
+    <div class="bg-blue-50 p-3 rounded-lg text-center border border-blue-200">
+      <div class="text-lg font-bold text-blue-600">{{ word.usage_count || 0 }}</div>
+      <div class="text-xs text-blue-600">Usos</div>
     </div>
 
-    <!-- Estado -->
     <div [ngClass]="word.status === 'active' ? 'bg-emerald-50 border-emerald-200' : 'bg-amber-50 border-amber-200'"
-      class="p-3 rounded-xl text-center border hover:shadow-md">
-      <div [ngClass]="word.status === 'active' ? 'bg-emerald-600' : 'bg-amber-600'"
-        class="w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-2">
-        <i class="text-white text-xs" [ngClass]="word.status === 'active' ? 'fas fa-check-circle' : 'fas fa-clock'"></i>
-      </div>
-      <div class="text-sm font-bold" [ngClass]="word.status === 'active' ? 'text-emerald-700' : 'text-amber-700'">
+      class="p-3 rounded-lg text-center border">
+      <div class="text-sm font-bold" [ngClass]="word.status === 'active' ? 'text-emerald-600' : 'text-amber-600'">
         {{ word.status === 'active' ? 'Activa' : 'Pasiva' }}
       </div>
-      <div class="text-xs" [ngClass]="word.status === 'active' ? 'text-emerald-600' : 'text-amber-600'">
-        Estado
-      </div>
-    </div>
-
-    <!-- Tipo -->
-    <div class="bg-orange-50 p-3 rounded-xl text-center border border-orange-200 hover:shadow-md">
-      <div class="w-8 h-8 bg-orange-600 rounded-lg flex items-center justify-center mx-auto mb-2">
-        <i class="fas fa-tag text-white text-xs"></i>
-      </div>
-      <div class="text-sm font-bold text-orange-700">{{ getWordTypeShort() }}</div>
-      <div class="text-xs text-orange-600">Tipo</div>
-    </div>
-
-    <!-- Dominio -->
-    <div class="bg-purple-50 p-3 rounded-xl text-center border border-purple-200 hover:shadow-md">
-      <div class="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center mx-auto mb-2">
-        <i class="fas fa-brain text-white text-xs"></i>
-      </div>
-      <div class="text-sm font-bold text-purple-700">{{ getMasteryPercentage() }}%</div>
-      <div class="text-xs text-purple-600">Dominio</div>
+      <div class="text-xs text-gray-500">Estado</div>
     </div>
   </div>
 
-  <!-- Contenido principal -->
-  <div class="p-6 space-y-6">
+  <!-- Contenido compacto -->
+  <div class="p-4 space-y-4">
 
     <!-- Significado -->
-    <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
-      <div class="flex items-center space-x-2 mb-3">
-        <div class="w-8 h-8 bg-slate-700 rounded-lg flex items-center justify-center">
-          <i class="fas fa-lightbulb text-white text-sm"></i>
-        </div>
-        <h3 class="text-lg font-bold text-gray-900">Significado</h3>
-      </div>
-      <p class="bg-white p-4 rounded-lg border-l-4 border-activlingo-primary text-gray-700">
+    <div>
+      <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Significado</h3>
+      <p class="text-gray-800 leading-relaxed bg-gray-50 p-3 rounded-lg border-l-4 border-blue-500">
         {{ word.meaning }}
       </p>
     </div>
 
-    <!-- Ejemplo -->
-    <div class="bg-emerald-50 rounded-xl p-4 border border-emerald-200">
-      <div class="flex items-center space-x-2 mb-3">
-        <div class="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
-          <i class="fas fa-quote-right text-white text-sm"></i>
-        </div>
-        <h3 class="text-lg font-bold text-gray-900">Ejemplo de uso</h3>
-      </div>
-      <p class="bg-white p-4 rounded-lg border-l-4 border-emerald-500 italic text-gray-700">
-        "{{ getExampleSentence() }}"
+    <!-- Ejemplo (solo si existe) -->
+    <div *ngIf="word.example">
+      <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Ejemplo</h3>
+      <p class="text-gray-700 italic leading-relaxed bg-emerald-50 p-3 rounded-lg border-l-4 border-emerald-500">
+        "{{ word.example }}"
       </p>
     </div>
 
-  
+    <!-- Sinónimos compactos -->
+    <div *ngIf="getSynonyms().length > 0">
+      <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Sinónimos</h3>
+      <div class="flex flex-wrap gap-1.5">
+        <span *ngFor="let synonym of getSynonyms()"
+          class="px-2 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-medium">
+          {{ synonym }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Contexto específico (solo si no es general) -->
+    <div *ngIf="word.usage_context && word.usage_context !== 'general'"
+      class="bg-blue-50 p-3 rounded-lg border border-blue-200">
+      <div class="text-xs text-blue-600 uppercase tracking-wide font-medium">Contexto: {{ getContextLabel() }}</div>
+    </div>
+
+    <!-- Mis Notas compactas -->
+    <div>
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Mis notas</h3>
+        <button (click)="toggleEditNotes()" [disabled]="isUpdating"
+          class="text-blue-500 hover:text-blue-600 text-sm font-medium disabled:opacity-50">
+          {{ isEditingNotes ? 'Guardar' : 'Editar' }}
+        </button>
+      </div>
+
+      <div *ngIf="!isEditingNotes"
+        class="bg-yellow-50 p-3 rounded-lg border-l-4 border-yellow-400 min-h-[60px] flex items-center">
+        <p class="text-gray-700 text-sm leading-relaxed" [class.text-gray-400]="!word.personal_notes?.trim()"
+          [class.italic]="!word.personal_notes?.trim()">
+          {{ word.personal_notes?.trim() || 'Agrega notas personales...' }}
+        </p>
+      </div>
+
+      <div *ngIf="isEditingNotes">
+        <textarea [(ngModel)]="editingNotes" placeholder="Tus notas sobre esta palabra..."
+          class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none text-sm"
+          rows="3"></textarea>
+      </div>
+    </div>
+
+    <!-- Sugerencia compacta -->
+    <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-3 rounded-lg border border-purple-200">
+      <div class="flex items-start gap-2">
+        <div class="w-6 h-6 bg-purple-600 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+          <i class="fas fa-lightbulb text-white text-xs"></i>
+        </div>
+        <div>
+          <h4 class="font-semibold text-gray-800 text-sm mb-1">Sugerencia</h4>
+          <p class="text-gray-700 text-xs leading-relaxed">{{ getSmartRecommendation() }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Solo botón eliminar - compacto -->
+    <div class="flex justify-center pt-3 border-t border-gray-100">
+      <button (click)="onDelete()" [disabled]="isUpdating"
+        class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 flex items-center gap-2 text-sm">
+        <i class="fas fa-trash text-xs"></i>
+        <span>Eliminar</span>
+      </button>
+    </div>
+
+    <!-- Loading indicator compacto -->
+    <div *ngIf="isUpdating" class="flex items-center justify-center py-2">
+      <div class="flex items-center gap-2 text-blue-600">
+        <div class="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        <span class="text-xs">Guardando...</span>
+      </div>
+    </div>
   </div>
 </div>

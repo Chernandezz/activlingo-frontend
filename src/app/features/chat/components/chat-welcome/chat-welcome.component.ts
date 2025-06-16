@@ -38,6 +38,7 @@ interface Scenario {
 })
 export class ChatWelcomeComponent {
   @Output() startChat = new EventEmitter<{ role: string; context: string }>();
+  @Output() openChatsPanel = new EventEmitter<void>(); // ← NUEVO OUTPUT
 
   faSearch = faSearch;
 
@@ -253,6 +254,11 @@ export class ChatWelcomeComponent {
       role: scenario.title,
       context: scenario.context,
     });
+  }
+
+  // ← NUEVO MÉTODO
+  openChats(): void {
+    this.openChatsPanel.emit();
   }
 
   getCategoryColor(category: string): string {

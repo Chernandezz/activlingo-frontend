@@ -27,20 +27,24 @@
   <!-- Main Content -->
   <div class="flex-grow flex flex-col h-full overflow-hidden bg-white shadow-sm rounded-l-2xl">
 
-    <!-- Chat Header mejorado -->
+    <!-- Chat Header - SOLO cuando hay chat -->
     <div *ngIf="currentChat$ | async"
       class="flex-shrink-0 bg-white/95 backdrop-blur-sm border-b border-gray-200/50 px-6 py-4">
       <div class="flex items-center justify-between">
 
         <!-- Info del chat actual -->
         <div class="flex items-center gap-4">
-          <!-- Botón sidebar móvil integrado -->
+          <!-- Botón sidebar móvil -->
           <button (click)="ui.toggleSidebar()"
             class="md:hidden p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200">
-            <i class="fas fa-bars text-lg"></i>
+            <button (click)="ui.toggleSidebar()"
+              class="md:hidden p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200"
+              title="Ver chats">
+              <i class="fas fa-comments text-lg"></i>
+            </button>
           </button>
 
-          <div class=" hidden sm:block">
+          <div class="hidden sm:block">
             <div class="flex items-center gap-3">
               <!-- Avatar del chat -->
               <div
@@ -48,7 +52,7 @@
                 <i class="fas fa-comments text-white"></i>
               </div>
 
-              <!-- Info del chat - oculta en móvil -->
+              <!-- Info del chat -->
               <div>
                 <h2 class="text-lg font-semibold text-gray-900 capitalize">{{ (currentChat$ | async)?.title }}</h2>
                 <p class="text-sm text-gray-500">Práctica de conversación en inglés</p>
@@ -74,21 +78,6 @@
             <i class="fas fa-times"></i>
           </button>
         </div>
-      </div>
-    </div>
-
-    <!-- Header móvil cuando no hay chat -->
-    <div *ngIf="!(currentChat$ | async)"
-      class="md:hidden flex-shrink-0 bg-white/95 backdrop-blur-sm border-b border-gray-200/50 px-4 py-3">
-      <div class="flex items-center justify-between">
-        <button (click)="ui.toggleSidebar()"
-          class="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200">
-          <i class="fas fa-bars text-lg"></i>
-        </button>
-        <h1 class="text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-          Activlingo
-        </h1>
-        <div class="w-9"></div> <!-- Spacer -->
       </div>
     </div>
 
@@ -142,7 +131,7 @@
           (sendVoice)="handleAudioRecording($event)" (startRecording)="handleManualRecording()">
         </app-conversation-overlay>
 
-        <!-- Chat Input mejorado -->
+        <!-- Chat Input -->
         <div class="flex-shrink-0 bg-white border-t border-gray-200/50 p-4 sm:p-6">
           <app-chat-input [message]="message" [isRecording]="isRecording" [isProcessing]="isProcessing"
             [recordingDuration]="recordingDuration" (messageChange)="message = $event"
@@ -156,9 +145,10 @@
         <app-chat-analysis [chatId]="chatForAnalysis.id" class="min-h-full"></app-chat-analysis>
       </div>
 
-      <!-- Welcome View with Scenarios -->
+      <!-- Welcome View - SIN header móvil redundante -->
       <div *ngIf="!(currentChat$ | async)" class="flex-grow overflow-hidden">
-        <app-chat-welcome (startChat)="handleStartNewChat($event)"></app-chat-welcome>
+        <app-chat-welcome (startChat)="handleStartNewChat($event)" (openChatsPanel)="ui.toggleSidebar()">
+        </app-chat-welcome>
       </div>
     </div>
 
