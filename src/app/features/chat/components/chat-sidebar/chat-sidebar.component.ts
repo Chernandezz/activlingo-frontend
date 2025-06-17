@@ -1,4 +1,10 @@
-import { Component, Input, Output, EventEmitter, HostListener } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  HostListener,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Chat } from '../../../../core/models/chat.model';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -8,18 +14,18 @@ import {
   faTrashAlt,
   faEllipsisVertical,
 } from '@fortawesome/free-solid-svg-icons';
-import { ChatModalComponent } from '../chat-modal/chat-modal.component';
 
 @Component({
   selector: 'app-chat-sidebar',
   standalone: true,
-  imports: [CommonModule, FontAwesomeModule, ChatModalComponent],
+  imports: [CommonModule, FontAwesomeModule], // SIN el modal component
   templateUrl: './chat-sidebar.component.html',
 })
 export class ChatSidebarComponent {
   faTimes = faTimes;
   faSpinner = faSpinner;
   faTrashAlt = faTrashAlt;
+  faEllipsisVertical = faEllipsisVertical;
 
   @Input() chats: Chat[] = [];
   @Input() currentChatId: string | null = null;
@@ -31,9 +37,12 @@ export class ChatSidebarComponent {
   @Output() select = new EventEmitter<string>();
   @Output() startChat = new EventEmitter<{ role: string; context: string }>();
   @Output() toggleAI = new EventEmitter<void>();
-  @Output() openModal = new EventEmitter<void>();
+  @Output() openModal = new EventEmitter<void>(); // SOLO ESTE
   @Output() closeModal = new EventEmitter<void>();
   @Output() deleteChat = new EventEmitter<string>();
+
+  // almacena qué menú está abierto
+  openMenuId: string | null = null;
 
   getRelativeTime(dateString: string): string {
     const date = new Date(dateString);
@@ -54,11 +63,6 @@ export class ChatSidebarComponent {
     return chat.id;
   }
 
-  faEllipsisVertical = faEllipsisVertical;
-
-  // almacena qué menú está abierto
-  openMenuId: string | null = null;
-
   toggleMenu(chatId: string, event: MouseEvent) {
     event.stopPropagation();
     this.openMenuId = this.openMenuId === chatId ? null : chatId;
@@ -67,6 +71,7 @@ export class ChatSidebarComponent {
   closeMenu() {
     this.openMenuId = null;
   }
+
   @HostListener('document:click')
   onDocumentClick() {
     this.openMenuId = null;

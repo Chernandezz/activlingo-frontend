@@ -1,0 +1,161 @@
+<!-- Backdrop con animación -->
+<div
+  class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-3 sm:p-4 animate-fade-in overflow-y-auto">
+
+  <!-- Modal Container - Responsive -->
+  <div
+    class="bg-white rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-sm sm:max-w-md lg:max-w-lg transform animate-scale-in border border-gray-100 overflow-hidden my-4 max-h-[95vh] flex flex-col"
+    [class.pointer-events-none]="isCreatingChat">
+
+    <!-- Loading Overlay -->
+    <div *ngIf="isCreatingChat"
+      class="absolute inset-0 bg-white/90 backdrop-blur-sm z-50 flex items-center justify-center">
+      <div class="text-center">
+        <div
+          class="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+          <i class="fas fa-magic text-white text-lg animate-pulse"></i>
+        </div>
+        <div class="flex items-center justify-center gap-2 mb-2">
+          <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+          <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+          <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-1">Creando conversación...</h3>
+        <p class="text-sm text-gray-600">Preparando tu escenario de práctica</p>
+      </div>
+    </div>
+
+    <!-- Header compacto -->
+    <div class="relative bg-gradient-to-r from-blue-600 to-indigo-600 px-4 sm:px-6 py-4 sm:py-5 flex-shrink-0">
+      <div class="absolute inset-0 bg-black/5"></div>
+      <div class="relative flex justify-between items-center">
+        <div class="flex items-center gap-2 sm:gap-3">
+          <div
+            class="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center backdrop-blur-sm">
+            <i class="fa-solid fa-comments text-white text-sm sm:text-lg"></i>
+          </div>
+          <div>
+            <h2 class="text-lg sm:text-xl font-bold text-white">Nueva Conversación</h2>
+            <p class="text-blue-100 text-xs sm:text-sm">Crea tu escenario</p>
+          </div>
+        </div>
+
+        <button (click)="close()" [disabled]="isCreatingChat"
+          class="w-7 h-7 sm:w-8 sm:h-8 bg-white/20 hover:bg-white/30 rounded-lg flex items-center justify-center transition-all duration-200 backdrop-blur-sm group disabled:opacity-50 disabled:cursor-not-allowed">
+          <i class="fas fa-times text-white text-xs sm:text-sm group-hover:scale-110 transition-transform"></i>
+        </button>
+      </div>
+
+      <!-- Decoración reducida -->
+      <div
+        class="absolute top-0 right-0 w-20 h-20 sm:w-32 sm:h-32 bg-white/5 rounded-full -translate-y-10 translate-x-10 sm:-translate-y-16 sm:translate-x-16">
+      </div>
+    </div>
+
+    <!-- Content con scroll -->
+    <div class="flex-1 overflow-y-auto custom-scrollbar" [class.opacity-50]="isCreatingChat">
+      <div class="p-4 sm:p-6 space-y-4 sm:space-y-6">
+
+        <!-- Personaje Section -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <i class="fas fa-user text-blue-600 text-sm"></i>
+              <label class="text-xs sm:text-sm font-semibold text-gray-800">¿Con quién conversarás?</label>
+            </div>
+            <button (click)="generateRandomRole()" [disabled]="isCreatingChat"
+              class="group flex items-center gap-1.5 bg-gradient-to-r from-emerald-50 to-green-50 hover:from-emerald-100 hover:to-green-100 text-emerald-700 text-xs px-2.5 py-1.5 rounded-lg font-medium transition-all duration-200 border border-emerald-200 hover:border-emerald-300 disabled:opacity-50 disabled:cursor-not-allowed">
+              <i class="fas fa-dice group-hover:rotate-180 transition-transform duration-300 text-xs"></i>
+              <span class="hidden sm:inline">Sorpréndeme</span>
+              <span class="sm:hidden">Aleatorio</span>
+            </button>
+          </div>
+
+          <div class="relative">
+            <input [(ngModel)]="role" [disabled]="isCreatingChat"
+              class="w-full px-3 py-2.5 sm:px-4 sm:py-3 border-2 border-gray-200 rounded-lg sm:rounded-xl text-xs sm:text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 sm:focus:ring-4 focus:ring-blue-500/10 transition-all duration-200 bg-gray-50/50 hover:bg-white focus:bg-white disabled:opacity-50 disabled:cursor-not-allowed"
+              placeholder="Ej: Un taxista, un astronauta..." />
+          </div>
+        </div>
+
+        <!-- Escenario Section -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <i class="fas fa-map-marker-alt text-purple-600 text-sm"></i>
+              <label class="text-xs sm:text-sm font-semibold text-gray-800">¿Cuál es el escenario?</label>
+            </div>
+            <button (click)="generateRandomContext()" [disabled]="isCreatingChat"
+              class="group flex items-center gap-1.5 bg-gradient-to-r from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 text-purple-700 text-xs px-2.5 py-1.5 rounded-lg font-medium transition-all duration-200 border border-purple-200 hover:border-purple-300 disabled:opacity-50 disabled:cursor-not-allowed">
+              <i class="fas fa-magic group-hover:scale-110 transition-transform duration-300 text-xs"></i>
+              <span class="hidden sm:inline">Crear escena</span>
+              <span class="sm:hidden">Crear</span>
+            </button>
+          </div>
+
+          <div class="relative">
+            <textarea [(ngModel)]="context" rows="3" [disabled]="isCreatingChat"
+              class="w-full px-3 py-2.5 sm:px-4 sm:py-3 border-2 border-gray-200 rounded-lg sm:rounded-xl text-xs sm:text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:border-purple-500 focus:ring-2 sm:focus:ring-4 focus:ring-purple-500/10 transition-all duration-200 resize-none bg-gray-50/50 hover:bg-white focus:bg-white custom-scrollbar disabled:opacity-50 disabled:cursor-not-allowed"
+              placeholder="Describe la situación..."></textarea>
+
+            <!-- Contador de caracteres -->
+            <div class="absolute bottom-2 right-2 text-xs text-gray-400">
+              {{ context.length }}/500
+            </div>
+          </div>
+
+          <!-- Sugerencias de contexto - compactas -->
+          <div class="space-y-1.5">
+            <button *ngFor="let suggestion of contextSuggestions.slice(0, 2)" (click)="context = suggestion"
+              [disabled]="isCreatingChat"
+              class="w-full text-left text-xs px-3 py-2 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg transition-colors duration-200 border border-purple-200 hover:border-purple-300 line-clamp-2 disabled:opacity-50 disabled:cursor-not-allowed">
+              {{ suggestion }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Tip creativo - compacto -->
+        <div
+          class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg sm:rounded-xl p-3 sm:p-4">
+          <div class="flex items-start gap-2 sm:gap-3">
+            <div
+              class="w-5 h-5 sm:w-6 sm:h-6 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+              <i class="fas fa-rocket text-amber-600 text-xs sm:text-sm"></i>
+            </div>
+            <div>
+              <h4 class="text-xs sm:text-sm font-semibold text-amber-800 mb-1">💡 Tip creativo</h4>
+              <p class="text-xs text-amber-700 leading-relaxed">
+                Sé específico. En lugar de "en un restaurante", prueba "estoy en un restaurante japonés sin sushi".
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer fijo -->
+    <div class="flex-shrink-0 px-4 sm:px-6 pb-4 sm:pb-6 flex gap-2 sm:gap-3 bg-white border-t border-gray-100"
+      [class.opacity-50]="isCreatingChat">
+      <button (click)="close()" [disabled]="isCreatingChat"
+        class="flex-1 px-3 py-2.5 sm:px-4 sm:py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg sm:rounded-xl transition-all duration-200 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed">
+        Cancelar
+      </button>
+
+      <button (click)="submit()" [disabled]="!canSubmit()"
+        [class]="canSubmit() 
+          ? 'flex-1 px-3 py-2.5 sm:px-4 sm:py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-lg sm:rounded-xl transition-all duration-200 hover:shadow-lg' 
+          : 'flex-1 px-3 py-2.5 sm:px-4 sm:py-3 bg-gray-300 text-gray-500 font-semibold rounded-lg sm:rounded-xl cursor-not-allowed'">
+        <span class="flex items-center justify-center gap-1.5 text-sm sm:text-base" *ngIf="!isCreatingChat">
+          <i class="fas fa-rocket text-xs sm:text-sm"></i>
+          <span class="hidden sm:inline">Iniciar Conversación</span>
+          <span class="sm:hidden">Iniciar</span>
+        </span>
+        <span class="flex items-center justify-center gap-1.5 text-sm sm:text-base" *ngIf="isCreatingChat">
+          <i class="fas fa-spinner animate-spin text-xs sm:text-sm"></i>
+          <span class="hidden sm:inline">Creando...</span>
+          <span class="sm:hidden">Creando...</span>
+        </span>
+      </button>
+    </div>
+  </div>
+</div>

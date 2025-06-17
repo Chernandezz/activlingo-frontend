@@ -1,6 +1,10 @@
 <app-onboarding-welcome-overlay *ngIf="showOnboarding" (startFreeTrial)="handleStartFreeTrial()">
 </app-onboarding-welcome-overlay>
 
+<app-conversation-creator-modal *ngIf="showModal" [isCreatingChat]="isCreatingChat" (cancel)="closeModal()"
+  (start)="handleStartNewChat($event)">
+</app-conversation-creator-modal>
+
 <div class="flex h-full bg-gray-50/30">
   <!-- Sidebar Desktop - siempre visible -->
   <div class="hidden lg:flex w-[25rem] flex-shrink-0 h-full">
@@ -8,7 +12,8 @@
       [hideAIResponses]="(hideAIResponses$ | async) ?? false" [isCreatingChat]="isCreatingChat" [showModal]="showModal"
       (toggleSidebar)="ui.toggleSidebar()" (select)="handleSelectChat($event)" (startChat)="handleStartNewChat($event)"
       (toggleAI)="ui.toggleHideAIResponses()" (deleteChat)="handleDeleteChat($event)" (openModal)="openModal()"
-      (closeModal)="closeModal()" class="w-full h-full"></app-chat-sidebar>
+      (closeModal)="closeModal()" class="w-full h-full">
+    </app-chat-sidebar>
   </div>
 
   <!-- Sidebar Mobile - siempre disponible -->
@@ -18,8 +23,8 @@
         [hideAIResponses]="(hideAIResponses$ | async) ?? false" [isCreatingChat]="isCreatingChat"
         [showModal]="showModal" (toggleSidebar)="ui.toggleSidebar()" (select)="handleSelectChat($event)"
         (startChat)="handleStartNewChat($event)" (deleteChat)="handleDeleteChat($event)"
-        (toggleAI)="ui.toggleHideAIResponses()" (openModal)="openModal()"
-        (closeModal)="closeModal()"></app-chat-sidebar>
+        (toggleAI)="ui.toggleHideAIResponses()" (openModal)="openModal()" (closeModal)="closeModal()">
+      </app-chat-sidebar>
     </div>
     <div class="flex-1 bg-black/30" (click)="ui.closeSidebar()"></div>
   </div>
@@ -34,14 +39,11 @@
 
         <!-- Info del chat actual -->
         <div class="flex items-center gap-4">
-          <!-- Botón sidebar móvil -->
+          <!-- Botón sidebar móvil (corregido - botón duplicado) -->
           <button (click)="ui.toggleSidebar()"
-            class="md:hidden p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200">
-            <button (click)="ui.toggleSidebar()"
-              class="md:hidden p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200"
-              title="Ver chats">
-              <i class="fas fa-comments text-lg"></i>
-            </button>
+            class="md:hidden p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200"
+            title="Ver chats">
+            <i class="fas fa-comments text-lg"></i>
           </button>
 
           <div class="hidden sm:block">

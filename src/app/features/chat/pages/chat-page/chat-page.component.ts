@@ -23,7 +23,8 @@ import { ChatMessageComponent } from '../../components/chat-message/chat-message
 import { ChatInputComponent } from '../../components/chat-input/chat-input.component';
 import { ChatAnalysisComponent } from '../../../analysis/components/chat-analysis/chat-analysis.component';
 import { ConversationOverlayComponent } from '../../components/conversation-overlay/conversation-overlay.component';
-import { ChatWelcomeComponent } from '../../components/chat-welcome/chat-welcome.component'; // Nuevo import
+import { ChatWelcomeComponent } from '../../components/chat-welcome/chat-welcome.component';
+import { ConversationCreatorModalComponent } from '../../components/chat-modal/conversation-creator-modal.component';
 import { Task } from '../../../../core/models/task';
 import { TaskService } from '../../services/tasks.service';
 import { AudioRecorderService } from '../../services/audio-recorder.service';
@@ -35,12 +36,13 @@ import { UserService } from '../../../../core/services/user.service';
   imports: [
     CommonModule,
     ChatSidebarComponent,
+    ConversationCreatorModalComponent, // AGREGADO
     ChatMessageComponent,
     ChatInputComponent,
     ChatAnalysisComponent,
     ConversationOverlayComponent,
     OnboardingWelcomeOverlayComponent,
-    ChatWelcomeComponent, // Añadido el nuevo componente
+    ChatWelcomeComponent,
     FontAwesomeModule,
   ],
   templateUrl: './chat-page.component.html',
@@ -56,13 +58,13 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
   hideAIResponses$: Observable<boolean>;
   chatForAnalysis: Chat | null = null;
   tasks$: Observable<Task[]>;
-  showOnboarding = false; // Para mostrar el overlay de bienvenida
+  showOnboarding = false;
 
   // Estado UI
   currentChatId: string | null = null;
   isSidebarOpen = false;
   isCreatingChat = false;
-  showModal = false;
+  showModal = false; // LA PRINCIPAL PARA EL MODAL
   showAnalysis = false;
   isLoading = false;
   isRecordingManual = false;
@@ -76,8 +78,6 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
   tasksList: { description: string; completed: boolean }[] = [];
 
   private subscriptions = new Subscription();
-
-  
 
   constructor(
     private chatService: ChatService,
@@ -149,9 +149,7 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     if (currentChat) {
       this.isLoading = true;
       this.messageService.sendMessage(currentChat.id, content);
-
       this.chatService.bumpChatToTop(currentChat.id);
-
       setTimeout(() => (this.isLoading = false), 2000);
     }
   }
@@ -164,7 +162,6 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
           .filter((c) => c.id !== chatId);
         this.chatService.setChats(updatedChats);
 
-        // Limpiar el chat actual si era el eliminado
         if (this.chatService.getCurrentChatValue()?.id === chatId) {
           this.chatService.setCurrentChat(null);
         }
@@ -177,7 +174,6 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     if (!currentChat) return Promise.resolve();
 
     this.isLoading = true;
-    // Llamamos a la versión que "espera" la respuesta de la IA
     return this.messageService
       .sendVoiceMessageAndWait(currentChat.id, audioBlob)
       .then(() => {
@@ -189,10 +185,8 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
       });
   }
 
-  // chat-page.component.ts (fragmento ajustado)
   async handleManualRecording(): Promise<void> {
     if (!this.isRecordingManual) {
-      // 1) Usuario inicia grabación
       this.isRecordingManual = true;
       this.isProcessing = false;
       this.overlayMessage = 'Grabando... presiona de nuevo para detener';
@@ -201,21 +195,17 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
         await this.audioRecorder.startRecording();
       }, 300);
     } else {
-      // 2) Usuario detiene grabación
       this.isRecordingManual = false;
       this.isProcessing = true;
       this.overlayMessage = 'Procesando...';
 
       const currentChat = this.chatService.getCurrentChatValue();
-
-      // Detener la grabación y obtener el blob
       const audioBlob = await this.audioRecorder.stopRecording();
       if (audioBlob && currentChat) {
         await this.handleAudioRecording(audioBlob);
         this.chatService.bumpChatToTop(currentChat.id);
       }
 
-      // Ahora que la IA ya respondió, reestablecemos el flag
       this.isProcessing = false;
       this.overlayMessage = 'Tu turno. Estamos escuchando...';
     }
@@ -242,14 +232,23 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
           }
 
           this.isCreatingChat = false;
-          this.showModal = false;
+          this.showModal = false; // CERRAR MODAL
           this.ui.closeSidebar();
         },
         error: () => {
           this.isCreatingChat = false;
-          this.showModal = false;
+          this.showModal = false; // CERRAR MODAL
         },
       });
+  }
+
+  // MÉTODOS LIMPIOS PARA EL MODAL
+  openModal(): void {
+    this.showModal = true;
+  }
+
+  closeModal(): void {
+    this.showModal = false;
   }
 
   toggleAnalysisView(): void {
@@ -275,14 +274,6 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     this.isNaturalMode = !this.isNaturalMode;
   }
 
-  openModal(): void {
-    this.showModal = true;
-  }
-
-  closeModal(): void {
-    this.showModal = false;
-  }
-
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
   }
@@ -290,8 +281,6 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
   trackByMessage(index: number, message: Message): string {
     return message.id;
   }
-
-  
 
   handleStartFreeTrial(): void {
     this.userService.markOnboardingSeen().subscribe({
