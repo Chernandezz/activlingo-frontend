@@ -35,350 +35,333 @@ export class ChatWelcomeComponent {
   ];
 
   scenarios: Scenario[] = [
-    // Vida Real - Día a día
-    {
-      id: 'taxi-nyc',
-      title: 'Taxi en Nueva York',
-      description:
-        'Te subes a un taxi en Manhattan y necesitas llegar a tu destino. Practica dando direcciones y conversando con el conductor.',
-      context:
-        'Me acabo de subir a un taxi amarillo en Nueva York. El conductor es amigable y quiere charlar mientras me lleva a mi destino.',
-      icon: 'fas fa-taxi',
-      category: 'real-life',
-      difficulty: 'beginner',
-      tags: ['transporte', 'direcciones', 'ciudad', 'conversación'],
-    },
+    // DAILY - Día a día
     {
       id: 'restaurant-order',
       title: 'Ordenar en un Restaurante',
       description:
-        'Estás en un restaurante elegante y necesitas hacer tu pedido. Practica hablando con el mesero y haciendo preguntas sobre el menú.',
+        'Estás en un restaurante elegante y necesitas hacer tu pedido.',
       context:
         'Estoy en un restaurante elegante para cenar. El mesero está atento y listo para tomar mi pedido.',
       icon: 'fas fa-utensils',
       category: 'daily',
       difficulty: 'beginner',
-      tags: ['comida', 'restaurante', 'pedido', 'mesero'],
-    },
-    {
-      id: 'airport-checkin',
-      title: 'Check-in en el Aeropuerto',
-      description:
-        'Llegas al aeropuerto y necesitas hacer check-in para tu vuelo. Habla con el agente sobre tu equipaje y preferencias de asiento.',
-      context:
-        'Estoy en el mostrador del aeropuerto haciendo check-in para mi vuelo internacional. El agente necesita verificar mi información y ayudarme con la selección de asiento.',
-      icon: 'fas fa-plane',
-      category: 'real-life',
-      difficulty: 'intermediate',
-      tags: ['viaje', 'aeropuerto', 'vuelo', 'equipaje'],
+      tags: ['comida', 'restaurante', 'pedido'],
     },
     {
       id: 'grocery-shopping',
       title: 'Compras en el Supermercado',
-      description:
-        'Estás haciendo compras y no encuentras varios productos. Pregunta a los empleados y conversa con otros compradores.',
+      description: 'Estás haciendo compras y no encuentras varios productos.',
       context:
-        'Estoy haciendo compras en el supermercado y necesito ayuda para encontrar varios productos específicos en mi lista.',
+        'Estoy haciendo compras en el supermercado y necesito ayuda para encontrar productos específicos.',
       icon: 'fas fa-store',
       category: 'daily',
       difficulty: 'beginner',
-      tags: ['compras', 'supermercado', 'productos', 'ayuda'],
+      tags: ['compras', 'supermercado', 'productos'],
     },
     {
       id: 'coffee-shop',
       title: 'Cafetería de Especialidad',
       description:
-        'Entras a una cafetería nueva y el barista te quiere explicar sus diferentes tipos de café. Aprende sobre los granos y métodos.',
+        'Entras a una cafetería nueva y el barista te explica los diferentes cafés.',
       context:
-        'Estoy en una cafetería especializada y el barista experto quiere enseñarme sobre los diferentes tipos de café y métodos de preparación.',
+        'Estoy en una cafetería especializada y el barista quiere enseñarme sobre diferentes tipos de café.',
       icon: 'fas fa-coffee',
       category: 'daily',
       difficulty: 'intermediate',
-      tags: ['café', 'barista', 'especialidad', 'cultura'],
+      tags: ['café', 'barista', 'especialidad'],
     },
     {
-      id: 'hotel-checkin',
-      title: 'Hotel Check-in',
+      id: 'gym-session',
+      title: 'Primera Sesión en el Gimnasio',
       description:
-        'Llegas a tu hotel después de un largo viaje y hay un problema con tu reservación. Resuelve la situación con el recepcionista.',
+        'Es tu primer día en un gimnasio nuevo y necesitas orientación.',
       context:
-        'Acabo de llegar al hotel después de un largo vuelo, pero parece que hay un problema con mi reservación.',
-      icon: 'fas fa-bed',
-      category: 'real-life',
-      difficulty: 'intermediate',
-      tags: ['hotel', 'reservación', 'viaje', 'problema'],
-    },
-    {
-      id: 'gym-trainer',
-      title: 'Entrenador Personal',
-      description:
-        'Es tu primera sesión con un entrenador personal. Discute tus objetivos de fitness y aprende sobre ejercicios.',
-      context:
-        'Es mi primera sesión con un entrenador personal en el gimnasio. Quiero discutir mis objetivos de fitness y crear un plan de entrenamiento.',
+        'Es mi primer día en el gimnasio y necesito que me expliquen cómo usar las máquinas y el horario.',
       icon: 'fas fa-dumbbell',
       category: 'daily',
       difficulty: 'beginner',
-      tags: ['ejercicio', 'fitness', 'entrenador', 'salud'],
+      tags: ['ejercicio', 'gimnasio', 'salud'],
+    },
+    {
+      id: 'roommate-interview',
+      title: 'Entrevista para Compañero de Cuarto',
+      description: 'Estás entrevistando a un posible compañero de cuarto.',
+      context:
+        'Tengo una cita para conocer a un posible compañero de cuarto y discutir hábitos de convivencia.',
+      icon: 'fas fa-home',
+      category: 'daily',
+      difficulty: 'beginner',
+      tags: ['vivienda', 'entrevista', 'convivencia'],
+    },
+    {
+      id: 'dating-conversation',
+      title: 'Primera Cita',
+      description:
+        'Estás en una primera cita y quieres causar buena impresión.',
+      context:
+        'Estoy en una primera cita en un café y quiero conocer mejor a la persona.',
+      icon: 'fas fa-heart',
+      category: 'daily',
+      difficulty: 'intermediate',
+      tags: ['cita', 'romance', 'conversación'],
+    },
+
+    // REAL-LIFE - Vida real
+    {
+      id: 'taxi-nyc',
+      title: 'Taxi en Nueva York',
+      description:
+        'Te subes a un taxi en Manhattan y necesitas llegar a tu destino.',
+      context:
+        'Me acabo de subir a un taxi amarillo en Nueva York. El conductor es amigable y quiere charlar mientras me lleva a mi destino.',
+      icon: 'fas fa-taxi',
+      category: 'real-life',
+      difficulty: 'beginner',
+      tags: ['transporte', 'direcciones', 'ciudad'],
+    },
+    {
+      id: 'airport-checkin',
+      title: 'Check-in en el Aeropuerto',
+      description:
+        'Llegas al aeropuerto y necesitas hacer check-in para tu vuelo.',
+      context:
+        'Estoy en el mostrador del aeropuerto haciendo check-in para mi vuelo internacional.',
+      icon: 'fas fa-plane',
+      category: 'real-life',
+      difficulty: 'intermediate',
+      tags: ['viaje', 'aeropuerto', 'vuelo'],
+    },
+    {
+      id: 'doctor-visit',
+      title: 'Consulta Médica',
+      description: 'No te sientes bien y vas al médico.',
+      context:
+        'No me siento bien y vengo a ver al médico. Necesito describir mis síntomas.',
+      icon: 'fas fa-stethoscope',
+      category: 'real-life',
+      difficulty: 'intermediate',
+      tags: ['salud', 'médico', 'síntomas'],
     },
     {
       id: 'bank-account',
       title: 'Abrir Cuenta Bancaria',
-      description:
-        'Visitas el banco para abrir tu primera cuenta en el extranjero. Entiende los requisitos y tipos de cuenta disponibles.',
+      description: 'Visitas el banco para abrir una cuenta nueva.',
       context:
-        'Estoy en el banco para abrir mi primera cuenta corriente en este país. Necesito entender los requisitos y opciones disponibles.',
+        'Estoy en el banco para abrir mi primera cuenta en este país y necesito entender los requisitos.',
       icon: 'fas fa-university',
       category: 'real-life',
       difficulty: 'intermediate',
-      tags: ['banco', 'cuenta', 'finanzas', 'documentos'],
+      tags: ['banco', 'finanzas', 'documentos'],
+    },
+    {
+      id: 'hotel-checkin',
+      title: 'Check-in en Hotel',
+      description: 'Llegas al hotel pero hay un problema con tu reservación.',
+      context:
+        'Acabo de llegar al hotel después de un largo viaje, pero hay un problema con mi reservación.',
+      icon: 'fas fa-bed',
+      category: 'real-life',
+      difficulty: 'intermediate',
+      tags: ['hotel', 'viaje', 'reservación'],
+    },
+    {
+      id: 'pharmacy-visit',
+      title: 'Comprar Medicamentos',
+      description: 'Necesitas medicamentos pero tienes dudas sobre la receta.',
+      context:
+        'Estoy en la farmacia con una receta médica pero tengo dudas sobre las instrucciones.',
+      icon: 'fas fa-pills',
+      category: 'real-life',
+      difficulty: 'beginner',
+      tags: ['farmacia', 'medicamentos', 'salud'],
     },
 
-    // Profesional
-    {
-      id: 'university-inquiry',
-      title: 'Consulta Universitaria',
-      description:
-        'Visitas una universidad y necesitas información sobre programas de estudio. Habla con el consejero académico.',
-      context:
-        'Estoy visitando una universidad y tengo una cita con un consejero académico para aprender sobre programas de maestría.',
-      icon: 'fas fa-graduation-cap',
-      category: 'professional',
-      difficulty: 'intermediate',
-      tags: ['educación', 'universidad', 'programa', 'requisitos'],
-    },
+    // PROFESSIONAL - Profesional
     {
       id: 'job-interview',
       title: 'Entrevista de Trabajo',
-      description:
-        'Tienes una entrevista para el trabajo de tus sueños. Responde preguntas sobre tu experiencia y demuestra tu valor.',
+      description: 'Tienes una entrevista para el trabajo de tus sueños.',
       context:
-        'Tengo una entrevista de trabajo para una posición que realmente quiero. Necesito responder preguntas sobre mi experiencia y hacer preguntas inteligentes.',
+        'Tengo una entrevista de trabajo para una posición que realmente quiero.',
       icon: 'fas fa-briefcase',
       category: 'professional',
       difficulty: 'advanced',
-      tags: ['trabajo', 'entrevista', 'carrera', 'profesional'],
+      tags: ['trabajo', 'entrevista', 'carrera'],
     },
     {
       id: 'business-meeting',
       title: 'Reunión Internacional',
       description:
-        'Participas en una reunión importante con colegas de otros países. Presenta tus ideas y colabora en el proyecto.',
+        'Participas en una reunión importante con colegas de otros países.',
       context:
-        'Estoy en una reunión de negocios importante con colegas internacionales. Debo presentar mis ideas para el nuevo proyecto.',
+        'Estoy en una reunión de negocios importante con colegas internacionales.',
       icon: 'fas fa-users',
       category: 'professional',
       difficulty: 'advanced',
-      tags: ['negocios', 'reunión', 'presentación', 'internacional'],
+      tags: ['negocios', 'reunión', 'internacional'],
+    },
+    {
+      id: 'startup-pitch',
+      title: 'Presentar tu Startup',
+      description: 'Tienes 5 minutos para convencer a inversionistas.',
+      context:
+        'Tengo una reunión con inversionistas y debo presentar mi startup de manera convincente.',
+      icon: 'fas fa-rocket',
+      category: 'professional',
+      difficulty: 'advanced',
+      tags: ['startup', 'inversionista', 'pitch'],
+    },
+    {
+      id: 'university-inquiry',
+      title: 'Consulta Universitaria',
+      description: 'Visitas una universidad para preguntar sobre programas.',
+      context:
+        'Estoy visitando una universidad para aprender sobre programas de maestría.',
+      icon: 'fas fa-graduation-cap',
+      category: 'professional',
+      difficulty: 'intermediate',
+      tags: ['educación', 'universidad', 'programa'],
     },
     {
       id: 'conference-networking',
       title: 'Networking en Conferencia',
-      description:
-        'Estás en una conferencia profesional y quieres hacer contactos. Presenta tu trabajo e intercambia información.',
+      description: 'Estás en una conferencia profesional haciendo contactos.',
       context:
-        'Estoy en una conferencia profesional de mi industria y quiero hacer networking con otros profesionales.',
+        'Estoy en una conferencia de mi industria y quiero hacer networking con otros profesionales.',
       icon: 'fas fa-handshake',
       category: 'professional',
       difficulty: 'advanced',
-      tags: ['networking', 'conferencia', 'contactos', 'profesional'],
+      tags: ['networking', 'conferencia', 'contactos'],
     },
     {
-      id: 'startup-pitch',
-      title: 'Presentar Startup',
-      description:
-        'Tienes 5 minutos para convencer a un inversionista de que tu startup es la próxima gran cosa. ¡Hazlo convincente!',
+      id: 'client-presentation',
+      title: 'Presentación a Cliente',
+      description: 'Debes presentar una propuesta importante a un cliente.',
       context:
-        'Tengo una reunión con un inversionista potencial y debo presentar mi startup de manera convincente en pocos minutos.',
-      icon: 'fas fa-rocket',
+        'Tengo una presentación crucial con un cliente potencial para cerrar un gran contrato.',
+      icon: 'fas fa-chart-line',
       category: 'professional',
       difficulty: 'advanced',
-      tags: ['startup', 'inversionista', 'pitch', 'emprendimiento'],
+      tags: ['cliente', 'presentación', 'ventas'],
     },
 
-    // Salud y Emergencias
-    {
-      id: 'doctor-visit',
-      title: 'Consulta Médica',
-      description:
-        'No te sientes bien y vas al médico. Describe tus síntomas claramente y entiende las recomendaciones.',
-      context:
-        'No me siento bien y vengo a ver al médico. Necesito describir mis síntomas y entender las recomendaciones.',
-      icon: 'fas fa-stethoscope',
-      category: 'real-life',
-      difficulty: 'intermediate',
-      tags: ['salud', 'médico', 'síntomas', 'consulta'],
-    },
-    {
-      id: 'pharmacy-visit',
-      title: 'Farmacia',
-      description:
-        'Necesitas medicamentos pero no entiendes algunas instrucciones. El farmacéutico te ayuda a entender la receta.',
-      context:
-        'Estoy en la farmacia con una receta médica, pero tengo dudas sobre las instrucciones y efectos secundarios.',
-      icon: 'fas fa-pills',
-      category: 'real-life',
-      difficulty: 'beginner',
-      tags: ['farmacia', 'medicamentos', 'receta', 'salud'],
-    },
-
-    // Ficción y Aventura - ¡Más divertidos!
+    // FICTION - Ficción
     {
       id: 'space-mission',
       title: 'Perdido en el Espacio',
       description:
-        'Eres un astronauta y tu nave espacial tiene problemas técnicos. Contacta con la estación base para obtener ayuda urgente.',
+        'Eres un astronauta y tu nave espacial tiene problemas técnicos.',
       context:
-        'Soy un astronauta y mi nave espacial tiene una falla crítica. Necesito contactar urgentemente con el control de misión para obtener instrucciones.',
+        'Soy un astronauta y mi nave espacial tiene una falla crítica. Necesito contactar con el control de misión.',
       icon: 'fas fa-rocket',
       category: 'fiction',
       difficulty: 'advanced',
-      tags: ['espacio', 'astronauta', 'emergencia', 'ciencia ficción'],
-    },
-    {
-      id: 'detective-case',
-      title: 'Detective Privado',
-      description:
-        'Eres un detective investigando un caso misterioso. Interroga testigos y reúne pistas para resolver el crimen.',
-      context:
-        'Soy un detective privado investigando un caso misterioso. Debo interrogar testigos y reunir pistas para resolver este crimen.',
-      icon: 'fas fa-search',
-      category: 'fiction',
-      difficulty: 'advanced',
-      tags: ['misterio', 'detective', 'investigación', 'crimen'],
-    },
-    {
-      id: 'time-traveler',
-      title: 'Viajero del Tiempo',
-      description:
-        'Has viajado accidentalmente al año 1920. Necesitas encontrar la manera de regresar sin alterar la historia.',
-      context:
-        'He viajado accidentalmente en el tiempo al año 1920. Necesito encontrar una manera de regresar a mi época sin alterar la historia.',
-      icon: 'fas fa-clock',
-      category: 'fiction',
-      difficulty: 'advanced',
-      tags: ['tiempo', 'historia', 'aventura', 'viaje'],
-    },
-    {
-      id: 'superhero-training',
-      title: 'Entrenamiento de Superhéroe',
-      description:
-        'Acabas de descubrir que tienes superpoderes. Un mentor experimentado te enseña a controlar tus nuevas habilidades.',
-      context:
-        'Acabo de descubrir que tengo superpoderes y estoy entrenando con un mentor experimentado para aprender a controlarlos.',
-      icon: 'fas fa-bolt',
-      category: 'fiction',
-      difficulty: 'intermediate',
-      tags: ['superhéroe', 'poderes', 'entrenamiento', 'mentor'],
+      tags: ['espacio', 'astronauta', 'emergencia'],
     },
     {
       id: 'pirate-treasure',
       title: 'Búsqueda del Tesoro Pirata',
-      description:
-        'Eres un pirata en busca del tesoro perdido. Necesitas descifrar el mapa y negociar con otros piratas.',
+      description: 'Eres un pirata en busca del tesoro perdido.',
       context:
-        'Soy un pirata en una aventura épica buscando un tesoro perdido. Tengo un mapa misterioso que necesito descifrar.',
+        'Soy un pirata en una aventura épica buscando un tesoro perdido. Tengo un mapa misterioso.',
       icon: 'fas fa-skull-crossbones',
       category: 'fiction',
       difficulty: 'intermediate',
-      tags: ['pirata', 'tesoro', 'aventura', 'mapa'],
-    },
-    {
-      id: 'wizard-school',
-      title: 'Escuela de Magia',
-      description:
-        'Es tu primer día en la escuela de magia. Conoce a otros estudiantes y aprende sobre pociones y hechizos.',
-      context:
-        'Es mi primer día en la escuela de magia. Estoy conociendo a otros estudiantes y aprendiendo sobre pociones y hechizos básicos.',
-      icon: 'fas fa-hat-wizard',
-      category: 'fiction',
-      difficulty: 'intermediate',
-      tags: ['magia', 'escuela', 'hechizos', 'fantasía'],
-    },
-    {
-      id: 'alien-contact',
-      title: 'Primer Contacto Alienígena',
-      description:
-        'Eres el primer humano en hacer contacto con una civilización alienígena. Establece comunicación pacífica.',
-      context:
-        'Soy la primera persona en hacer contacto con una civilización alienígena. Debo establecer comunicación pacífica y representar a la humanidad.',
-      icon: 'fas fa-rocket',
-      category: 'fiction',
-      difficulty: 'advanced',
-      tags: ['alienígenas', 'comunicación', 'espacio', 'diplomacia'],
+      tags: ['pirata', 'tesoro', 'aventura'],
     },
     {
       id: 'zombie-survival',
       title: 'Supervivencia Zombie',
       description:
-        'Estás en un apocalipsis zombie y necesitas encontrar supervivientes. Coordina un plan de escape seguro.',
+        'Estás en un apocalipsis zombie y necesitas encontrar supervivientes.',
       context:
-        'Estoy en medio de un apocalipsis zombie y acabo de encontrar otros supervivientes. Necesitamos coordinar un plan de escape.',
+        'Estoy en medio de un apocalipsis zombie y acabo de encontrar otros supervivientes.',
       icon: 'fas fa-running',
       category: 'fiction',
       difficulty: 'advanced',
-      tags: ['zombies', 'supervivencia', 'estrategia', 'equipo'],
+      tags: ['zombies', 'supervivencia', 'estrategia'],
     },
     {
       id: 'dragon-negotiation',
       title: 'Negociando con un Dragón',
-      description:
-        'Te encuentras con un dragón antiguo que protege un tesoro. Necesitas persuadirlo para que te deje pasar.',
+      description: 'Te encuentras con un dragón antiguo que protege un tesoro.',
       context:
-        'Me he encontrado con un dragón milenario que guarda un tesoro ancestral. Debo persuadirlo para que me permita pasar sin luchar.',
+        'Me he encontrado con un dragón milenario que guarda un tesoro ancestral.',
       icon: 'fas fa-dragon',
       category: 'fiction',
       difficulty: 'advanced',
-      tags: ['dragón', 'negociación', 'fantasía', 'persuasión'],
+      tags: ['dragón', 'negociación', 'fantasía'],
     },
-
-    // Situaciones Sociales
     {
-      id: 'dating-conversation',
-      title: 'Primera Cita',
+      id: 'wizard-school',
+      title: 'Primer Día en Escuela de Magia',
       description:
-        'Estás en una primera cita y quieres causar una buena impresión. Mantén una conversación interesante y natural.',
+        'Es tu primer día en una escuela de magia y necesitas hacer amigos.',
       context:
-        'Estoy en una primera cita y quiero causar una buena impresión. Necesito mantener una conversación interesante y conocer mejor a mi cita.',
-      icon: 'fas fa-heart',
-      category: 'daily',
+        'Es mi primer día en la escuela de magia y estoy conociendo a otros estudiantes.',
+      icon: 'fas fa-hat-wizard',
+      category: 'fiction',
       difficulty: 'intermediate',
-      tags: ['cita', 'romance', 'conversación', 'social'],
+      tags: ['magia', 'escuela', 'amistad'],
     },
     {
-      id: 'graduation-party',
-      title: 'Fiesta de Graduación',
+      id: 'superhero-training',
+      title: 'Entrenamiento de Superhéroe',
       description:
-        'Estás en una fiesta de graduación conociendo a la familia de tu mejor amigo. Mantén conversaciones corteses.',
+        'Acabas de descubrir tus superpoderes y necesitas entrenamiento.',
       context:
-        'Estoy en una fiesta de graduación conociendo a los padres de mi mejor amigo. Quiero hacer buena impresión y mantener conversaciones apropiadas.',
-      icon: 'fas fa-graduation-cap',
-      category: 'daily',
+        'Acabo de descubrir que tengo superpoderes y necesito entrenar con un mentor.',
+      icon: 'fas fa-bolt',
+      category: 'fiction',
       difficulty: 'intermediate',
-      tags: ['fiesta', 'graduación', 'familia', 'social'],
+      tags: ['superhéroe', 'poderes', 'entrenamiento'],
     },
     {
-      id: 'roommate-search',
-      title: 'Buscando Compañero de Cuarto',
+      id: 'time-traveler',
+      title: 'Viajero del Tiempo',
       description:
-        'Estás buscando un compañero de cuarto y tienes una entrevista. Presenta tus hábitos y expectativas.',
+        'Has viajado accidentalmente al pasado y necesitas regresar.',
       context:
-        'Estoy buscando un compañero de cuarto y tengo una entrevista con un candidato potencial. Necesito conocer sus hábitos y compartir los míos.',
-      icon: 'fas fa-home',
-      category: 'daily',
-      difficulty: 'beginner',
-      tags: ['vivienda', 'compañero', 'entrevista', 'hábitos'],
+        'He viajado accidentalmente al año 1920 y necesito encontrar una manera de regresar.',
+      icon: 'fas fa-clock',
+      category: 'fiction',
+      difficulty: 'advanced',
+      tags: ['tiempo', 'historia', 'aventura'],
     },
     {
-      id: 'wedding-planning',
-      title: 'Planeando una Boda',
+      id: 'alien-contact',
+      title: 'Primer Contacto Alienígena',
       description:
-        'Estás planeando tu boda con el organizador de eventos. Discute tus ideas, presupuesto y preferencias.',
+        'Eres el primer humano en contactar con una civilización alienígena.',
       context:
-        'Estoy planeando mi boda y me reúno con un organizador de eventos para discutir mis ideas, presupuesto y preferencias para el gran día.',
-      icon: 'fas fa-ring',
-      category: 'daily',
+        'Soy la primera persona en hacer contacto con una civilización alienígena pacífica.',
+      icon: 'fas fa-user-astronaut',
+      category: 'fiction',
+      difficulty: 'advanced',
+      tags: ['alienígenas', 'comunicación', 'diplomacia'],
+    },
+    {
+      id: 'detective-case',
+      title: 'Detective Investigando',
+      description: 'Eres un detective privado resolviendo un caso misterioso.',
+      context:
+        'Soy un detective privado investigando un caso misterioso y necesito interrogar testigos.',
+      icon: 'fas fa-search',
+      category: 'fiction',
+      difficulty: 'advanced',
+      tags: ['misterio', 'detective', 'investigación'],
+    },
+    {
+      id: 'medieval-knight',
+      title: 'Caballero Medieval',
+      description: 'Eres un caballero en una misión del rey.',
+      context:
+        'Soy un caballero medieval en una misión especial del rey para salvar el reino.',
+      icon: 'fas fa-chess-knight',
+      category: 'fiction',
       difficulty: 'intermediate',
-      tags: ['boda', 'planificación', 'eventos', 'celebración'],
+      tags: ['medieval', 'caballero', 'misión'],
     },
   ];
 
@@ -389,16 +372,16 @@ export class ChatWelcomeComponent {
   filterScenarios(): void {
     let filtered = [...this.scenarios];
 
-    // Filter by category
+    // Filtrar por categoría si hay una seleccionada
     if (this.selectedCategory) {
       filtered = filtered.filter(
         (scenario) => scenario.category === this.selectedCategory
       );
     }
 
-    // Filter by search term
-    if (this.searchTerm.trim()) {
-      const term = this.searchTerm.toLowerCase();
+    // Filtrar por término de búsqueda si hay uno
+    if (this.searchTerm && this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase().trim();
       filtered = filtered.filter(
         (scenario) =>
           scenario.title.toLowerCase().includes(term) ||
@@ -421,6 +404,60 @@ export class ChatWelcomeComponent {
     this.openChatsPanel.emit();
   }
 
+  getScenariosByCategory(category: string): Scenario[] {
+    // Si hay filtros aplicados, usar los escenarios filtrados
+    if (this.searchTerm.trim() || this.selectedCategory) {
+      return this.filteredScenarios.filter(
+        (scenario) => scenario.category === category
+      );
+    }
+    // Si no hay filtros, mostrar todos los escenarios de la categoría
+    return this.scenarios.filter((scenario) => scenario.category === category);
+  }
+
+  getRecommendedScenarios(): Scenario[] {
+    const recommendedIds = [
+      'restaurant-order',
+      'taxi-nyc',
+      'pirate-treasure',
+      'zombie-survival',
+      'superhero-training',
+      'job-interview',
+    ];
+
+    // Si hay filtros aplicados, usar los escenarios filtrados
+    if (this.searchTerm.trim() || this.selectedCategory) {
+      return this.filteredScenarios.filter((s) =>
+        recommendedIds.includes(s.id)
+      );
+    }
+
+    // Si no hay filtros, mostrar los recomendados originales
+    return recommendedIds
+      .map((id) => this.scenarios.find((s) => s.id === id)!)
+      .filter(Boolean);
+  }
+
+  // Métodos para el carousel - Modificado para mover de a 2 elementos
+  scrollCarousel(direction: 'left' | 'right', categoryKey: string): void {
+    const container = document.querySelector(
+      `[data-category="${categoryKey}"]`
+    ) as HTMLElement;
+    if (!container) return;
+
+    const scrollAmount = 640; // Card width (320) + gap (24) = 344, multiplicado por 2 = 688, ajustado a 640 para mejor comportamiento
+    const currentScroll = container.scrollLeft;
+    const newScroll =
+      direction === 'left'
+        ? currentScroll - scrollAmount
+        : currentScroll + scrollAmount;
+
+    container.scrollTo({
+      left: newScroll,
+      behavior: 'smooth',
+    });
+  }
+
   getCategoryColor(category: string): string {
     const colors: { [key: string]: string } = {
       daily: 'bg-gradient-to-r from-green-500 to-emerald-500',
@@ -428,7 +465,7 @@ export class ChatWelcomeComponent {
       professional: 'bg-gradient-to-r from-purple-500 to-violet-500',
       fiction: 'bg-gradient-to-r from-pink-500 to-rose-500',
     };
-    return colors[category] || 'bg-gradient-to-r from-gray-500 to-gray-600';
+    return colors[category] || 'bg-gray-500';
   }
 
   getCategoryBadgeColor(category: string): string {
@@ -467,5 +504,15 @@ export class ChatWelcomeComponent {
       advanced: 'Avanzado',
     };
     return names[difficulty] || difficulty;
+  }
+
+  getCategoryDescription(category: string): string {
+    const descriptions: { [key: string]: string } = {
+      daily: 'Situaciones cotidianas para dominar el día a día',
+      'real-life': 'Escenarios realistas del mundo real',
+      professional: 'Impulsa tu carrera profesional',
+      fiction: 'Aventuras épicas y divertidas',
+    };
+    return descriptions[category] || '';
   }
 }
