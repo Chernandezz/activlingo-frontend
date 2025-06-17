@@ -1,43 +1,40 @@
 <div class="h-full bg-gradient-to-br from-emerald-50 via-white to-blue-50 p-6 overflow-y-auto relative">
 
-<!-- Encabezado optimizado -->
-<div class="text-center mb-8">
+  <!-- Encabezado optimizado -->
+  <div class="text-center mb-8">
 
-  <div class="text-center mb-8 lg:hidden">
+    <div class="text-center mb-8 lg:hidden">
 
-    
-    <!-- Acción principal -->
-    <button (click)="openChats()"
-    class="w-full max-w-xs mx-auto mb-3 px-5 py-3 text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-base font-semibold rounded-xl shadow-md flex items-center justify-center gap-3 transition-all duration-200">
-    <i class="fas fa-comments text-lg"></i>
-    <span>Ver mis chats</span>
-  </button>
-  
-  <!-- Línea divisoria con texto -->
-  <div class="flex items-center justify-center gap-3 mb-4 text-gray-400 text-sm">
-    <div class="flex-grow border-t border-gray-300"></div>
-    <span class="whitespace-nowrap">o explora nuestros escenarios listos para practicar</span>
-    <div class="flex-grow border-t border-gray-300"></div>
+      <!-- Acción principal -->
+      <button (click)="openChats()"
+        class="w-full max-w-xs mx-auto mb-3 px-5 py-3 text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-base font-semibold rounded-xl shadow-md flex items-center justify-center gap-3 transition-all duration-200">
+        <i class="fas fa-comments text-lg"></i>
+        <span>Ver mis chats</span>
+      </button>
+
+      <!-- Línea divisoria con texto -->
+      <div class="flex items-center justify-center gap-3 mb-4 text-gray-400 text-sm">
+        <div class="flex-grow border-t border-gray-300"></div>
+        <span class="whitespace-nowrap">o explora nuestros escenarios listos para practicar</span>
+        <div class="flex-grow border-t border-gray-300"></div>
+      </div>
+
+    </div>
+    <!-- Título y descripción -->
+    <h1
+      class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent mb-2">
+      ¡Comencemos a Practicar!
+    </h1>
+    <p class="text-gray-600 text-base sm:text-lg max-w-xl mx-auto">
+      Elige situaciones reales, entrena tu fluidez y habla con seguridad
+    </p>
+
   </div>
-  
-</div>
-  <!-- Título y descripción -->
-  <h1
-    class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent mb-2">
-    ¡Comencemos a Practicar!
-  </h1>
-  <p class="text-gray-600 text-base sm:text-lg max-w-xl mx-auto">
-    Elige situaciones reales, entrena tu fluidez y habla con seguridad
-  </p>
-  
-</div>
-
-
 
   <!-- Search Bar -->
   <div class="max-w-md mx-auto mb-8">
     <div class="relative">
-      <fa-icon [icon]="faSearch" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></fa-icon>
+      <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
       <input type="text" [(ngModel)]="searchTerm" (input)="filterScenarios()" placeholder="Buscar escenarios..."
         class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent shadow-sm" />
     </div>
@@ -46,19 +43,18 @@
   <!-- Category Filters -->
   <div class="flex flex-wrap justify-center gap-3 mb-8">
     <button *ngFor="let category of categories" (click)="
-            selectedCategory =
-              selectedCategory === category.key ? null : category.key;
-            filterScenarios()
-          " class="px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 shadow-sm" [class]="
-            selectedCategory === category.key
-              ? 'bg-gradient-to-r from-emerald-500 to-blue-500 text-white shadow-md transform scale-105'
-              : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 hover:shadow-md'
-          ">
-      <fa-icon [icon]="category.icon" class="mr-2"></fa-icon>
+              selectedCategory =
+                selectedCategory === category.key ? null : category.key;
+              filterScenarios()
+            " class="px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 shadow-sm" [class]="
+              selectedCategory === category.key
+                ? 'bg-gradient-to-r from-emerald-500 to-blue-500 text-white shadow-md transform scale-105'
+                : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 hover:shadow-md'
+            ">
+      <i [class]="category.icon + ' mr-2'"></i>
       {{ category.name }}
     </button>
   </div>
-
 
   <!-- Scenarios Grid -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
@@ -69,7 +65,7 @@
         <div
           class="inline-flex items-center justify-center w-12 h-12 rounded-xl shadow-sm group-hover:shadow-md transition-shadow"
           [class]="getCategoryColor(scenario.category)">
-          <fa-icon [icon]="scenario.icon" class="text-white text-xl"></fa-icon>
+          <i [class]="scenario.icon + ' text-white text-xl'"></i>
         </div>
         <div class="flex flex-col items-end">
           <span class="text-xs font-semibold px-2 py-1 rounded-full" [class]="getCategoryBadgeColor(scenario.category)">
@@ -121,7 +117,7 @@
   <!-- Empty State -->
   <div *ngIf="filteredScenarios.length === 0" class="text-center py-16">
     <div class="w-20 h-20 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
-      <fa-icon [icon]="faSearch" class="text-gray-400 text-2xl"></fa-icon>
+      <i class="fas fa-search text-gray-400 text-2xl"></i>
     </div>
     <h3 class="text-xl font-semibold text-gray-900 mb-2">
       No se encontraron escenarios
@@ -130,4 +126,4 @@
       Intenta con otros términos de búsqueda o crea tu propio escenario.
     </p>
   </div>
-</div>
+  </div>
