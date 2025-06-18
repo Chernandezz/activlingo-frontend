@@ -1,6 +1,6 @@
 <!-- conversation-overlay.component.html -->
 
-<div class="fixed inset-0 z-50 overflow-auto">
+<div class="fixed inset-0 z-999 overflow-auto">
   <!-- Fondo blanco semi-transparente con ligera textura -->
   <div class="absolute inset-0 bg-white/80 backdrop-blur-sm custom-bg-texture"></div>
 
@@ -8,86 +8,7 @@
   <div class="relative mx-auto mt-8 max-w-6xl px-4 md:px-8 lg:px-0 flex flex-col md:flex-row gap-6">
 
     <!-- PANEL IZQUIERDO: MODO & GRABACIÓN -->
-    <div
-      class="w-full md:w-1/2 flex flex-col items-center justify-between bg-white rounded-2xl border border-blue-200 shadow-lg p-6 py-8">
 
-      <!-- Toggle de Modo -->
-      <div class="w-full text-center">
-        <button (click)="toggleMode.emit()"
-          class="inline-flex items-center justify-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-full shadow-md hover:shadow-xl transition-transform duration-200 transform hover:scale-105">
-
-          <!-- Ícono de mano o chip según isNaturalMode -->
-          <fa-icon *ngIf="isNaturalMode" [icon]="faHandPaper" class="text-xl">
-          </fa-icon>
-          <fa-icon *ngIf="!isNaturalMode" [icon]="faMicrochip" class="text-xl">
-          </fa-icon>
-
-          <span class="text-lg">
-            {{ isNaturalMode ? 'Modo Manual' : 'Modo Hands-Free' }}
-          </span>
-        </button>
-
-        <div class="mt-6">
-          <h2 class="text-3xl font-extrabold text-blue-600 mb-1">
-            {{ isNaturalMode ? 'Modo Conversación' : 'Modo Manual' }}
-          </h2>
-          <div class="h-1 w-20 bg-indigo-500 rounded-full animate-pulse mx-auto"></div>
-          <p class="mt-3 text-sm text-gray-600">
-            {{ isNaturalMode
-            ? 'Habla de forma natural: el sistema entenderá cuándo terminas y responderá.'
-            : 'Presiona el micrófono para grabar tu voz y luego envía.' }}
-          </p>
-        </div>
-      </div>
-
-      <!-- Botón de Micrófono -->
-      <div class="relative mt-8 mb-8 animate-bounce-in">
-        <div class="absolute inset-0 flex items-center justify-center">
-          <div class="absolute w-24 h-24 rounded-full bg-blue-400/30 animate-ping-slow"></div>
-          <div class="absolute w-32 h-32 rounded-full bg-indigo-400/20 animate-ping-slower"></div>
-        </div>
-      
-        <!-- Si NO está procesando, dibujamos el micrófono -->
-        <button *ngIf="!isProcessing" (click)="startRecording.emit()" [ngClass]="{
-                  'bg-red-600 hover:bg-red-700': isRecordingManual,
-                  'bg-gradient-to-r from-blue-600 to-indigo-600 hover:scale-110': !isRecordingManual
-                }"
-          class="relative flex items-center justify-center w-20 h-20 text-white text-4xl font-black rounded-full shadow-2xl transition-transform transform active:scale-95">
-          <fa-icon [icon]="faMicrophone"></fa-icon>
-        </button>
-      
-        <!-- Si está procesando, dibujamos el ícono de IA -->
-        <button *ngIf="isProcessing"
-          class="relative flex items-center justify-center w-20 h-20 bg-gray-200 text-gray-700 text-4xl font-black rounded-full shadow-inner">
-          <!-- Ícono de IA (faMicrochip) -->
-          <fa-icon [icon]="faMicrochip" class="animate-pulse"></fa-icon>
-        </button></div>
-
-      <!-- Mensaje de Estado y Loading -->
-      <div class="w-full space-y-4">
-        <!-- Mensaje estatus -->
-        <div *ngIf="message"
-          class="flex items-center justify-center gap-2 bg-blue-100 border border-blue-200 text-blue-800 text-sm font-medium rounded-full px-4 py-2 animate-fade-in">
-          <fa-icon [icon]="faInfoCircle"></fa-icon>
-          <span>{{ message }}</span>
-        </div>
-
-        <!-- Indicador de Carga -->
-        <div *ngIf="isLoading" class="w-full flex flex-col items-center">
-          <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-            <div class="h-full bg-indigo-500 rounded-full animate-progress"></div>
-          </div>
-          <p class="mt-2 text-xs text-gray-500">Procesando respuesta...</p>
-        </div>
-      </div>
-
-      <!-- Terminar Conversación -->
-      <button (click)="close.emit()"
-        class="mt-8 text-sm text-gray-500 hover:text-gray-700 flex items-center gap-2 transition-colors">
-        <fa-icon [icon]="faSignOutAlt" class="text-base"></fa-icon>
-        <span>Terminar conversación</span>
-      </button>
-    </div>
 
     <!-- PANEL DERECHO: TAREAS & PALABRAS -->
     <div class="w-full md:w-1/2 flex flex-col bg-white rounded-2xl border border-blue-200 shadow-lg p-6 py-8">
@@ -174,6 +95,87 @@
           </div>
         </div>
       </div>
+    </div>
+    <div
+      class="w-full md:w-1/2 flex flex-col items-center justify-between bg-white rounded-2xl border border-blue-200 shadow-lg p-6 py-8">
+
+      <!-- Toggle de Modo -->
+      <div class="w-full text-center">
+        <button (click)="toggleMode.emit()"
+          class="inline-flex items-center justify-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-full shadow-md hover:shadow-xl transition-transform duration-200 transform hover:scale-105">
+
+          <!-- Ícono de mano o chip según isNaturalMode -->
+          <fa-icon *ngIf="isNaturalMode" [icon]="faHandPaper" class="text-xl">
+          </fa-icon>
+          <fa-icon *ngIf="!isNaturalMode" [icon]="faMicrochip" class="text-xl">
+          </fa-icon>
+
+          <span class="text-lg">
+            {{ isNaturalMode ? 'Modo Manual' : 'Modo Hands-Free' }}
+          </span>
+        </button>
+
+        <div class="mt-6">
+          <h2 class="text-3xl font-extrabold text-blue-600 mb-1">
+            {{ isNaturalMode ? 'Modo Conversación' : 'Modo Manual' }}
+          </h2>
+          <div class="h-1 w-20 bg-indigo-500 rounded-full animate-pulse mx-auto"></div>
+          <p class="mt-3 text-sm text-gray-600">
+            {{ isNaturalMode
+            ? 'Habla de forma natural: el sistema entenderá cuándo terminas y responderá.'
+            : 'Presiona el micrófono para grabar tu voz y luego envía.' }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Botón de Micrófono -->
+      <div class="relative mt-8 mb-8 animate-bounce-in">
+        <div class="absolute inset-0 flex items-center justify-center">
+          <div class="absolute w-24 h-24 rounded-full bg-blue-400/30 animate-ping-slow"></div>
+          <div class="absolute w-32 h-32 rounded-full bg-indigo-400/20 animate-ping-slower"></div>
+        </div>
+
+        <!-- Si NO está procesando, dibujamos el micrófono -->
+        <button *ngIf="!isProcessing" (click)="startRecording.emit()" [ngClass]="{
+                      'bg-red-600 hover:bg-red-700': isRecordingManual,
+                      'bg-gradient-to-r from-blue-600 to-indigo-600 hover:scale-110': !isRecordingManual
+                    }"
+          class="relative flex items-center justify-center w-20 h-20 text-white text-4xl font-black rounded-full shadow-2xl transition-transform transform active:scale-95">
+          <fa-icon [icon]="faMicrophone"></fa-icon>
+        </button>
+
+        <!-- Si está procesando, dibujamos el ícono de IA -->
+        <button *ngIf="isProcessing"
+          class="relative flex items-center justify-center w-20 h-20 bg-gray-200 text-gray-700 text-4xl font-black rounded-full shadow-inner">
+          <!-- Ícono de IA (faMicrochip) -->
+          <fa-icon [icon]="faMicrochip" class="animate-pulse"></fa-icon>
+        </button>
+      </div>
+
+      <!-- Mensaje de Estado y Loading -->
+      <div class="w-full space-y-4">
+        <!-- Mensaje estatus -->
+        <div *ngIf="message"
+          class="flex items-center justify-center gap-2 bg-blue-100 border border-blue-200 text-blue-800 text-sm font-medium rounded-full px-4 py-2 animate-fade-in">
+          <fa-icon [icon]="faInfoCircle"></fa-icon>
+          <span>{{ message }}</span>
+        </div>
+
+        <!-- Indicador de Carga -->
+        <div *ngIf="isLoading" class="w-full flex flex-col items-center">
+          <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+            <div class="h-full bg-indigo-500 rounded-full animate-progress"></div>
+          </div>
+          <p class="mt-2 text-xs text-gray-500">Procesando respuesta...</p>
+        </div>
+      </div>
+
+      <!-- Terminar Conversación -->
+      <button (click)="close.emit()"
+        class="mt-8 text-sm text-gray-500 hover:text-gray-700 flex items-center gap-2 transition-colors">
+        <fa-icon [icon]="faSignOutAlt" class="text-base"></fa-icon>
+        <span>Terminar conversación</span>
+      </button>
     </div>
   </div>
 

@@ -1,7 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
 import { HeaderComponent } from './shared/components/header/header.component';
 import { CommonModule } from '@angular/common';
+import { AuthService } from './core/services/auth.service';
+import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -9,19 +12,36 @@ import { CommonModule } from '@angular/common';
   imports: [RouterOutlet, HeaderComponent, CommonModule],
   templateUrl: './app.component.html',
 })
-export class AppComponent implements OnInit {
-  constructor(public router: Router) {}
+export class AppComponent implements OnInit, OnDestroy {
+  isResolved = false;
+  private subscription = new Subscription();
 
-  ngOnInit() {
-    // Fix para NavigatorLockManager en algunos navegadores
+  constructor(public router: Router, private authService: AuthService) {}
+
+  ngOnInit(): void {
+    // Fix para navegadores sin locks API
     if (typeof navigator !== 'undefined' && !navigator.locks) {
       (navigator as any).locks = {
         request: () => Promise.resolve(),
       };
     }
+
+    // 🔧 SUSCRIBIRSE A LA RESOLUCIÓN DE AUTH
+    this.subscription.add(
+      this.authService.isAuthResolved$.subscribe((resolved) => {
+        this.isResolved = resolved;
+      })
+    );
   }
 
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
+
+  // 🔧 MÉTODO PARA VERIFICAR SI ESTAMOS EN PÁGINA DE AUTH
   isAuthPage(): boolean {
-    return this.router.url.startsWith('/auth');
+    const url = this.router.url;
+    const isAuth = url.startsWith('/auth');
+    return isAuth;
   }
 }

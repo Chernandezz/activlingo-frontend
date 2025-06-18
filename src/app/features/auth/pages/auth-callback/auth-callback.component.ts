@@ -35,7 +35,6 @@ export class AuthCallbackComponent implements OnInit {
   constructor(private router: Router, private authService: AuthService) {}
 
   async ngOnInit(): Promise<void> {
-    console.log('🔄 Auth callback component initialized');
 
     try {
       // Esperar un momento para que Supabase procese el callback
@@ -54,7 +53,6 @@ export class AuthCallbackComponent implements OnInit {
       }
 
       if (session?.user) {
-        console.log('✅ Session found in callback, user:', session.user.email);
 
         // Asegurar que el AuthService tiene al usuario
         this.authService.setUser(session.user);
@@ -62,11 +60,9 @@ export class AuthCallbackComponent implements OnInit {
         // Navegar al chat
         this.router.navigate(['/chat']);
       } else {
-        console.log('❌ No session found in callback');
         this.router.navigate(['/auth']);
       }
     } catch (error) {
-      console.error('❌ Error processing auth callback:', error);
       this.router.navigate(['/auth']);
     }
   }

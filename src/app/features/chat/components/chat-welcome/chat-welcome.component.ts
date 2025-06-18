@@ -10,6 +10,7 @@ interface Scenario {
   icon: string;
   category: 'real-life' | 'fiction' | 'daily' | 'professional';
   difficulty: 'beginner' | 'intermediate' | 'advanced';
+  role: string;
   tags: string[];
 }
 
@@ -40,20 +41,22 @@ export class ChatWelcomeComponent {
       id: 'restaurant-order',
       title: 'Ordenar en un Restaurante',
       description:
-        'Estás en un restaurante elegante y necesitas hacer tu pedido.',
+        'Estás en un restaurante elegante celebrando una ocasión especial.',
       context:
-        'Estoy en un restaurante elegante para cenar. El mesero está atento y listo para tomar mi pedido.',
+        'Soy un cliente (usuario) en un restaurante elegante celebrando mi aniversario. Tú eres el mesero experto (IA) que quiere hacer esta noche perfecta y memorable.',
+      role: 'Mesero experto y entusiasta',
       icon: 'fas fa-utensils',
       category: 'daily',
       difficulty: 'beginner',
-      tags: ['comida', 'restaurante', 'pedido'],
+      tags: ['comida', 'restaurante', 'celebración'],
     },
     {
       id: 'grocery-shopping',
       title: 'Compras en el Supermercado',
       description: 'Estás haciendo compras y no encuentras varios productos.',
       context:
-        'Estoy haciendo compras en el supermercado y necesito ayuda para encontrar productos específicos.',
+        'Soy un cliente (usuario) haciendo compras. Tú eres el empleado del supermercado (IA) que conoce cada pasillo y puede ayudarme a encontrar lo que necesito.',
+      role: 'Empleado del supermercado',
       icon: 'fas fa-store',
       category: 'daily',
       difficulty: 'beginner',
@@ -63,9 +66,10 @@ export class ChatWelcomeComponent {
       id: 'coffee-shop',
       title: 'Cafetería de Especialidad',
       description:
-        'Entras a una cafetería nueva y el barista te explica los diferentes cafés.',
+        'Entras a una cafetería nueva buscando el café perfecto para impresionar a alguien.',
       context:
-        'Estoy en una cafetería especializada y el barista quiere enseñarme sobre diferentes tipos de café.',
+        'Soy un cliente (usuario) que necesita encontrar el café perfecto para una reunión importante. Tú eres el barista apasionado (IA) que está orgulloso de sus creaciones y quiere ayudarme.',
+      role: 'Barista apasionado y orgulloso',
       icon: 'fas fa-coffee',
       category: 'daily',
       difficulty: 'intermediate',
@@ -75,36 +79,40 @@ export class ChatWelcomeComponent {
       id: 'gym-session',
       title: 'Primera Sesión en el Gimnasio',
       description:
-        'Es tu primer día en un gimnasio nuevo y necesitas orientación.',
+        'Es tu primer día y estás nervioso porque quieres cambiar tu vida.',
       context:
-        'Es mi primer día en el gimnasio y necesito que me expliquen cómo usar las máquinas y el horario.',
+        'Soy nuevo en el gimnasio (usuario) y quiero transformar mi vida pero me siento intimidado. Tú eres mi entrenador motivador (IA) que me inspirará y me dará confianza.',
+      role: 'Entrenador motivador e inspirador',
       icon: 'fas fa-dumbbell',
       category: 'daily',
       difficulty: 'beginner',
-      tags: ['ejercicio', 'gimnasio', 'salud'],
+      tags: ['ejercicio', 'gimnasio', 'transformación'],
     },
     {
       id: 'roommate-interview',
-      title: 'Entrevista para Compañero de Cuarto',
-      description: 'Estás entrevistando a un posible compañero de cuarto.',
+      title: 'Entrevista Urgente para Compañero',
+      description:
+        'Necesitas urgentemente un compañero porque tu anterior roommate se fue.',
       context:
-        'Tengo una cita para conocer a un posible compañero de cuarto y discutir hábitos de convivencia.',
+        'Soy alguien (usuario) que necesita urgentemente un compañero porque mi anterior roommate se fue sin aviso. Tú eres el candidato entusiasta (IA) que realmente necesita este lugar.',
+      role: 'Candidato entusiasta que necesita el lugar',
       icon: 'fas fa-home',
       category: 'daily',
       difficulty: 'beginner',
-      tags: ['vivienda', 'entrevista', 'convivencia'],
+      tags: ['vivienda', 'urgencia', 'convivencia'],
     },
     {
       id: 'dating-conversation',
-      title: 'Primera Cita',
+      title: 'Primera Cita Después de Mucho Tiempo',
       description:
-        'Estás en una primera cita y quieres causar buena impresión.',
+        'Es tu primera cita en años y ambos están nerviosos pero emocionados.',
       context:
-        'Estoy en una primera cita en un café y quiero conocer mejor a la persona.',
+        'Estoy en mi primera cita en años (usuario) y me siento nervioso pero emocionado. Tú eres mi cita (IA) que también está nerviosa pero con muchas ganas de conectar.',
+      role: 'Tu cita nerviosa pero encantadora',
       icon: 'fas fa-heart',
       category: 'daily',
       difficulty: 'intermediate',
-      tags: ['cita', 'romance', 'conversación'],
+      tags: ['cita', 'nervios', 'conexión'],
     },
 
     // REAL-LIFE - Vida real
@@ -114,7 +122,8 @@ export class ChatWelcomeComponent {
       description:
         'Te subes a un taxi en Manhattan y necesitas llegar a tu destino.',
       context:
-        'Me acabo de subir a un taxi amarillo en Nueva York. El conductor es amigable y quiere charlar mientras me lleva a mi destino.',
+        'Soy un pasajero (usuario) que se acaba de subir a un taxi amarillo en Nueva York. Tú eres el conductor amigable (IA) que quiere charlar mientras me lleva a mi destino.',
+      role: 'Taxista de NYC',
       icon: 'fas fa-taxi',
       category: 'real-life',
       difficulty: 'beginner',
@@ -126,7 +135,8 @@ export class ChatWelcomeComponent {
       description:
         'Llegas al aeropuerto y necesitas hacer check-in para tu vuelo.',
       context:
-        'Estoy en el mostrador del aeropuerto haciendo check-in para mi vuelo internacional.',
+        'Soy un pasajero (usuario) en el mostrador del aeropuerto para hacer check-in. Tú eres el agente de la aerolínea (IA) que me ayudará con mi vuelo internacional.',
+      role: 'Agente de aerolínea',
       icon: 'fas fa-plane',
       category: 'real-life',
       difficulty: 'intermediate',
@@ -137,7 +147,8 @@ export class ChatWelcomeComponent {
       title: 'Consulta Médica',
       description: 'No te sientes bien y vas al médico.',
       context:
-        'No me siento bien y vengo a ver al médico. Necesito describir mis síntomas.',
+        'Soy un paciente (usuario) que no se siente bien. Tú eres el médico profesional (IA) que necesita entender mis síntomas para ayudarme.',
+      role: 'Médico general',
       icon: 'fas fa-stethoscope',
       category: 'real-life',
       difficulty: 'intermediate',
@@ -148,7 +159,8 @@ export class ChatWelcomeComponent {
       title: 'Abrir Cuenta Bancaria',
       description: 'Visitas el banco para abrir una cuenta nueva.',
       context:
-        'Estoy en el banco para abrir mi primera cuenta en este país y necesito entender los requisitos.',
+        'Soy un cliente (usuario) que quiere abrir su primera cuenta en este país. Tú eres el asesor bancario (IA) que me explicará los requisitos y opciones.',
+      role: 'Asesor bancario',
       icon: 'fas fa-university',
       category: 'real-life',
       difficulty: 'intermediate',
@@ -159,7 +171,8 @@ export class ChatWelcomeComponent {
       title: 'Check-in en Hotel',
       description: 'Llegas al hotel pero hay un problema con tu reservación.',
       context:
-        'Acabo de llegar al hotel después de un largo viaje, pero hay un problema con mi reservación.',
+        'Soy un huésped (usuario) que acaba de llegar al hotel después de un largo viaje. Tú eres el recepcionista (IA) que debe resolver el problema con mi reservación.',
+      role: 'Recepcionista de hotel',
       icon: 'fas fa-bed',
       category: 'real-life',
       difficulty: 'intermediate',
@@ -170,7 +183,8 @@ export class ChatWelcomeComponent {
       title: 'Comprar Medicamentos',
       description: 'Necesitas medicamentos pero tienes dudas sobre la receta.',
       context:
-        'Estoy en la farmacia con una receta médica pero tengo dudas sobre las instrucciones.',
+        'Soy un cliente (usuario) en la farmacia con una receta médica pero con dudas. Tú eres el farmacéutico experto (IA) que me explicará las instrucciones.',
+      role: 'Farmacéutico',
       icon: 'fas fa-pills',
       category: 'real-life',
       difficulty: 'beginner',
@@ -183,7 +197,8 @@ export class ChatWelcomeComponent {
       title: 'Entrevista de Trabajo',
       description: 'Tienes una entrevista para el trabajo de tus sueños.',
       context:
-        'Tengo una entrevista de trabajo para una posición que realmente quiero.',
+        'Soy un candidato (usuario) en una entrevista para el trabajo que realmente quiero. Tú eres el entrevistador experimentado (IA) que evaluará mi perfil.',
+      role: 'Entrevistador de RRHH',
       icon: 'fas fa-briefcase',
       category: 'professional',
       difficulty: 'advanced',
@@ -195,7 +210,8 @@ export class ChatWelcomeComponent {
       description:
         'Participas en una reunión importante con colegas de otros países.',
       context:
-        'Estoy en una reunión de negocios importante con colegas internacionales.',
+        'Soy un ejecutivo (usuario) en una reunión de negocios importante. Tú eres mi colega internacional (IA) con experiencia global que lidera la discusión.',
+      role: 'Ejecutivo internacional',
       icon: 'fas fa-users',
       category: 'professional',
       difficulty: 'advanced',
@@ -206,7 +222,8 @@ export class ChatWelcomeComponent {
       title: 'Presentar tu Startup',
       description: 'Tienes 5 minutos para convencer a inversionistas.',
       context:
-        'Tengo una reunión con inversionistas y debo presentar mi startup de manera convincente.',
+        'Soy un emprendedor (usuario) con una startup prometedora. Tú eres un inversionista experimentado (IA) que quiere entender mi propuesta de negocio.',
+      role: 'Inversionista venture capital',
       icon: 'fas fa-rocket',
       category: 'professional',
       difficulty: 'advanced',
@@ -217,7 +234,8 @@ export class ChatWelcomeComponent {
       title: 'Consulta Universitaria',
       description: 'Visitas una universidad para preguntar sobre programas.',
       context:
-        'Estoy visitando una universidad para aprender sobre programas de maestría.',
+        'Soy un estudiante prospecto (usuario) visitando una universidad. Tú eres el consejero académico (IA) que me ayudará a entender los programas de maestría.',
+      role: 'Consejero académico',
       icon: 'fas fa-graduation-cap',
       category: 'professional',
       difficulty: 'intermediate',
@@ -228,7 +246,8 @@ export class ChatWelcomeComponent {
       title: 'Networking en Conferencia',
       description: 'Estás en una conferencia profesional haciendo contactos.',
       context:
-        'Estoy en una conferencia de mi industria y quiero hacer networking con otros profesionales.',
+        'Soy un profesional (usuario) en una conferencia de mi industria. Tú eres otro profesional exitoso (IA) que quiere hacer networking y compartir experiencias.',
+      role: 'Profesional senior de la industria',
       icon: 'fas fa-handshake',
       category: 'professional',
       difficulty: 'advanced',
@@ -239,129 +258,144 @@ export class ChatWelcomeComponent {
       title: 'Presentación a Cliente',
       description: 'Debes presentar una propuesta importante a un cliente.',
       context:
-        'Tengo una presentación crucial con un cliente potencial para cerrar un gran contrato.',
+        'Soy un consultor (usuario) con una propuesta importante. Tú eres el cliente potencial (IA) interesado pero exigente que evaluará mi presentación.',
+      role: 'Cliente corporativo exigente',
       icon: 'fas fa-chart-line',
       category: 'professional',
       difficulty: 'advanced',
       tags: ['cliente', 'presentación', 'ventas'],
     },
 
-    // FICTION - Ficción
-    {
-      id: 'space-mission',
-      title: 'Perdido en el Espacio',
-      description:
-        'Eres un astronauta y tu nave espacial tiene problemas técnicos.',
-      context:
-        'Soy un astronauta y mi nave espacial tiene una falla crítica. Necesito contactar con el control de misión.',
-      icon: 'fas fa-rocket',
-      category: 'fiction',
-      difficulty: 'advanced',
-      tags: ['espacio', 'astronauta', 'emergencia'],
-    },
-    {
-      id: 'pirate-treasure',
-      title: 'Búsqueda del Tesoro Pirata',
-      description: 'Eres un pirata en busca del tesoro perdido.',
-      context:
-        'Soy un pirata en una aventura épica buscando un tesoro perdido. Tengo un mapa misterioso.',
-      icon: 'fas fa-skull-crossbones',
-      category: 'fiction',
-      difficulty: 'intermediate',
-      tags: ['pirata', 'tesoro', 'aventura'],
-    },
-    {
-      id: 'zombie-survival',
-      title: 'Supervivencia Zombie',
-      description:
-        'Estás en un apocalipsis zombie y necesitas encontrar supervivientes.',
-      context:
-        'Estoy en medio de un apocalipsis zombie y acabo de encontrar otros supervivientes.',
-      icon: 'fas fa-running',
-      category: 'fiction',
-      difficulty: 'advanced',
-      tags: ['zombies', 'supervivencia', 'estrategia'],
-    },
+    // FICTION - Ficción (¡AQUÍ ESTÁ LA EMOCIÓN!)
     {
       id: 'dragon-negotiation',
-      title: 'Negociando con un Dragón',
-      description: 'Te encuentras con un dragón antiguo que protege un tesoro.',
+      title: 'Negociando con un Dragón Furioso',
+      description:
+        'Un dragón ancestral está furioso porque robaste de su tesoro.',
       context:
-        'Me he encontrado con un dragón milenario que guarda un tesoro ancestral.',
+        'Soy un aventurero (usuario) que accidentalmente tomó algo del tesoro. Tú eres el dragón milenario (IA) que está FURIOSO pero dispuesto a escuchar antes de carbonizarme.',
+      role: 'Dragón ancestral furioso pero justo',
       icon: 'fas fa-dragon',
       category: 'fiction',
       difficulty: 'advanced',
-      tags: ['dragón', 'negociación', 'fantasía'],
+      tags: ['dragón', 'furia', 'negociación', 'peligro'],
     },
     {
-      id: 'wizard-school',
-      title: 'Primer Día en Escuela de Magia',
+      id: 'space-emergency',
+      title: 'Emergencia Espacial Crítica',
       description:
-        'Es tu primer día en una escuela de magia y necesitas hacer amigos.',
+        'Tu nave está fallando y el oxígeno se agota. El control de misión está desesperado.',
       context:
-        'Es mi primer día en la escuela de magia y estoy conociendo a otros estudiantes.',
+        'Soy un astronauta (usuario) en una nave con falla crítica y oxígeno limitado. Tú eres el comandante desesperado (IA) que hará todo lo posible para salvarme.',
+      role: 'Comandante espacial desesperado',
+      icon: 'fas fa-rocket',
+      category: 'fiction',
+      difficulty: 'advanced',
+      tags: ['espacio', 'emergencia', 'vida o muerte'],
+    },
+    {
+      id: 'pirate-betrayal',
+      title: 'Capitán Pirata Traicionado',
+      description:
+        'Eres un pirata joven y el capitán acaba de ser traicionado por su tripulación.',
+      context:
+        'Soy un pirata joven (usuario) con información sobre un tesoro. Tú eres el capitán veterano (IA) que acaba de ser traicionado por su tripulación y necesita aliados.',
+      role: 'Capitán pirata traicionado y vengativo',
+      icon: 'fas fa-skull-crossbones',
+      category: 'fiction',
+      difficulty: 'intermediate',
+      tags: ['pirata', 'traición', 'venganza', 'alianza'],
+    },
+    {
+      id: 'zombie-leader-desperate',
+      title: 'Líder Desesperado en el Apocalipsis',
+      description:
+        'El líder del grupo ha perdido gente y está desesperado por supervivientes confiables.',
+      context:
+        'Soy un superviviente solitario (usuario) bien equipado. Tú eres el líder desesperado (IA) que acaba de perder la mitad de su grupo y necesita decidir si confiar en mí.',
+      role: 'Líder desesperado y desconfiado',
+      icon: 'fas fa-running',
+      category: 'fiction',
+      difficulty: 'advanced',
+      tags: ['zombies', 'desesperación', 'confianza', 'supervivencia'],
+    },
+    {
+      id: 'wizard-mentor-urgent',
+      title: 'Mentor Mágico en Crisis',
+      description:
+        'Tu mentor está preocupado porque una amenaza se acerca a la escuela.',
+      context:
+        'Soy un estudiante nuevo (usuario) con potencial mágico único. Tú eres mi mentor urgente (IA) que debe entrenarme rápidamente porque una antigua amenaza ha despertado.',
+      role: 'Mago mentor urgente y preocupado',
       icon: 'fas fa-hat-wizard',
       category: 'fiction',
       difficulty: 'intermediate',
-      tags: ['magia', 'escuela', 'amistad'],
+      tags: ['magia', 'urgencia', 'amenaza', 'entrenamiento'],
     },
     {
-      id: 'superhero-training',
-      title: 'Entrenamiento de Superhéroe',
+      id: 'superhero-crisis',
+      title: 'Entrenamiento de Emergencia',
       description:
-        'Acabas de descubrir tus superpoderes y necesitas entrenamiento.',
+        'Un superhéroe veterano debe entrenarte rápidamente porque la ciudad está en peligro.',
       context:
-        'Acabo de descubrir que tengo superpoderes y necesito entrenar con un mentor.',
+        'Soy alguien (usuario) con nuevos superpoderes incontrolables. Tú eres un superhéroe veterano (IA) que debe entrenarme urgentemente porque un villano amenaza la ciudad.',
+      role: 'Superhéroe veterano bajo presión',
       icon: 'fas fa-bolt',
       category: 'fiction',
       difficulty: 'intermediate',
-      tags: ['superhéroe', 'poderes', 'entrenamiento'],
+      tags: ['superhéroe', 'urgencia', 'ciudad en peligro'],
     },
     {
-      id: 'time-traveler',
-      title: 'Viajero del Tiempo',
+      id: 'time-guardian-angry',
+      title: 'Guardián del Tiempo Molesto',
       description:
-        'Has viajado accidentalmente al pasado y necesitas regresar.',
+        'El Guardián está molesto porque tu viaje accidental está alterando la historia.',
       context:
-        'He viajado accidentalmente al año 1920 y necesito encontrar una manera de regresar.',
+        'Soy un viajero accidental (usuario) que llegó al 1920 y ya cambié cosas. Tú eres el Guardián molesto (IA) que debe arreglar el daño temporal antes de que sea irreversible.',
+      role: 'Guardián temporal molesto pero responsable',
       icon: 'fas fa-clock',
       category: 'fiction',
       difficulty: 'advanced',
-      tags: ['tiempo', 'historia', 'aventura'],
+      tags: ['tiempo', 'alteración', 'responsabilidad', 'urgencia'],
     },
     {
-      id: 'alien-contact',
-      title: 'Primer Contacto Alienígena',
+      id: 'alien-ambassador-furious',
+      title: 'Embajador Alienígena Ofendido',
       description:
-        'Eres el primer humano en contactar con una civilización alienígena.',
+        'El embajador alienígena está furioso por las acciones violentas de otros humanos.',
       context:
-        'Soy la primera persona en hacer contacto con una civilización alienígena pacífica.',
+        'Soy el primer humano pacífico (usuario) en hacer contacto. Tú eres el embajador alienígena (IA) que está FURIOSO por los ataques militares previos, pero dispuesto a escuchar.',
+      role: 'Embajador alienígena furioso pero diplomático',
       icon: 'fas fa-user-astronaut',
       category: 'fiction',
       difficulty: 'advanced',
-      tags: ['alienígenas', 'comunicación', 'diplomacia'],
+      tags: ['alienígenas', 'furia', 'diplomacia', 'redención'],
     },
     {
-      id: 'detective-case',
-      title: 'Detective Investigando',
-      description: 'Eres un detective privado resolviendo un caso misterioso.',
+      id: 'crime-witness-scared',
+      title: 'Testigo Aterrorizado',
+      description:
+        'El testigo está aterrorizado porque los criminales amenazaron a su familia.',
       context:
-        'Soy un detective privado investigando un caso misterioso y necesito interrogar testigos.',
+        'Soy un detective privado (usuario) investigando un caso peligroso. Tú eres un testigo aterrorizado (IA) que viste todo pero los criminales amenazaron a tu familia.',
+      role: 'Testigo aterrorizado pero valiente',
       icon: 'fas fa-search',
       category: 'fiction',
       difficulty: 'advanced',
-      tags: ['misterio', 'detective', 'investigación'],
+      tags: ['misterio', 'miedo', 'amenazas', 'valentía'],
     },
     {
-      id: 'medieval-knight',
-      title: 'Caballero Medieval',
-      description: 'Eres un caballero en una misión del rey.',
+      id: 'royal-advisor-urgent',
+      title: 'Consejero Real en Crisis',
+      description:
+        'El reino está en peligro y el consejero necesita tu informe urgentemente.',
       context:
-        'Soy un caballero medieval en una misión especial del rey para salvar el reino.',
+        'Soy un caballero (usuario) que regresa con noticias cruciales sobre una invasión. Tú eres el consejero real desesperado (IA) que debe actuar rápido para salvar el reino.',
+      role: 'Consejero real desesperado y estratega',
       icon: 'fas fa-chess-knight',
       category: 'fiction',
       difficulty: 'intermediate',
-      tags: ['medieval', 'caballero', 'misión'],
+      tags: ['medieval', 'invasión', 'estrategia', 'reino en peligro'],
     },
   ];
 
@@ -395,7 +429,7 @@ export class ChatWelcomeComponent {
 
   selectScenario(scenario: Scenario): void {
     this.startChat.emit({
-      role: scenario.title,
+      role: scenario.role,
       context: scenario.context,
     });
   }
