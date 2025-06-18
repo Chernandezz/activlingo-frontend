@@ -1,13 +1,12 @@
-// src/app/app.routes.ts - VERSIÓN FINAL
+// src/app/app.routes.ts - VERSIÓN FINAL CORREGIDA
 import { Routes } from '@angular/router';
-import { AuthGuard } from './features/auth/guards/auth.guard';
-import { GuestGuard } from './features/auth/guards/guest.guard';
+import { AuthGuard, NoAuthGuard } from './features/auth/guards/auth.guard';
 
 export const routes: Routes = [
   // ========== RUTAS DE AUTENTICACIÓN ==========
   {
     path: 'auth',
-    canActivate: [GuestGuard],
+    canActivate: [NoAuthGuard], // 🔧 CAMBIO: Usar NoAuthGuard en lugar de GuestGuard
     loadComponent: () =>
       import('./features/auth/pages/auth-page/auth-page.component').then(
         (c) => c.AuthPageComponent
