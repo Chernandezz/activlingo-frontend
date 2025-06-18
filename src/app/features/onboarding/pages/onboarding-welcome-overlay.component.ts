@@ -21,6 +21,8 @@ export class OnboardingWelcomeOverlayComponent implements OnInit {
 
   trialEndDate: Date = new Date();
   loading = true;
+  processingPayment = false; // 👈 AGREGAR ESTA LÍNEA
+  selectedPlan: string | null = null; // 👈 AGREGAR ESTA LÍNEA
 
   ngOnInit(): void {
     // Calcular fecha de fin de prueba (3 días desde hoy)
@@ -56,26 +58,40 @@ export class OnboardingWelcomeOverlayComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error iniciando trial:', err);
-        this.startFreeTrial.emit(); 
+        this.startFreeTrial.emit();
       },
     });
   }
 
   /** Seleccionar un plan específico */
   selectPlan(planType: 'basic' | 'premium'): void {
+    console.log(`🔄 Seleccionando plan: ${planType}`);
 
-    // ✅ CORREGIDO: Usar el servicio correctamente inyectado
+    // 👈 AGREGAR ESTOS ESTADOS
+    this.processingPayment = true;
+    this.selectedPlan = planType;
+
     this.subscriptionService
       .createUpgradeSession(planType, 'monthly')
       .subscribe({
         next: (response) => {
+          console.log('✅ Respuesta del servidor:', response);
           if (response?.checkout_url) {
+            // 👈 MOSTRAR MENSAJE DE REDIRECCIÓN
+            console.log('🔄 Redirigiendo a Stripe...');
             window.location.href = response.checkout_url;
+          } else {
+            console.error('❌ No se recibió checkout_url:', response);
+            this.processingPayment = false; // 👈 RESETEAR ESTADO
+            this.selectedPlan = null;
+            alert('Error: No se pudo generar la URL de pago');
           }
         },
         error: (err) => {
-          console.error('Error:', err);
-          alert('Error al procesar el pago. Intenta de nuevo.');
+          console.error('❌ Error completo:', err);
+          this.processingPayment = false; // 👈 RESETEAR ESTADO
+          this.selectedPlan = null;
+          alert(`Error al procesar el pago: ${err.message || err}`);
         },
       });
   }

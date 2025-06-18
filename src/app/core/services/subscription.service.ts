@@ -1,11 +1,16 @@
 // src/app/core/services/subscription.service.ts - CORREGIDO
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { CancelResponse, CheckoutResponse, SubscriptionPlan, UserSubscription } from '../models/subscription.model';
+import {
+  CancelResponse,
+  CheckoutResponse,
+  SubscriptionPlan,
+  UserSubscription,
+} from '../models/subscription.model';
 import { PlanFeaturesConfig } from '../interfaces/plan-feature.interface';
-
 
 @Injectable({ providedIn: 'root' })
 export class SubscriptionService {
@@ -15,28 +20,76 @@ export class SubscriptionService {
 
   // ========== PLANES ==========
   getAvailablePlans(): Observable<{ plans: SubscriptionPlan[] }> {
-    return this.http.get<{ plans: SubscriptionPlan[] }>(`${this.apiUrl}/plans`);
+    return this.http
+      .get<{ plans: SubscriptionPlan[] }>(`${this.apiUrl}/plans`)
+      .pipe(catchError(this.handleError));
   }
 
   // ========== SUSCRIPCIÓN ACTUAL ==========
   getCurrentSubscription(): Observable<UserSubscription> {
-    return this.http.get<UserSubscription>(`${this.apiUrl}/current`);
+    return this.http
+      .get<UserSubscription>(`${this.apiUrl}/current`)
+      .pipe(catchError(this.handleError));
   }
 
-  // ========== UPGRADE ==========
+  // ========== UPGRADE (ENDPOINT CORREGIDO) ==========
   createUpgradeSession(
     planSlug: string,
     billingInterval: 'monthly' | 'yearly' = 'monthly'
   ): Observable<CheckoutResponse> {
-    return this.http.post<CheckoutResponse>(`${this.apiUrl}/upgrade`, {
+    console.log(`🔄 Creando sesión de upgrade para plan: ${planSlug}`);
+
+    const payload = {
       plan_slug: planSlug,
       billing_interval: billingInterval,
-    });
+    };
+
+    console.log('📦 Payload:', payload);
+
+    return this.http.post<any>(`${this.apiUrl}/upgrade`, payload).pipe(
+      map((response) => {
+        console.log('✅ Respuesta del servidor:', response);
+
+        if (response.success && response.checkout_url) {
+          return {
+            success: true,
+            checkout_url: response.checkout_url,
+            session_id: response.session_id,
+          } as CheckoutResponse;
+        } else {
+          throw new Error(
+            response.detail || 'No se pudo crear la sesión de pago'
+          );
+        }
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('❌ Error en createUpgradeSession:', error);
+
+        let errorMessage = 'Error al procesar el pago. Intenta de nuevo.';
+
+        if (error.error) {
+          if (typeof error.error === 'string') {
+            errorMessage = error.error;
+          } else if (error.error.detail) {
+            errorMessage = error.error.detail;
+          } else if (error.error.message) {
+            errorMessage = error.error.message;
+          }
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+
+        console.error('📋 Error procesado:', errorMessage);
+        return throwError(() => new Error(errorMessage));
+      })
+    );
   }
 
   // ========== CANCELACIÓN ==========
   cancelSubscription(): Observable<CancelResponse> {
-    return this.http.post<CancelResponse>(`${this.apiUrl}/cancel`, {});
+    return this.http
+      .post<CancelResponse>(`${this.apiUrl}/cancel`, {})
+      .pipe(catchError(this.handleError));
   }
 
   // ========== ACCESO ==========
@@ -48,19 +101,64 @@ export class SubscriptionService {
     priority_support: boolean;
     status: string;
   }> {
-    return this.http.get<{
-      plan_slug: string;
-      has_premium: boolean;
-      max_conversations_per_day: number;
-      max_words_per_day: number;
-      priority_support: boolean;
-      status: string;
-    }>(`${this.apiUrl}/access`);
+    return this.http
+      .get<{
+        plan_slug: string;
+        has_premium: boolean;
+        max_conversations_per_day: number;
+        max_words_per_day: number;
+        priority_support: boolean;
+        status: string;
+      }>(`${this.apiUrl}/access`)
+      .pipe(catchError(this.handleError));
+  }
+
+  // ========== TRIAL ==========
+  startTrial(): Observable<{ success: boolean; message: string }> {
+    return this.http
+      .post<{ success: boolean; message: string }>(
+        `${this.apiUrl}/trial/start`,
+        { accept_terms: true }
+      )
+      .pipe(catchError(this.handleError));
+  }
+
+  // ========== DEBUG ==========
+  debugUserSubscription(): Observable<any> {
+    return this.http
+      .get<any>(`${this.apiUrl}/debug/user/me`)
+      .pipe(catchError(this.handleError));
+  }
+
+  // ========== MANEJO DE ERRORES ==========
+  private handleError(error: HttpErrorResponse) {
+    console.error('❌ Error en SubscriptionService:', error);
+
+    let errorMessage = 'Ha ocurrido un error inesperado';
+
+    if (error.error instanceof ErrorEvent) {
+      // Error del lado del cliente
+      errorMessage = `Error: ${error.error.message}`;
+    } else {
+      // Error del lado del servidor
+      if (error.error) {
+        if (typeof error.error === 'string') {
+          errorMessage = error.error;
+        } else if (error.error.detail) {
+          errorMessage = error.error.detail;
+        } else if (error.error.message) {
+          errorMessage = error.error.message;
+        }
+      } else {
+        errorMessage = `Error ${error.status}: ${error.message}`;
+      }
+    }
+
+    return throwError(() => new Error(errorMessage));
   }
 
   // ========== UTILIDADES ==========
   canAccessFeature(planSlug: string, feature: string): boolean {
-    // ✅ CONFIGURACIÓN CON TIPADO CORRECTO
     const features: PlanFeaturesConfig = {
       basic: {
         unlimited_conversations: false,
@@ -124,14 +222,6 @@ export class SubscriptionService {
 
     return targetIndex > currentIndex;
   }
-
-  
-    startTrial(): Observable<{ success: boolean; message: string }> {
-      return this.http.post<{ success: boolean; message: string }>(
-        `${this.apiUrl}/trial/start`,
-        {}
-      );
-    }
 
   isSubscriptionActive(status: string): boolean {
     return ['active', 'trial'].includes(status);
