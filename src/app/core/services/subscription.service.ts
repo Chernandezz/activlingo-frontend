@@ -1,199 +1,114 @@
-// src/app/core/services/subscription.service.ts - CORREGIDO
+// src/app/core/services/subscription.service.ts - COMPLETAMENTE NUEVO Y LIMPIO
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import {
-  CancelResponse,
-  CheckoutResponse,
   SubscriptionPlan,
-  UserSubscription,
+  SubscriptionStatus,
+  CheckoutResponse,
+  TrialResponse,
+  CancelResponse,
 } from '../models/subscription.model';
-import { PlanFeaturesConfig } from '../interfaces/plan-feature.interface';
 
 @Injectable({ providedIn: 'root' })
 export class SubscriptionService {
-  private apiUrl = `${environment.apiUrl}/subscription`;
+  private readonly apiUrl = `${environment.apiUrl}/subscription`;
 
   constructor(private http: HttpClient) {}
 
   // ========== PLANES ==========
-  getAvailablePlans(): Observable<{ plans: SubscriptionPlan[] }> {
+
+  getPlans(): Observable<SubscriptionPlan[]> {
     return this.http
-      .get<{ plans: SubscriptionPlan[] }>(`${this.apiUrl}/plans`)
+      .get<SubscriptionPlan[]>(`${this.apiUrl}/plans`)
       .pipe(catchError(this.handleError));
   }
 
-  // ========== SUSCRIPCIÓN ACTUAL ==========
-  getCurrentSubscription(): Observable<UserSubscription> {
+  // ========== ESTADO DE SUSCRIPCIÓN ==========
+
+  getStatus(): Observable<SubscriptionStatus> {
     return this.http
-      .get<UserSubscription>(`${this.apiUrl}/current`)
+      .get<SubscriptionStatus>(`${this.apiUrl}/status`)
       .pipe(catchError(this.handleError));
   }
 
-  // ========== UPGRADE (ENDPOINT CORREGIDO) ==========
-  createUpgradeSession(
+  // ========== CHECKOUT ==========
+
+  createCheckout(
     planSlug: string,
     billingInterval: 'monthly' | 'yearly' = 'monthly'
   ): Observable<CheckoutResponse> {
-    console.log(`🔄 Creando sesión de upgrade para plan: ${planSlug}`);
-
     const payload = {
       plan_slug: planSlug,
       billing_interval: billingInterval,
     };
 
-    console.log('📦 Payload:', payload);
-
-    return this.http.post<any>(`${this.apiUrl}/upgrade`, payload).pipe(
-      map((response) => {
-        console.log('✅ Respuesta del servidor:', response);
-
-        if (response.success && response.checkout_url) {
-          return {
-            success: true,
-            checkout_url: response.checkout_url,
-            session_id: response.session_id,
-          } as CheckoutResponse;
-        } else {
-          throw new Error(
-            response.detail || 'No se pudo crear la sesión de pago'
-          );
-        }
-      }),
-      catchError((error: HttpErrorResponse) => {
-        console.error('❌ Error en createUpgradeSession:', error);
-
-        let errorMessage = 'Error al procesar el pago. Intenta de nuevo.';
-
-        if (error.error) {
-          if (typeof error.error === 'string') {
-            errorMessage = error.error;
-          } else if (error.error.detail) {
-            errorMessage = error.error.detail;
-          } else if (error.error.message) {
-            errorMessage = error.error.message;
-          }
-        } else if (error.message) {
-          errorMessage = error.message;
-        }
-
-        console.error('📋 Error procesado:', errorMessage);
-        return throwError(() => new Error(errorMessage));
-      })
-    );
+    return this.http
+      .post<CheckoutResponse>(`${this.apiUrl}/checkout`, payload)
+      .pipe(catchError(this.handleError));
   }
 
-  // ========== CANCELACIÓN ==========
-  cancelSubscription(): Observable<CancelResponse> {
+  // ========== TRIAL ==========
+
+  startTrial(): Observable<TrialResponse> {
+    return this.http
+      .post<TrialResponse>(`${this.apiUrl}/trial/start`, { accept_terms: true })
+      .pipe(catchError(this.handleError));
+  }
+
+  // ========== GESTIÓN ==========
+
+  cancel(): Observable<CancelResponse> {
     return this.http
       .post<CancelResponse>(`${this.apiUrl}/cancel`, {})
       .pipe(catchError(this.handleError));
   }
 
-  // ========== ACCESO ==========
-  getPlanAccess(): Observable<{
-    plan_slug: string;
-    has_premium: boolean;
-    max_conversations_per_day: number;
-    max_words_per_day: number;
-    priority_support: boolean;
-    status: string;
-  }> {
-    return this.http
-      .get<{
-        plan_slug: string;
-        has_premium: boolean;
-        max_conversations_per_day: number;
-        max_words_per_day: number;
-        priority_support: boolean;
-        status: string;
-      }>(`${this.apiUrl}/access`)
-      .pipe(catchError(this.handleError));
-  }
-
-  // ========== TRIAL ==========
-  startTrial(): Observable<{ success: boolean; message: string }> {
-    return this.http
-      .post<{ success: boolean; message: string }>(
-        `${this.apiUrl}/trial/start`,
-        { accept_terms: true }
-      )
-      .pipe(catchError(this.handleError));
-  }
-
-  // ========== DEBUG ==========
-  debugUserSubscription(): Observable<any> {
-    return this.http
-      .get<any>(`${this.apiUrl}/debug/user/me`)
-      .pipe(catchError(this.handleError));
-  }
-
-  // ========== MANEJO DE ERRORES ==========
-  private handleError(error: HttpErrorResponse) {
-    console.error('❌ Error en SubscriptionService:', error);
-
-    let errorMessage = 'Ha ocurrido un error inesperado';
-
-    if (error.error instanceof ErrorEvent) {
-      // Error del lado del cliente
-      errorMessage = `Error: ${error.error.message}`;
-    } else {
-      // Error del lado del servidor
-      if (error.error) {
-        if (typeof error.error === 'string') {
-          errorMessage = error.error;
-        } else if (error.error.detail) {
-          errorMessage = error.error.detail;
-        } else if (error.error.message) {
-          errorMessage = error.error.message;
-        }
-      } else {
-        errorMessage = `Error ${error.status}: ${error.message}`;
-      }
-    }
-
-    return throwError(() => new Error(errorMessage));
-  }
-
   // ========== UTILIDADES ==========
-  canAccessFeature(planSlug: string, feature: string): boolean {
-    const features: PlanFeaturesConfig = {
-      basic: {
-        unlimited_conversations: false,
-        advanced_scenarios: false,
-        priority_support: false,
-        analytics: false,
-        export_data: false,
-        max_conversations_per_day: 5,
-      },
-      premium: {
-        unlimited_conversations: true,
-        advanced_scenarios: true,
-        priority_support: true,
-        analytics: true,
-        export_data: true,
-        max_conversations_per_day: -1,
-      },
-      premium_yearly: {
-        unlimited_conversations: true,
-        advanced_scenarios: true,
-        priority_support: true,
-        analytics: true,
-        export_data: true,
-        api_access: true,
-        custom_scenarios: true,
-        max_conversations_per_day: -1,
-      },
-    };
 
-    const planFeatures = features[planSlug] || features['basic'];
-    return planFeatures[feature] === true;
+  canUpgradeTo(currentPlanSlug: string, targetPlanSlug: string): boolean {
+    const hierarchy = ['basic', 'premium', 'premium_yearly'];
+    const currentIndex = hierarchy.indexOf(currentPlanSlug);
+    const targetIndex = hierarchy.indexOf(targetPlanSlug);
+    return targetIndex > currentIndex;
   }
 
-  isPremiumPlan(planSlug: string): boolean {
+  isActive(status: string): boolean {
+    return ['active', 'trial'].includes(status);
+  }
+
+  isCanceled(status: string): boolean {
+    return status === 'canceled';
+  }
+
+  isPremium(planSlug: string): boolean {
     return planSlug !== 'basic';
+  }
+
+  getStatusText(status: string): string {
+    const statusTexts: Record<string, string> = {
+      active: 'Activa',
+      canceled: 'Cancelada',
+      expired: 'Expirada',
+      trial: 'Prueba gratuita',
+      past_due: 'Pago pendiente',
+      no_subscription: 'Sin suscripción',
+    };
+    return statusTexts[status] || status;
+  }
+
+  getStatusColor(status: string): string {
+    const statusColors: Record<string, string> = {
+      active: 'text-green-600',
+      canceled: 'text-yellow-600',
+      expired: 'text-red-600',
+      trial: 'text-blue-600',
+      past_due: 'text-orange-600',
+      no_subscription: 'text-gray-600',
+    };
+    return statusColors[status] || 'text-gray-600';
   }
 
   formatPrice(price: number, currency: string = 'USD'): string {
@@ -204,52 +119,58 @@ export class SubscriptionService {
   }
 
   getBillingIntervalText(interval: string): string {
-    const texts: { [key: string]: string } = {
+    const texts: Record<string, string> = {
       monthly: 'mes',
       yearly: 'año',
+      trial: 'prueba',
     };
     return texts[interval] || interval;
   }
 
-  getPlanHierarchy(): string[] {
-    return ['basic', 'premium', 'premium_yearly'];
-  }
-
-  canUpgradeTo(currentPlanSlug: string, targetPlanSlug: string): boolean {
-    const hierarchy = this.getPlanHierarchy();
-    const currentIndex = hierarchy.indexOf(currentPlanSlug);
-    const targetIndex = hierarchy.indexOf(targetPlanSlug);
-
-    return targetIndex > currentIndex;
-  }
-
-  isSubscriptionActive(status: string): boolean {
-    return ['active', 'trial'].includes(status);
-  }
-
-  isSubscriptionCanceled(status: string): boolean {
-    return status === 'canceled';
-  }
-
-  getStatusText(status: string): string {
-    const statusTexts: { [key: string]: string } = {
-      active: 'Activa',
-      canceled: 'Cancelada',
-      expired: 'Expirada',
-      trial: 'Prueba gratuita',
-      past_due: 'Pago pendiente',
+  getPlanBadgeColor(planSlug: string): string {
+    const colors: Record<string, string> = {
+      basic: 'bg-gray-100 text-gray-700',
+      premium: 'bg-gradient-to-r from-blue-400 to-blue-600 text-white',
+      premium_yearly:
+        'bg-gradient-to-r from-purple-400 to-purple-600 text-white',
+      trial: 'bg-gradient-to-r from-green-400 to-green-600 text-white',
     };
-    return statusTexts[status] || status;
+    return colors[planSlug] || colors['basic'];
   }
 
-  getStatusColor(status: string): string {
-    const statusColors: { [key: string]: string } = {
-      active: 'text-green-600',
-      canceled: 'text-yellow-600',
-      expired: 'text-red-600',
-      trial: 'text-blue-600',
-      past_due: 'text-orange-600',
-    };
-    return statusColors[status] || 'text-gray-600';
+  calculateTrialDaysRemaining(endDate: string): number {
+    if (!endDate) return 0;
+
+    try {
+      const end = new Date(endDate);
+      const now = new Date();
+      const diffTime = end.getTime() - now.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return Math.max(0, diffDays);
+    } catch {
+      return 0;
+    }
+  }
+
+  // ========== MANEJO DE ERRORES ==========
+
+  private handleError(error: HttpErrorResponse): Observable<never> {
+    console.error('❌ SubscriptionService Error:', error);
+
+    let errorMessage = 'Ha ocurrido un error inesperado';
+
+    if (error.error) {
+      if (typeof error.error === 'string') {
+        errorMessage = error.error;
+      } else if (error.error.detail) {
+        errorMessage = error.error.detail;
+      } else if (error.error.message) {
+        errorMessage = error.error.message;
+      }
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+
+    return throwError(() => new Error(errorMessage));
   }
 }

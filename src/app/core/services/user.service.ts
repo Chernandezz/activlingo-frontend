@@ -1,35 +1,38 @@
-// src/app/core/services/user.service.ts - ACTUALIZADO
-import { HttpClient } from '@angular/common/http';
+// src/app/core/services/user.service.ts - COMPLETAMENTE NUEVO Y LIMPIO
 import { Injectable } from '@angular/core';
-import { environment } from '../../../environments/environment';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ApiProfileResponse, UpdateProfileRequest } from '../models/profile.model';
-import { UserStats } from '../models/user.model';
-import { Achievement } from '../models/achievement.model';
-import { PlanInfo, TrialStatus, UserInfo } from '../models/user-legacy.model';
-
-
+import { environment } from '../../../environments/environment';
+import {
+  UserProfile,
+  UserStats,
+  Achievement,
+  UpdateProfileRequest,
+} from '../models/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
-  private apiUrl = `${environment.apiUrl}/user`;
+  private readonly apiUrl = `${environment.apiUrl}/user`;
 
   constructor(private http: HttpClient) {}
 
-  // ========== NUEVOS MÉTODOS ==========
+  // ========== PERFIL ==========
 
-  // ✅ ACTUALIZADO PARA MANEJAR LA RESPUESTA CORRECTA
-  getFullProfile(): Observable<ApiProfileResponse> {
-    return this.http.get<ApiProfileResponse>(`${this.apiUrl}/profile`);
+  getProfile(): Observable<UserProfile> {
+    return this.http.get<UserProfile>(`${this.apiUrl}/profile`);
   }
 
-  updateProfile(data: UpdateProfileRequest): Observable<any> {
-    return this.http.put(`${this.apiUrl}/profile`, data);
+  updateProfile(data: UpdateProfileRequest): Observable<{ message: string }> {
+    return this.http.put<{ message: string }>(`${this.apiUrl}/profile`, data);
   }
 
-  getUserStats(): Observable<UserStats> {
+  // ========== ESTADÍSTICAS ==========
+
+  getStats(): Observable<UserStats> {
     return this.http.get<UserStats>(`${this.apiUrl}/stats`);
   }
+
+  // ========== LOGROS ==========
 
   getAchievements(): Observable<{
     achievements: Achievement[];
@@ -41,39 +44,20 @@ export class UserService {
     }>(`${this.apiUrl}/achievements`);
   }
 
-  // ========== MÉTODOS LEGACY (mantener compatibilidad) ==========
+  // ========== ONBOARDING ==========
 
-  getTrialInfo(): Observable<TrialStatus> {
-    return this.http.get<TrialStatus>(`${this.apiUrl}/trial-status`);
-  }
-
-  markOnboardingSeen(): Observable<any> {
-    return this.http.post(`${this.apiUrl}/onboarding-seen`, {});
-  }
-
-  getCurrentUser(): Observable<UserInfo> {
-    return this.http.get<UserInfo>(`${this.apiUrl}/profile`);
-  }
-
-  getPlanInfo(): Observable<PlanInfo> {
-    return this.http.get<PlanInfo>(`${this.apiUrl}/plan-info`);
-  }
-
-  updateSubscriptionPlan(planType: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/update-plan`, {
-      subscription_type: planType,
-    });
-  }
-
-  hasPremiumAccess(): Observable<{ has_premium: boolean; plan_type: string }> {
-    return this.http.get<{ has_premium: boolean; plan_type: string }>(
-      `${this.apiUrl}/premium-access`
+  markOnboardingCompleted(): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${this.apiUrl}/onboarding-seen`,
+      {}
     );
   }
 
   // ========== UTILIDADES ==========
 
   formatDate(dateString: string): string {
+    if (!dateString) return 'Fecha no disponible';
+
     try {
       return new Date(dateString).toLocaleDateString('es-ES', {
         year: 'numeric',
@@ -81,11 +65,13 @@ export class UserService {
         day: 'numeric',
       });
     } catch {
-      return dateString;
+      return 'Fecha inválida';
     }
   }
 
   calculateDaysAgo(dateString: string): number {
+    if (!dateString) return 0;
+
     try {
       const date = new Date(dateString);
       const today = new Date();
@@ -96,8 +82,14 @@ export class UserService {
     }
   }
 
-  calculateLevelProgress(totalConversations: number): number {
-    // Lógica para calcular progreso basado en conversaciones
+  getUserLevel(totalConversations: number): string {
+    if (totalConversations < 10) return 'Principiante';
+    if (totalConversations < 50) return 'Intermedio';
+    if (totalConversations < 100) return 'Avanzado';
+    return 'Experto';
+  }
+
+  getLevelProgress(totalConversations: number): number {
     const currentLevelBase = Math.floor(totalConversations / 10) * 10;
     const nextLevelBase = currentLevelBase + 10;
     const progress =
@@ -105,13 +97,6 @@ export class UserService {
         (nextLevelBase - currentLevelBase)) *
       100;
     return Math.min(progress, 100);
-  }
-
-  getLevel(totalConversations: number): string {
-    if (totalConversations < 10) return 'Principiante';
-    if (totalConversations < 50) return 'Intermedio';
-    if (totalConversations < 100) return 'Avanzado';
-    return 'Experto';
   }
 
   getStreakIcon(streak: number): string {
@@ -124,5 +109,34 @@ export class UserService {
     if (streak >= 30) return 'text-yellow-500';
     if (streak >= 7) return 'text-orange-500';
     return 'text-blue-500';
+  }
+
+  getUserInitials(name?: string, email?: string): string {
+    if (name?.trim()) {
+      return name
+        .split(' ')
+        .map((word) => word.charAt(0))
+        .join('')
+        .toUpperCase()
+        .substring(0, 2);
+    }
+
+    if (email) {
+      return email.charAt(0).toUpperCase();
+    }
+
+    return 'U';
+  }
+
+  getDisplayName(name?: string, email?: string): string {
+    if (name?.trim()) {
+      return name;
+    }
+
+    if (email) {
+      return email.split('@')[0];
+    }
+
+    return 'Usuario';
   }
 }

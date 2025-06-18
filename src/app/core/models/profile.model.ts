@@ -1,25 +1,40 @@
-import { User, UserStats } from './user.model';
-import { Achievement } from './achievement.model';
-import { SubscriptionPlan } from './subscription.model';
-
 export interface UserProfileResponse {
-  user: User;
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    avatar_url: string;
+    created_at: string;
+  };
   subscription: {
-    id: number;
-    user_id: string;
-    plan: SubscriptionPlan;
+    id: number | null;
     status: string;
+    plan: {
+      id: number | null;
+      name: string;
+      slug: string;
+      price: number;
+      currency: string;
+      billing_interval: string;
+    };
     starts_at: string;
-    ends_at?: string;
-    trial_ends_at?: string;
-    canceled_at?: string;
+    ends_at: string;
+    current_period_end: string;
   } | null;
-  stats: UserStats;
-}
-
-export interface ApiProfileResponse {
-  success: boolean;
-  profile: UserProfileResponse;
+  stats: {
+    total_conversations: number;
+    current_streak: number;
+    longest_streak: number;
+    total_words_learned: number;
+    average_session_minutes: number;
+    join_date: string;
+    last_activity: string;
+    conversations_this_month: number;
+    words_learned_this_month: number;
+  };
+  profile: {
+    onboarding_seen: boolean;
+  };
 }
 
 export interface UpdateProfileRequest {
