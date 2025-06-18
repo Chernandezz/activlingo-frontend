@@ -18,26 +18,13 @@ export class GuestGuard implements CanActivate {
         const isLoggedIn = this.authService.isLoggedIn();
         const currentPath = route.routeConfig?.path;
 
-        console.log('🚪 GuestGuard check:', {
-          user: !!user,
-          isLoggedIn,
-          currentPath,
-          userEmail: user?.email,
-          timestamp: new Date().toISOString(),
-        });
 
         // ✅ Si el usuario está logueado, redirigir a chat
         if (isLoggedIn && user) {
-          console.log('✅ Usuario ya autenticado, redirigiendo a /chat');
           this.router.navigate(['/chat']);
           return false;
         }
 
-        // ✅ Si no está logueado, permitir acceso a rutas de invitado
-        console.log(
-          '✅ Usuario no autenticado, permitiendo acceso a',
-          currentPath
-        );
         return true;
       }),
       catchError((error) => {

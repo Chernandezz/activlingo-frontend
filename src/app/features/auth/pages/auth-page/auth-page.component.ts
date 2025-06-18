@@ -73,7 +73,6 @@ export class AuthPageComponent implements OnInit, OnDestroy {
     // 🆕 Escuchar cambios en el usuario para navegar automáticamente
     this.authService.user$.subscribe((user) => {
       if (user && this.authService.isLoggedIn()) {
-        console.log('🔄 User detected, navigating to chat');
         setTimeout(() => {
           this.router.navigate(['/chat']);
         }, 1000);

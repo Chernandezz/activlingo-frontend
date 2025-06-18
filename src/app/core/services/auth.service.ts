@@ -1,4 +1,4 @@
-// core/services/auth.service.ts - VERSIÓN SIN ROUTER
+// core/services/auth.service.ts - VERSIÓN CORREGIDA
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
@@ -6,43 +6,31 @@ import { tap, catchError } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { supabase } from '../utils/supabase-client';
 import { of } from 'rxjs';
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-export interface SignUpRequest {
-  name?: string;
-  email: string;
-  password: string;
-}
+import { LoginRequest, SignUpRequest } from '../models/auth.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  isAuthenticated() {
-    throw new Error('Method not implemented.');
-  }
   private apiUrl = environment.apiUrl;
   private userSubject = new BehaviorSubject<any | null>(null);
   user$ = this.userSubject.asObservable();
 
+  // 🔧 NO marcar como resuelto hasta que termine la inicialización
+  isAuthResolved$ = new BehaviorSubject<boolean>(false);
+
   constructor(private http: HttpClient) {
+    // 🔧 NO marcar como resuelto aquí - esperar a que termine initializeAuth
     this.initializeAuth();
   }
 
   private async initializeAuth(): Promise<void> {
     try {
-      console.log('Initializing auth...');
 
       // Verificar sesión de Supabase primero
       const {
         data: { session },
       } = await supabase.auth.getSession();
-      console.log('Initial session check:', session);
 
       if (session?.user) {
-        console.log('Session found, setting user');
         this.setUserPrivate(session.user);
         if (session.access_token) {
           localStorage.setItem('access_token', session.access_token);
@@ -50,31 +38,24 @@ export class AuthService {
         if (session.refresh_token) {
           localStorage.setItem('refresh_token', session.refresh_token);
         }
-        return;
-      }
-
-      // Verificar token local como fallback
-      const token = localStorage.getItem('access_token');
-      if (token && !this.isTokenExpired(token)) {
-        console.log('Local token found and valid');
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        this.setUserPrivate({
-          id: payload.sub || payload.id,
-          email: payload.email,
-          name: payload.name || '',
-        });
+      } else {
+        // Verificar token local como fallback
+        const token = localStorage.getItem('access_token');
+        if (token && !this.isTokenExpired(token)) {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          this.setUserPrivate({
+            id: payload.sub || payload.id,
+            email: payload.email,
+            name: payload.name || '',
+          });
+        }
       }
 
       // Escuchar cambios de Supabase
       supabase.auth.onAuthStateChange((event, session) => {
-        console.log(
-          '🔥 Supabase auth state change:',
-          event,
-          session?.user?.email
-        );
+
 
         if (event === 'SIGNED_IN' && session) {
-          console.log('✅ User signed in via Supabase');
           this.setUserPrivate(session.user);
           if (session.access_token) {
             localStorage.setItem('access_token', session.access_token);
@@ -82,23 +63,20 @@ export class AuthService {
           if (session.refresh_token) {
             localStorage.setItem('refresh_token', session.refresh_token);
           }
-
-          // 🔧 QUITAR LA NAVEGACIÓN AUTOMÁTICA DEL SERVICE
-          // La navegación la manejará el componente o guard
         } else if (event === 'SIGNED_OUT') {
-          console.log('❌ User signed out');
           this.clearAuth();
         }
       });
     } catch (error) {
       console.error('Error initializing auth:', error);
+    } finally {
+      this.isAuthResolved$.next(true);
     }
   }
 
   login(credentials: LoginRequest): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/auth/login`, credentials).pipe(
       tap((response) => {
-        console.log('Login response:', response);
 
         if (response.access_token) {
           localStorage.setItem('access_token', response.access_token);
@@ -124,18 +102,15 @@ export class AuthService {
     );
   }
 
-  // 🔄 Logout que retorna Promise para compatibilidad
   async logout(): Promise<void> {
     try {
       await this.performLogout();
     } catch (error) {
       console.warn('Logout error:', error);
-      // Aún así limpiar - el logout siempre debe "funcionar" desde la perspectiva del usuario
       this.clearAuth();
     }
   }
 
-  // También mantener versión Observable para compatibilidad
   logoutObservable(): Observable<any> {
     return of(null).pipe(
       tap(() => {
@@ -145,28 +120,12 @@ export class AuthService {
   }
 
   private async performLogout(): Promise<void> {
-    console.log('🔄 Starting logout process...');
 
-    try {
-      // Logout de Supabase
-      console.log('📤 Signing out from Supabase...');
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.warn('⚠️ Supabase logout error:', error);
-      } else {
-        console.log('✅ Supabase logout successful');
-      }
-    } catch (error) {
-      console.warn('⚠️ Supabase logout exception:', error);
-    }
+    const { error } = await supabase.auth.signOut();
 
-    // Siempre limpiar el estado local
-    console.log('🧹 Clearing local auth state...');
     this.clearAuth();
-    console.log('✅ Logout process completed');
   }
 
-  // 🆕 Método público para setear usuario (usado por callback)
   setUser(user: any): void {
     this.setUserPrivate(user);
   }
@@ -185,7 +144,6 @@ export class AuthService {
       avatar_url: user.user_metadata?.avatar_url || '',
     };
 
-    console.log('Setting user:', formattedUser);
     this.userSubject.next(formattedUser);
   }
 
@@ -215,11 +173,14 @@ export class AuthService {
   isLoggedIn(): boolean {
     const user = this.currentUser;
     const token = localStorage.getItem('access_token');
-
     return Boolean(user && token && !this.isTokenExpired(token));
   }
 
-  // Para debug
+  // 🆕 Método para verificar si está autenticado (usado por guards)
+  isAuthenticated(): boolean {
+    return this.isLoggedIn();
+  }
+
   getAuthState(): any {
     return {
       user: this.currentUser,
