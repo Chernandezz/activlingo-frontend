@@ -145,7 +145,7 @@ export class SuccessPageComponent implements OnInit {
 
   ngOnInit(): void {
     // Refrescar datos del usuario después del pago exitoso
-    this.userService.getFullProfile().subscribe({
+    this.userService.getProfile().subscribe({
       next: (profile) => {
         console.log('✅ User profile refreshed after successful payment');
       },

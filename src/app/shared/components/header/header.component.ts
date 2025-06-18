@@ -65,7 +65,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private loadUserStats(): void {
     // ✅ Solo obtener estadísticas del usuario
     this.userService
-      .getUserStats()
+      .getStats()
       .pipe(
         catchError(() => of(this.getDefaultStats())),
         takeUntil(this.destroy$)

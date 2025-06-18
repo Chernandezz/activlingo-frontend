@@ -1,17 +1,16 @@
-import { Component, Input, OnInit } from '@angular/core';
+// src/app/pages/profile/profile.component.ts - COMPLETAMENTE RENOVADO
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute } from '@angular/router';
+import { finalize } from 'rxjs/operators';
+
 import { AuthService } from '../../../core/services/auth.service';
-import {
-  UserService,
-} from '../../../core/services/user.service';
+import { UserService } from '../../../core/services/user.service';
 import { SubscriptionService } from '../../../core/services/subscription.service';
-import { UpdateProfileRequest, UserProfileResponse } from '../../../core/models/profile.model';
-import { SubscriptionPlan } from '../../../core/models/subscription.model';
-import { UserStats } from '../../../core/models/user.model';
-import { Achievement } from '../../../core/models/achievement.model';
-import { ActivatedRoute } from '@angular/router';
+
+import { Achievement, UpdateProfileRequest, UserProfile, UserStats } from '../../../core/models/user.model';
+import { SubscriptionPlan, SubscriptionStatus } from '../../../core/models/subscription.model';
 
 @Component({
   selector: 'app-profile',
@@ -21,18 +20,21 @@ import { ActivatedRoute } from '@angular/router';
   styleUrls: ['./profile.component.css'],
 })
 export class ProfileComponent implements OnInit {
+  // ========== ESTADO ==========
   activeTab: string = 'settings';
-  user: any = null;
-  profileData: UserProfileResponse | null = null;
-  availablePlans: SubscriptionPlan[] = [];
-
+  isLoading = true;
   isUpgrading = false;
   isCanceling = false;
-  isLoading = true;
 
-  editForm = {
+  // ========== DATOS ==========
+  profile: UserProfile | null = null;
+  subscriptionStatus: SubscriptionStatus | null = null;
+  availablePlans: SubscriptionPlan[] = [];
+  achievements: Achievement[] = [];
+
+  // ========== FORMULARIO ==========
+  editForm: UpdateProfileRequest = {
     name: '',
-    email: '',
     language: 'es',
     learning_goal: 'conversation',
     difficulty_level: 'intermediate',
@@ -43,17 +45,6 @@ export class ProfileComponent implements OnInit {
     },
   };
 
-  userStats: UserStats = {
-    total_conversations: 0,
-    current_streak: 0,
-    longest_streak: 0,
-    total_words_learned: 0,
-    average_session_minutes: 0,
-    join_date: '',
-  };
-
-  achievements: Achievement[] = [];
-
   constructor(
     private authService: AuthService,
     private userService: UserService,
@@ -62,127 +53,108 @@ export class ProfileComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Configurar tab desde URL
     this.route.fragment.subscribe((fragment) => {
       this.activeTab = fragment || 'settings';
     });
 
-    this.loadUserData();
+    this.loadAllData();
   }
 
-  private loadUserData(): void {
-    this.user = this.authService.currentUser;
+  // ========== CARGA DE DATOS ==========
+
+  private loadAllData(): void {
     this.isLoading = true;
 
-
-    if (this.user) {
-      // ✅ CARGAR DATOS DE PERFIL PRIMERO
-      this.userService.getFullProfile().subscribe({
-        next: (response) => {
-
-          // ✅ EXTRAER LOS DATOS CORRECTAMENTE
-          if (response.success && response.profile) {
-            this.profileData = response.profile;
-
-            // ✅ MAPEAR ESTADÍSTICAS
-            if (this.profileData.stats) {
-              this.userStats = {
-                total_conversations: this.profileData.stats.total_conversations,
-                current_streak: this.profileData.stats.current_streak,
-                longest_streak: this.profileData.stats.longest_streak,
-                total_words_learned: this.profileData.stats.total_words_learned,
-                average_session_minutes:
-                  this.profileData.stats.average_session_minutes,
-                join_date: this.profileData.stats.join_date,
-              };
-            }
-
-            // ✅ MAPEAR FORMULARIO
-            if (this.profileData.user) {
-              this.editForm = {
-                name: this.profileData.user.name || '',
-                email: this.profileData.user.email || '',
-                language: 'es',
-                learning_goal: 'conversation',
-                difficulty_level: 'intermediate',
-                notifications: {
-                  daily_reminders: true,
-                  achievements: true,
-                  product_updates: false,
-                },
-              };
-            }
-          }
-
-          // ✅ CARGAR PLANES DISPONIBLES
-          this.loadAvailablePlans();
-
-          // ✅ CARGAR LOGROS
-          this.loadAchievements();
-
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('❌ Error loading profile:', error);
-          this.isLoading = false;
-        },
-      });
-    } else {
-      console.warn('⚠️ No authenticated user found');
-      this.isLoading = false;
-    }
-  }
-
-  private loadAvailablePlans(): void {
-    this.subscriptionService.getAvailablePlans().subscribe({
-      next: (data) => {
-        this.availablePlans = data.plans.filter(
-          (plan) => !['trial'].includes(plan.slug)
-        );
+    // Cargar perfil completo
+    this.userService.getProfile().subscribe({
+      next: (profile) => {
+        console.log('✅ Perfil cargado:', profile);
+        this.profile = profile;
+        this.populateForm();
+        this.loadSubscriptionStatus();
       },
       error: (error) => {
-        console.error('❌ Error loading plans:', error);
-        this.availablePlans = [];
+        console.error('❌ Error cargando perfil:', error);
+        this.isLoading = false;
+      },
+    });
+  }
+
+  private loadSubscriptionStatus(): void {
+    this.subscriptionService.getStatus().subscribe({
+      next: (status) => {
+        console.log('✅ Estado de suscripción:', status);
+        this.subscriptionStatus = status;
+        this.loadPlans();
+      },
+      error: (error) => {
+        console.error('❌ Error cargando suscripción:', error);
+        this.loadPlans();
+      },
+    });
+  }
+
+  private loadPlans(): void {
+    this.subscriptionService.getPlans().subscribe({
+      next: (plans) => {
+        console.log('✅ Planes disponibles:', plans);
+        this.availablePlans = plans.filter((plan) => plan.slug !== 'trial');
+        this.loadAchievements();
+      },
+      error: (error) => {
+        console.error('❌ Error cargando planes:', error);
+        this.loadAchievements();
       },
     });
   }
 
   private loadAchievements(): void {
     this.userService.getAchievements().subscribe({
-      next: (achievementData) => {
-        this.achievements = achievementData.achievements || [];
+      next: (data) => {
+        console.log('✅ Logros cargados:', data);
+        this.achievements = data.achievements;
       },
       error: (error) => {
+        console.error('❌ Error cargando logros:', error);
         this.achievements = [];
+      },
+      complete: () => {
+        this.isLoading = false;
       },
     });
   }
 
-  private calculateLevelProgress(): number {
-    const conversations = this.userStats.total_conversations;
-    const currentLevelBase = Math.floor(conversations / 10) * 10;
-    const nextLevelBase = currentLevelBase + 10;
-    const progress =
-      ((conversations - currentLevelBase) /
-        (nextLevelBase - currentLevelBase)) *
-      100;
-    return Math.min(progress, 100);
+  private populateForm(): void {
+    if (this.profile?.user) {
+      this.editForm = {
+        ...this.editForm,
+        name: this.profile.user.name || '',
+      };
+    }
   }
+
+  // ========== ACCIONES DE SUSCRIPCIÓN ==========
 
   async upgradeSubscription(planSlug: string): Promise<void> {
     if (this.isUpgrading) return;
+
     this.isUpgrading = true;
 
     try {
       const response = await this.subscriptionService
-        .createUpgradeSession(planSlug, 'monthly')
+        .createCheckout(planSlug, 'monthly')
+        .pipe(finalize(() => (this.isUpgrading = false)))
         .toPromise();
+
       if (response?.checkout_url) {
         window.location.href = response.checkout_url;
+      } else {
+        this.showError('No se pudo generar la URL de pago');
       }
-    } catch (error) {
-      alert('Error al procesar el upgrade. Por favor intenta de nuevo.');
-    } finally {
-      this.isUpgrading = false;
+    } catch (error: any) {
+      console.error('❌ Error en upgrade:', error);
+      this.showError(error.message || 'Error al procesar el upgrade');
     }
   }
 
@@ -192,78 +164,102 @@ export class ProfileComponent implements OnInit {
     const confirmed = confirm(
       '¿Estás seguro de que quieres cancelar tu suscripción? Mantendrás el acceso hasta el final del período actual.'
     );
+
     if (!confirmed) return;
 
     this.isCanceling = true;
 
     try {
       const response = await this.subscriptionService
-        .cancelSubscription()
+        .cancel()
+        .pipe(finalize(() => (this.isCanceling = false)))
         .toPromise();
-      if (response?.success) {
+
+      if (response?.message) {
         const endDate = response.ends_at
           ? this.formatDate(response.ends_at)
           : 'el final del período';
         alert(`Suscripción cancelada. Mantendrás el acceso hasta ${endDate}`);
-        this.loadUserData();
+        this.loadSubscriptionStatus();
       }
-    } catch (error) {
-      console.error('Error canceling subscription:', error);
-      alert('Error al cancelar la suscripción. Por favor intenta de nuevo.');
-    } finally {
-      this.isCanceling = false;
+    } catch (error: any) {
+      console.error('❌ Error cancelando suscripción:', error);
+      this.showError(error.message || 'Error al cancelar la suscripción');
     }
   }
 
-  getCurrentPlan(): SubscriptionPlan | null {
-    return this.profileData?.subscription?.plan || null;
+  // ========== GETTERS PARA LA UI ==========
+
+  get currentPlan(): any {
+    return this.subscriptionStatus?.subscription?.plan || null;
   }
 
-  isCurrentPlan(planSlug: string): boolean {
-    const currentPlan = this.getCurrentPlan();
-    return currentPlan?.slug === planSlug;
-  }
-
-  canUpgradeTo(planSlug: string): boolean {
-    const currentPlan = this.getCurrentPlan();
-    if (!currentPlan) return true;
-    return this.subscriptionService.canUpgradeTo(currentPlan.slug, planSlug);
-  }
-
-  getSubscriptionStatus(): string {
-    const subscription = this.profileData?.subscription;
-    if (!subscription) return 'Prueba gratuita';
-
-    if (subscription.status === 'trial') return 'Prueba gratuita';
-
-    return this.subscriptionService.getStatusText(subscription.status || '');
-  }
-
-  isSubscriptionCanceled(): boolean {
-    return this.subscriptionService.isSubscriptionCanceled(
-      this.profileData?.subscription?.status || ''
+  get userStats(): UserStats {
+    return (
+      this.profile?.stats || {
+        total_conversations: 0,
+        current_streak: 0,
+        longest_streak: 0,
+        total_words_learned: 0,
+        average_session_minutes: 0,
+        join_date: '',
+        last_activity: '',
+        conversations_this_month: 0,
+        words_learned_this_month: 0,
+      }
     );
   }
 
-  isOnTrial(): boolean {
-    const subscription = this.profileData?.subscription;
-    return !subscription || subscription.status === 'trial';
+  get subscriptionStatusText(): string {
+    const status = this.subscriptionStatus?.status || 'no_subscription';
+    return this.subscriptionService.getStatusText(status);
   }
 
-  getTrialDaysRemaining(): number {
-    const subscription = this.profileData?.subscription;
-    if (!subscription?.trial_ends_at) return 3;
+  get isOnTrial(): boolean {
+    return this.subscriptionStatus?.status === 'trial';
+  }
 
-    try {
-      const trialEnd = new Date(subscription.trial_ends_at);
-      const now = new Date();
-      const diffTime = trialEnd.getTime() - now.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  get isCanceledSubscription(): boolean {
+    return this.subscriptionService.isCanceled(
+      this.subscriptionStatus?.status || ''
+    );
+  }
 
-      return Math.max(0, diffDays);
-    } catch {
-      return 3;
-    }
+  get canUpgradeSubscription(): boolean {
+    return this.subscriptionStatus?.can_upgrade || false;
+  }
+
+  get canCancelSubscription(): boolean {
+    return this.subscriptionStatus?.can_cancel || false;
+  }
+
+  get trialDaysRemaining(): number {
+    const endDate = this.subscriptionStatus?.subscription?.ends_at;
+    return endDate
+      ? this.subscriptionService.calculateTrialDaysRemaining(endDate)
+      : 0;
+  }
+
+  get unlockedAchievements(): Achievement[] {
+    return this.achievements.filter((a) => a.unlocked);
+  }
+
+  get lockedAchievements(): Achievement[] {
+    return this.achievements.filter((a) => !a.unlocked);
+  }
+
+  // ========== UTILIDADES DE UI ==========
+
+  isCurrentPlan(planSlug: string): boolean {
+    return this.currentPlan?.slug === planSlug;
+  }
+
+  canUpgradeToPlan(planSlug: string): boolean {
+    if (!this.currentPlan) return true;
+    return this.subscriptionService.canUpgradeTo(
+      this.currentPlan.slug,
+      planSlug
+    );
   }
 
   setActiveTab(tab: string): void {
@@ -271,73 +267,41 @@ export class ProfileComponent implements OnInit {
   }
 
   getUserInitials(): string {
-    const name = this.profileData?.user?.name;
-    const email = this.profileData?.user?.email;
-
-    if (name && name.trim() !== '') {
-      return name
-        .split(' ')
-        .map((word: string) => word.charAt(0))
-        .join('')
-        .toUpperCase()
-        .substring(0, 2);
-    }
-
-    if (email) {
-      return email.charAt(0).toUpperCase();
-    }
-
-    return 'U';
+    return this.userService.getUserInitials(
+      this.profile?.user?.name,
+      this.profile?.user?.email
+    );
   }
 
   getDisplayName(): string {
-    const name = this.profileData?.user?.name;
-    const email = this.profileData?.user?.email;
+    return this.userService.getDisplayName(
+      this.profile?.user?.name,
+      this.profile?.user?.email
+    );
+  }
 
-    if (name && name.trim() !== '') {
-      return name;
-    }
+  getPlanBadgeColor(): string {
+    const planSlug = this.isOnTrial
+      ? 'trial'
+      : this.currentPlan?.slug || 'basic';
+    return this.subscriptionService.getPlanBadgeColor(planSlug);
+  }
 
-    if (email) {
-      const username = email.split('@')[0];
-      return username;
-    }
-
-    return 'Usuario';
+  getPlanName(): string {
+    if (this.isOnTrial) return 'Prueba Gratuita';
+    return this.currentPlan?.name || 'Básico';
   }
 
   getStreakIcon(): string {
-    if (this.userStats.current_streak >= 30) return 'fas fa-crown';
-    if (this.userStats.current_streak >= 7) return 'fas fa-fire';
-    return 'fas fa-calendar-check';
+    return this.userService.getStreakIcon(this.userStats.current_streak);
   }
 
   getStreakColor(): string {
-    if (this.userStats.current_streak >= 30) return 'text-yellow-500';
-    if (this.userStats.current_streak >= 7) return 'text-orange-500';
-    return 'text-blue-500';
+    return this.userService.getStreakColor(this.userStats.current_streak);
   }
 
   getJoinedDaysAgo(): number {
-    if (!this.userStats.join_date) return 0;
-    try {
-      const join_date = new Date(this.userStats.join_date);
-      const today = new Date();
-      const diffTime = Math.abs(today.getTime() - join_date.getTime());
-      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    } catch {
-      return 0;
-    }
-  }
-
-  getUnlockedAchievements(): Achievement[] {
-    const unlocked = this.achievements.filter((a) => a.unlocked);
-    return unlocked;
-  }
-
-  getLockedAchievements(): Achievement[] {
-    const locked = this.achievements.filter((a) => !a.unlocked);
-    return locked;
+    return this.userService.calculateDaysAgo(this.userStats.join_date);
   }
 
   getAchievementProgress(achievement: Achievement): number {
@@ -349,49 +313,20 @@ export class ProfileComponent implements OnInit {
   }
 
   formatDate(dateString: string): string {
-    if (!dateString) {
-      return 'Fecha no disponible';
-    }
-
-    try {
-      const formatted = new Date(dateString).toLocaleDateString('es-ES', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      });
-      return formatted;
-    } catch (error) {
-      console.error('❌ Error formatting date:', error);
-      return 'Fecha no válida';
-    }
+    return this.userService.formatDate(dateString);
   }
 
-  getPlanBadgeColor(): string {
-    if (this.isOnTrial()) {
-      return 'bg-gradient-to-r from-green-400 to-green-600 text-white';
-    }
-
-    const plan = this.getCurrentPlan();
-    if (!plan) return 'bg-gray-100 text-gray-700';
-
-    switch (plan.slug) {
-      case 'premium':
-        return 'bg-gradient-to-r from-blue-400 to-blue-600 text-white';
-      case 'premium_yearly':
-        return 'bg-gradient-to-r from-purple-400 to-purple-600 text-white';
-      case 'pro':
-        return 'bg-gradient-to-r from-purple-400 to-purple-600 text-white';
-      default:
-        return 'bg-gray-100 text-gray-700';
-    }
+  formatPrice(price: number, currency: string = 'USD'): string {
+    return this.subscriptionService.formatPrice(price, currency);
   }
 
-  getPlanName(): string {
-    if (this.isOnTrial()) {
-      return 'Prueba Gratuita';
-    }
+  getBillingIntervalText(interval: string): string {
+    return this.subscriptionService.getBillingIntervalText(interval);
+  }
 
-    const plan = this.getCurrentPlan();
-    return plan?.name || 'Básico';
+  // ========== UTILIDADES ==========
+
+  private showError(message: string): void {
+    alert(message);
   }
 }

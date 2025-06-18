@@ -1,10 +1,15 @@
-// src/app/features/onboarding/pages/onboarding-welcome-overlay.component.ts - CORREGIDO
+// src/app/features/onboarding/pages/onboarding-welcome-overlay.component.ts - COMPLETAMENTE ACTUALIZADO
 import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
-import { UserService } from '../../../core/services/user.service';
-import { SubscriptionService } from '../../../core/services/subscription.service'; // ✅ AGREGADO
 import { CommonModule } from '@angular/common';
-import { TrialStatus } from '../../../core/models/user-legacy.model';
+import { finalize } from 'rxjs/operators';
+
+import { UserService } from '../../../core/services/user.service';
+import { SubscriptionService } from '../../../core/services/subscription.service';
+import {
+  SubscriptionPlan,
+  SubscriptionStatus,
+} from '../../../core/models/subscription.model';
 
 @Component({
   selector: 'app-onboarding-welcome-overlay',
@@ -15,89 +20,220 @@ import { TrialStatus } from '../../../core/models/user-legacy.model';
 })
 export class OnboardingWelcomeOverlayComponent implements OnInit {
   private userService = inject(UserService);
-  private subscriptionService = inject(SubscriptionService); // ✅ CORREGIDO: inject() en lugar de declaración
+  private subscriptionService = inject(SubscriptionService);
+  private router = inject(Router);
 
   @Output() startFreeTrial = new EventEmitter<void>();
 
-  trialEndDate: Date = new Date();
+  // ========== ESTADO ==========
   loading = true;
-  processingPayment = false; // 👈 AGREGAR ESTA LÍNEA
-  selectedPlan: string | null = null; // 👈 AGREGAR ESTA LÍNEA
+  processingTrial = false;
+  processingPayment = false;
+  selectedPlan: string | null = null;
+
+  // ========== DATOS ==========
+  trialEndDate: Date = new Date();
+  availablePlans: SubscriptionPlan[] = [];
+  subscriptionStatus: SubscriptionStatus | null = null;
 
   ngOnInit(): void {
+    this.loadInitialData();
+  }
+
+  // ========== CARGA DE DATOS ==========
+
+  private loadInitialData(): void {
+    this.loading = true;
+
     // Calcular fecha de fin de prueba (3 días desde hoy)
     const today = new Date();
     this.trialEndDate = new Date(today.getTime() + 3 * 24 * 60 * 60 * 1000);
 
-    this.userService.getTrialInfo().subscribe({
-      next: (res: TrialStatus) => {
-        if (res.trial_active && !res.is_subscribed) {
-          this.trialEndDate = new Date(res.trial_end);
+    // Cargar estado de suscripción y planes
+    this.subscriptionService.getStatus().subscribe({
+      next: (status) => {
+        console.log('✅ Estado de suscripción:', status);
+        this.subscriptionStatus = status;
+
+        // Si ya está en trial, actualizar fecha de fin
+        if (status.status === 'trial' && status.subscription?.ends_at) {
+          this.trialEndDate = new Date(status.subscription.ends_at);
         }
+
+        this.loadPlans();
+      },
+      error: (error) => {
+        console.error('❌ Error cargando estado:', error);
+        this.loadPlans(); // Continuar cargando planes aunque falle el estado
+      },
+    });
+  }
+
+  private loadPlans(): void {
+    this.subscriptionService.getPlans().subscribe({
+      next: (plans) => {
+        console.log('✅ Planes disponibles:', plans);
+        // Filtrar solo planes pagos para mostrar en onboarding
+        this.availablePlans = plans.filter((plan) => plan.slug !== 'basic');
         this.loading = false;
       },
-      error: () => {
+      error: (error) => {
+        console.error('❌ Error cargando planes:', error);
         this.loading = false;
       },
     });
   }
 
-  /** El usuario hace clic en "Iniciar mi prueba gratuita" */
+  // ========== ACCIONES DE TRIAL ==========
+
   confirmStartTrial(): void {
-    this.subscriptionService.startTrial().subscribe({
+    if (this.processingTrial) return;
+
+    console.log('🔄 Iniciando prueba gratuita...');
+    this.processingTrial = true;
+
+    this.subscriptionService
+      .startTrial()
+      .pipe(finalize(() => (this.processingTrial = false)))
+      .subscribe({
+        next: (response) => {
+          console.log('✅ Trial iniciado:', response);
+          this.markOnboardingCompleted();
+        },
+        error: (error) => {
+          console.error('❌ Error iniciando trial:', error);
+          this.showError('Error al iniciar la prueba gratuita');
+        },
+      });
+  }
+
+  private markOnboardingCompleted(): void {
+    this.userService.markOnboardingCompleted().subscribe({
       next: () => {
-        this.userService.markOnboardingSeen().subscribe({
-          next: () => {
-            this.startFreeTrial.emit();
-          },
-          error: (err) => {
-            console.error('Error al marcar onboarding visto:', err);
-            this.startFreeTrial.emit();
-          },
-        });
+        console.log('✅ Onboarding marcado como completado');
+        this.startFreeTrial.emit();
       },
-      error: (err) => {
-        console.error('Error iniciando trial:', err);
+      error: (error) => {
+        console.error('❌ Error marcando onboarding:', error);
+        // Emitir evento aunque falle el marcado
         this.startFreeTrial.emit();
       },
     });
   }
 
-  /** Seleccionar un plan específico */
-  selectPlan(planType: 'basic' | 'premium'): void {
-    console.log(`🔄 Seleccionando plan: ${planType}`);
+  // ========== ACCIONES DE SUSCRIPCIÓN ==========
 
-    // 👈 AGREGAR ESTOS ESTADOS
+  selectPlan(planSlug: string): void {
+    if (this.processingPayment) return;
+
+    console.log(`🔄 Seleccionando plan: ${planSlug}`);
+
     this.processingPayment = true;
-    this.selectedPlan = planType;
+    this.selectedPlan = planSlug;
 
     this.subscriptionService
-      .createUpgradeSession(planType, 'monthly')
+      .createCheckout(planSlug, 'monthly')
+      .pipe(
+        finalize(() => {
+          this.processingPayment = false;
+          this.selectedPlan = null;
+        })
+      )
       .subscribe({
         next: (response) => {
-          console.log('✅ Respuesta del servidor:', response);
+          console.log('✅ Checkout creado:', response);
+
           if (response?.checkout_url) {
-            // 👈 MOSTRAR MENSAJE DE REDIRECCIÓN
             console.log('🔄 Redirigiendo a Stripe...');
             window.location.href = response.checkout_url;
           } else {
             console.error('❌ No se recibió checkout_url:', response);
-            this.processingPayment = false; // 👈 RESETEAR ESTADO
-            this.selectedPlan = null;
-            alert('Error: No se pudo generar la URL de pago');
+            this.showError('No se pudo generar la URL de pago');
           }
         },
-        error: (err) => {
-          console.error('❌ Error completo:', err);
-          this.processingPayment = false; // 👈 RESETEAR ESTADO
-          this.selectedPlan = null;
-          alert(`Error al procesar el pago: ${err.message || err}`);
+        error: (error) => {
+          console.error('❌ Error en checkout:', error);
+          this.showError(error.message || 'Error al procesar el pago');
         },
       });
   }
 
-  /** Legacy method para compatibilidad */
+  // ========== UTILIDADES DE UI ==========
+
+  get isTrialActive(): boolean {
+    return this.subscriptionStatus?.status === 'trial';
+  }
+
+  get isSubscribed(): boolean {
+    return this.subscriptionService.isActive(
+      this.subscriptionStatus?.status || ''
+    );
+  }
+
+  get trialDaysRemaining(): number {
+    if (!this.subscriptionStatus?.subscription?.ends_at) return 3;
+    return this.subscriptionService.calculateTrialDaysRemaining(
+      this.subscriptionStatus.subscription.ends_at
+    );
+  }
+
+  get premiumPlan(): SubscriptionPlan | undefined {
+    return this.availablePlans.find((plan) => plan.slug === 'premium');
+  }
+
+  get premiumYearlyPlan(): SubscriptionPlan | undefined {
+    return this.availablePlans.find((plan) => plan.slug === 'premium_yearly');
+  }
+
+  formatPrice(price: number): string {
+    return this.subscriptionService.formatPrice(price);
+  }
+
+  getBillingIntervalText(interval: string): string {
+    return this.subscriptionService.getBillingIntervalText(interval);
+  }
+
+  getPlanBadgeColor(planSlug: string): string {
+    return this.subscriptionService.getPlanBadgeColor(planSlug);
+  }
+
+  isProcessingPlan(planSlug: string): boolean {
+    return this.processingPayment && this.selectedPlan === planSlug;
+  }
+
+  formatTrialEndDate(): string {
+    return this.trialEndDate.toLocaleDateString('es-ES', {
+      day: 'numeric',
+      month: 'long',
+    });
+  }
+
+  // ========== MÉTODOS LEGACY PARA COMPATIBILIDAD ==========
+
+  /** Legacy method para compatibilidad con templates existentes */
   goToPricing(): void {
-    this.selectPlan('premium'); // Default a premium
+    this.selectPlan('premium');
+  }
+
+  /** Legacy method para compatibilidad */
+  selectBasicPlan(): void {
+    this.selectPlan('premium'); // Redirigir a premium ya que basic no está disponible
+  }
+
+  /** Legacy method para compatibilidad */
+  selectPremiumPlan(): void {
+    this.selectPlan('premium');
+  }
+
+  // ========== UTILIDADES ==========
+
+  private showError(message: string): void {
+    // En una implementación real, podrías usar un servicio de notificaciones
+    alert(message);
+  }
+
+  private showSuccess(message: string): void {
+    // En una implementación real, podrías usar un servicio de notificaciones
+    console.log('✅ Success:', message);
   }
 }

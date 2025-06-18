@@ -1,6 +1,8 @@
-// chat-analysis.component.ts - VERSIÓN FINAL CORREGIDA
+// chat-analysis.component.ts - VERSIÓN ACTUALIZADA CON NUEVOS SERVICIOS
 import { Component, Input, OnChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { take, finalize } from 'rxjs/operators';
+
 import {
   AnalysisService,
   ChatAnalysisSummary,
@@ -8,8 +10,15 @@ import {
 } from '../../../chat/services/analysis.service';
 import { DictionaryService } from '../../../dictionary/services/dictionary.service';
 import { LanguageAnalysisPoint } from '../../../chat/models/language-analysis.model';
+
+// ✅ NUEVOS SERVICIOS ACTUALIZADOS
 import { UserService } from '../../../../core/services/user.service';
-import { SubscriptionService } from '../../../../core/services/subscription.service'; // ✅ AGREGADO
+import { SubscriptionService } from '../../../../core/services/subscription.service';
+import { UserProfile } from '../../../../core/models/user.model';
+import {
+  SubscriptionStatus,
+  SubscriptionPlan,
+} from '../../../../core/models/subscription.model';
 
 @Component({
   selector: 'app-chat-analysis',
@@ -20,13 +29,13 @@ import { SubscriptionService } from '../../../../core/services/subscription.serv
 export class ChatAnalysisComponent implements OnChanges {
   @Input() chatId?: string;
 
-  // Servicios
+  // ========== SERVICIOS ==========
   private analysisService = inject(AnalysisService);
   private dictionaryService = inject(DictionaryService);
   private userService = inject(UserService);
-  private subscriptionService = inject(SubscriptionService); // ✅ CORREGIDO: inject() en lugar de declaración
+  private subscriptionService = inject(SubscriptionService);
 
-  // Estado del componente
+  // ========== ESTADO DEL ANÁLISIS ==========
   points: LanguageAnalysisPoint[] = [];
   filteredPoints: LanguageAnalysisPoint[] = [];
   dictionaryWords: DictionaryWord[] = [];
@@ -36,45 +45,114 @@ export class ChatAnalysisComponent implements OnChanges {
   isLoading = true;
   error: string | null = null;
 
-  // Estado del plan del usuario
-  userPlan: string = 'premium';
-  isPremium: boolean = true;
+  // ========== ESTADO DEL USUARIO ==========
+  userProfile: UserProfile | null = null;
+  subscriptionStatus: SubscriptionStatus | null = null;
+  availablePlans: SubscriptionPlan[] = [];
+  isLoadingUserData = false;
 
+  // ========== CONFIGURACIÓN DE PREMIUM ==========
   // Categorías que requieren premium (las últimas 3)
   premiumCategories = ['expression', 'collocation', 'context_appropriateness'];
 
-  // Estado de filtros
+  // ========== ESTADO DE FILTROS ==========
   selectedFilter: string | null = null;
   availableFilters: Array<{ key: string; label: string; count: number }> = [];
 
-  // Estado para acciones
+  // ========== ESTADO DE ACCIONES ==========
   addingToDictionary = new Set<string>();
   successMessages = new Map<string, string>();
-
-  // Estado del paywall
   showPaywall = false;
+  isUpgrading = false;
 
   ngOnChanges(): void {
     this.expandedPoints.clear();
     this.resetFilters();
-    this.loadUserPlan();
+    this.loadUserData();
     this.loadAnalysisData();
   }
 
-  private loadUserPlan(): void {
-    this.userService.getFullProfile().subscribe({
-      next: (response) => {
-        const subscription = response?.profile?.subscription;
-        this.userPlan = subscription?.plan?.slug || 'basic';
-        this.isPremium = ['premium', 'trial'].includes(this.userPlan);
-      },
-      error: (error) => {
-        console.warn('Could not get user plan, defaulting to basic');
-        this.userPlan = 'basic';
-        this.isPremium = false;
-      },
-    });
+  // ========== CARGA DE DATOS DEL USUARIO ==========
+
+  private loadUserData(): void {
+    this.isLoadingUserData = true;
+
+    // Cargar perfil del usuario
+    this.userService
+      .getProfile()
+      .pipe(take(1))
+      .subscribe({
+        next: (profile) => {
+          this.userProfile = profile;
+          this.loadSubscriptionStatus();
+        },
+        error: (error) => {
+          console.warn('Could not get user profile, defaulting to basic');
+          this.setDefaultUserState();
+          this.isLoadingUserData = false;
+        },
+      });
   }
+
+  private loadSubscriptionStatus(): void {
+    this.subscriptionService
+      .getStatus()
+      .pipe(take(1))
+      .subscribe({
+        next: (status) => {
+          this.subscriptionStatus = status;
+          this.loadAvailablePlans();
+        },
+        error: (error) => {
+          console.warn('Could not get subscription status');
+          this.setDefaultUserState();
+          this.isLoadingUserData = false;
+        },
+      });
+  }
+
+  private loadAvailablePlans(): void {
+    this.subscriptionService
+      .getPlans()
+      .pipe(take(1))
+      .subscribe({
+        next: (plans) => {
+          this.availablePlans = plans;
+          this.isLoadingUserData = false;
+        },
+        error: (error) => {
+          console.warn('Could not get available plans');
+          this.isLoadingUserData = false;
+        },
+      });
+  }
+
+  private setDefaultUserState(): void {
+    this.userProfile = null;
+    this.subscriptionStatus = null;
+    this.availablePlans = [];
+  }
+
+  // ========== GETTERS PARA EL ESTADO DE SUSCRIPCIÓN ==========
+
+  get isPremium(): boolean {
+    if (!this.subscriptionStatus) return false;
+    return this.subscriptionService.isActive(this.subscriptionStatus.status);
+  }
+
+  get isTrialActive(): boolean {
+    return this.subscriptionStatus?.status === 'trial';
+  }
+
+  get currentPlanSlug(): string {
+    return this.subscriptionStatus?.subscription?.plan?.slug || 'basic';
+  }
+
+  get canAccessPremiumFeatures(): boolean {
+    return this.isPremium || this.isTrialActive;
+  }
+
+  // ========== CARGA DEL ANÁLISIS ==========
 
   public loadAnalysisData(): void {
     if (!this.chatId) {
@@ -106,14 +184,19 @@ export class ChatAnalysisComponent implements OnChanges {
     });
   }
 
+  // ========== LÓGICA DE PREMIUM ==========
+
   // Verificar si una categoría requiere premium
   isLockedCategory(category: string): boolean {
-    return !this.isPremium && this.premiumCategories.includes(category);
+    return (
+      !this.canAccessPremiumFeatures &&
+      this.premiumCategories.includes(category)
+    );
   }
 
   // Obtener puntos bloqueados para usuarios básicos
   getLockedPoints(): LanguageAnalysisPoint[] {
-    if (this.isPremium) {
+    if (this.canAccessPremiumFeatures) {
       return [];
     }
     return this.filteredPoints.filter((point) =>
@@ -123,13 +206,15 @@ export class ChatAnalysisComponent implements OnChanges {
 
   // Obtener puntos visibles para usuarios básicos
   getVisiblePoints(): LanguageAnalysisPoint[] {
-    if (this.isPremium) {
+    if (this.canAccessPremiumFeatures) {
       return this.filteredPoints;
     }
     return this.filteredPoints.filter(
       (point) => !this.premiumCategories.includes(point.category)
     );
   }
+
+  // ========== FILTROS ==========
 
   // Configurar filtros con todas las categorías
   private setupFilters(): void {
@@ -165,8 +250,11 @@ export class ChatAnalysisComponent implements OnChanges {
   }
 
   setFilter(filterKey: string): void {
-    // Si es una categoría premium y el usuario no es premium, mostrar paywall
-    if (!this.isPremium && this.premiumCategories.includes(filterKey)) {
+    // Si es una categoría premium y el usuario no tiene acceso, mostrar paywall
+    if (
+      !this.canAccessPremiumFeatures &&
+      this.premiumCategories.includes(filterKey)
+    ) {
       this.showPaywall = true;
       return;
     }
@@ -199,76 +287,12 @@ export class ChatAnalysisComponent implements OnChanges {
     this.resetFilters();
   }
 
-  // Métodos para la UI
-  toggle(pointId: string): void {
-    this.expandedPoints.has(pointId)
-      ? this.expandedPoints.delete(pointId)
-      : this.expandedPoints.add(pointId);
-  }
-
-  isExpanded(pointId: string): boolean {
-    return this.expandedPoints.has(pointId);
-  }
-
-  getCategoryCount(type: string): number {
-    return this.categoryStats[type] || 0;
-  }
-
-  getOverallScore(): number {
-    return this.overallScore;
-  }
-
-  getWordsFromDictionary(): DictionaryWord[] {
-    return this.dictionaryWords;
-  }
-
-  // Generar preview intrigante de la explicación
-  getIntriguingPreview(explanation: string): string {
-    if (!explanation) return '';
-
-    // Cortar en un punto que genere curiosidad (entre 60-80 caracteres)
-    const maxLength = 75;
-
-    if (explanation.length <= maxLength) {
-      return explanation;
-    }
-
-    // Buscar el último espacio antes del límite para no cortar palabras
-    let cutPoint = maxLength;
-    while (cutPoint > 50 && explanation[cutPoint] !== ' ') {
-      cutPoint--;
-    }
-
-    // Si no encontramos espacio, cortar directamente
-    if (cutPoint <= 50) {
-      cutPoint = maxLength;
-    }
-
-    let preview = explanation.substring(0, cutPoint);
-
-    // Asegurar que termine de manera intrigante
-    if (
-      !preview.endsWith('.') &&
-      !preview.endsWith(',') &&
-      !preview.endsWith(':')
-    ) {
-      // Si termina a mitad de palabra o frase, es perfecto para generar curiosidad
-      return preview;
-    }
-
-    // Si termina muy "completo", acortar un poco más para generar expectativa
-    const lastSpace = preview.lastIndexOf(' ');
-    if (lastSpace > 40) {
-      preview = preview.substring(0, lastSpace);
-    }
-
-    return preview;
-  }
+  // ========== DICCIONARIO ==========
 
   // FUNCIONALIDAD PARA AÑADIR AL DICCIONARIO (solo vocabulary)
   addToDictionary(point: LanguageAnalysisPoint): void {
-    // Verificar si es premium para la funcionalidad del diccionario
-    if (!this.isPremium) {
+    // Verificar si tiene acceso premium para la funcionalidad del diccionario
+    if (!this.canAccessPremiumFeatures) {
       this.showPaywall = true;
       return;
     }
@@ -377,6 +401,117 @@ export class ChatAnalysisComponent implements OnChanges {
     );
   }
 
+  // ========== PAYWALL Y UPGRADE ==========
+
+  closePaywall(): void {
+    this.showPaywall = false;
+  }
+
+  upgradeToPremium(): void {
+    if (this.isUpgrading) return;
+
+    const premiumPlan = this.availablePlans.find((p) => p.slug === 'premium');
+
+    if (!premiumPlan) {
+      console.error('❌ Plan premium no encontrado');
+      alert('Plan premium no disponible en este momento');
+      return;
+    }
+
+    this.isUpgrading = true;
+
+    this.subscriptionService
+      .createCheckout('premium', 'monthly')
+      .pipe(finalize(() => (this.isUpgrading = false)))
+      .subscribe({
+        next: (response) => {
+          if (response?.checkout_url) {
+            console.log('🔄 Redirigiendo a Stripe...');
+            window.location.href = response.checkout_url;
+          } else {
+            console.error('❌ No se recibió checkout_url:', response);
+            alert('Error: No se pudo generar la URL de pago');
+          }
+        },
+        error: (error) => {
+          console.error('❌ Error creating checkout:', error);
+          alert(
+            `Error al procesar el upgrade: ${
+              error.message || 'Intenta de nuevo'
+            }`
+          );
+        },
+      });
+  }
+
+  // ========== MÉTODOS DE UI ==========
+
+  // Métodos para la UI
+  toggle(pointId: string): void {
+    this.expandedPoints.has(pointId)
+      ? this.expandedPoints.delete(pointId)
+      : this.expandedPoints.add(pointId);
+  }
+
+  isExpanded(pointId: string): boolean {
+    return this.expandedPoints.has(pointId);
+  }
+
+  getCategoryCount(type: string): number {
+    return this.categoryStats[type] || 0;
+  }
+
+  getOverallScore(): number {
+    return this.overallScore;
+  }
+
+  getWordsFromDictionary(): DictionaryWord[] {
+    return this.dictionaryWords;
+  }
+
+  // Generar preview intrigante de la explicación
+  getIntriguingPreview(explanation: string): string {
+    if (!explanation) return '';
+
+    // Cortar en un punto que genere curiosidad (entre 60-80 caracteres)
+    const maxLength = 75;
+
+    if (explanation.length <= maxLength) {
+      return explanation;
+    }
+
+    // Buscar el último espacio antes del límite para no cortar palabras
+    let cutPoint = maxLength;
+    while (cutPoint > 50 && explanation[cutPoint] !== ' ') {
+      cutPoint--;
+    }
+
+    // Si no encontramos espacio, cortar directamente
+    if (cutPoint <= 50) {
+      cutPoint = maxLength;
+    }
+
+    let preview = explanation.substring(0, cutPoint);
+
+    // Asegurar que termine de manera intrigante
+    if (
+      !preview.endsWith('.') &&
+      !preview.endsWith(',') &&
+      !preview.endsWith(':')
+    ) {
+      // Si termina a mitad de palabra o frase, es perfecto para generar curiosidad
+      return preview;
+    }
+
+    // Si termina muy "completo", acortar un poco más para generar expectativa
+    const lastSpace = preview.lastIndexOf(' ');
+    if (lastSpace > 40) {
+      preview = preview.substring(0, lastSpace);
+    }
+
+    return preview;
+  }
+
   private showMessage(
     pointId: string,
     message: string,
@@ -392,6 +527,8 @@ export class ChatAnalysisComponent implements OnChanges {
   getMessage(pointId: string): string | null {
     return this.successMessages.get(pointId) || null;
   }
+
+  // ========== ESTILOS Y LABELS ==========
 
   // Estilos para las categorías
   getCategoryStyle(category: string): string {
@@ -419,7 +556,8 @@ export class ChatAnalysisComponent implements OnChanges {
     return labels[category] || category;
   }
 
-  // Track by functions
+  // ========== TRACK BY FUNCTIONS ==========
+
   trackByPoint(index: number, point: LanguageAnalysisPoint): string {
     return point.id;
   }
@@ -432,7 +570,8 @@ export class ChatAnalysisComponent implements OnChanges {
     return filter.key;
   }
 
-  // Métodos de utilidad
+  // ========== MÉTODOS DE UTILIDAD ==========
+
   hasAnalysisData(): boolean {
     return this.points.length > 0 || this.dictionaryWords.length > 0;
   }
@@ -451,41 +590,33 @@ export class ChatAnalysisComponent implements OnChanges {
     return '📚';
   }
 
-  // Funciones del paywall
-  closePaywall(): void {
-    this.showPaywall = false;
+  // ========== GETTERS PARA EL TEMPLATE ==========
+
+  get subscriptionStatusText(): string {
+    return this.subscriptionService.getStatusText(
+      this.subscriptionStatus?.status || ''
+    );
   }
 
-  // ✅ CORREGIDO: Método upgradeToPremium con tipado correcto
-  upgradeToPremium(): void {
-    this.subscriptionService.getAvailablePlans().subscribe({
-      next: (data) => {
-        const premiumPlan = data.plans.find((p) => p.slug === 'premium');
-        if (premiumPlan) {
-          this.subscriptionService
-            .createUpgradeSession('premium', 'monthly')
-            .subscribe({
-              next: (response) => {
-                if (response?.checkout_url) {
-                  window.location.href = response.checkout_url;
-                } else {
-                  alert('Error: No se pudo generar la URL de pago');
-                }
-              },
-              error: (error) => {
-                console.error('❌ Error creating checkout:', error);
-                alert('Error al procesar el upgrade. Intenta de nuevo.');
-              },
-            });
-        } else {
-          console.error('❌ Plan premium no encontrado');
-          alert('Plan premium no disponible en este momento');
-        }
-      },
-      error: (error) => {
-        console.error('❌ Error getting plans:', error);
-        alert('Error al obtener planes. Intenta de nuevo.');
-      },
+  get planName(): string {
+    if (this.isTrialActive) return 'Prueba Gratuita';
+    return this.subscriptionStatus?.subscription?.plan?.name || 'Básico';
+  }
+
+  get premiumPlan(): SubscriptionPlan | undefined {
+    return this.availablePlans.find((plan) => plan.slug === 'premium');
+  }
+
+  // ========== DEBUG ==========
+
+  logCurrentState(): void {
+    console.log('🔍 Estado actual del análisis:', {
+      isPremium: this.isPremium,
+      isTrialActive: this.isTrialActive,
+      canAccessPremiumFeatures: this.canAccessPremiumFeatures,
+      currentPlanSlug: this.currentPlanSlug,
+      subscriptionStatus: this.subscriptionStatus,
+      userProfile: this.userProfile,
     });
   }
 }
