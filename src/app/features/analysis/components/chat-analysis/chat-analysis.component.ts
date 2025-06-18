@@ -1,4 +1,4 @@
-// chat-analysis.component.ts - VERSIÓN FINAL CON PAYWALL SUTIL
+// chat-analysis.component.ts - VERSIÓN FINAL CORREGIDA
 import { Component, Input, OnChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -9,6 +9,7 @@ import {
 import { DictionaryService } from '../../../dictionary/services/dictionary.service';
 import { LanguageAnalysisPoint } from '../../../chat/models/language-analysis.model';
 import { UserService } from '../../../../core/services/user.service';
+import { SubscriptionService } from '../../../../core/services/subscription.service'; // ✅ AGREGADO
 
 @Component({
   selector: 'app-chat-analysis',
@@ -23,6 +24,7 @@ export class ChatAnalysisComponent implements OnChanges {
   private analysisService = inject(AnalysisService);
   private dictionaryService = inject(DictionaryService);
   private userService = inject(UserService);
+  private subscriptionService = inject(SubscriptionService); // ✅ CORREGIDO: inject() en lugar de declaración
 
   // Estado del componente
   points: LanguageAnalysisPoint[] = [];
@@ -61,10 +63,10 @@ export class ChatAnalysisComponent implements OnChanges {
   }
 
   private loadUserPlan(): void {
-    this.userService.getCurrentUser().subscribe({
-      next: (user) => {
-        this.userPlan = user?.subscription_type || 'basic';
-        this.isPremium = this.userPlan === 'premium';
+    this.userService.getFullProfile().subscribe({
+      next: (profile) => {
+        // this.userPlan = profile?.subscription?.plan?.slug || 'basic';
+        this.isPremium = ['premium', 'trial'].includes(this.userPlan);
         console.log(`👤 User plan: ${this.userPlan}`);
       },
       error: (error) => {
@@ -460,10 +462,42 @@ export class ChatAnalysisComponent implements OnChanges {
     this.showPaywall = false;
   }
 
+  // ✅ CORREGIDO: Método upgradeToPremium con tipado correcto
   upgradeToPremium(): void {
-    // Aquí integrarías con tu sistema de pagos (Stripe, PayPal, etc.)
-    console.log('Redirecting to payment...');
-    // Ejemplo: this.router.navigate(['/upgrade']);
-    // O abrir Stripe checkout, etc.
+    console.log('🚀 Iniciando upgrade a premium...');
+
+    this.subscriptionService.getAvailablePlans().subscribe({
+      next: (data) => {
+        const premiumPlan = data.plans.find((p) => p.slug === 'premium');
+        if (premiumPlan) {
+          console.log('📋 Plan premium encontrado:', premiumPlan);
+
+          this.subscriptionService
+            .createUpgradeSession('premium', 'monthly')
+            .subscribe({
+              next: (response) => {
+                console.log('✅ Checkout session creada:', response);
+                if (response?.checkout_url) {
+                  window.location.href = response.checkout_url;
+                } else {
+                  console.error('❌ No checkout_url in response');
+                  alert('Error: No se pudo generar la URL de pago');
+                }
+              },
+              error: (error) => {
+                console.error('❌ Error creating checkout:', error);
+                alert('Error al procesar el upgrade. Intenta de nuevo.');
+              },
+            });
+        } else {
+          console.error('❌ Plan premium no encontrado');
+          alert('Plan premium no disponible en este momento');
+        }
+      },
+      error: (error) => {
+        console.error('❌ Error getting plans:', error);
+        alert('Error al obtener planes. Intenta de nuevo.');
+      },
+    });
   }
 }

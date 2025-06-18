@@ -20,6 +20,9 @@ export interface SignUpRequest {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  isAuthenticated() {
+    throw new Error('Method not implemented.');
+  }
   private apiUrl = environment.apiUrl;
   private userSubject = new BehaviorSubject<any | null>(null);
   user$ = this.userSubject.asObservable();

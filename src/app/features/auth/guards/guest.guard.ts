@@ -1,9 +1,9 @@
-// features/auth/guards/guest.guard.ts - VERSIÓN INTELIGENTE
+// src/app/features/auth/guards/guest.guard.ts - MEJORADO
 import { Injectable } from '@angular/core';
 import { CanActivate, Router, ActivatedRouteSnapshot } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { Observable, of } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { map, take, catchError } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -23,27 +23,27 @@ export class GuestGuard implements CanActivate {
           isLoggedIn,
           currentPath,
           userEmail: user?.email,
+          timestamp: new Date().toISOString(),
         });
 
-        // 🔧 PERMITIR /auth si es callback o si viene de Google OAuth
-        if (currentPath === 'auth') {
-          // Si está logueado, redirigir a chat
-          if (isLoggedIn && user) {
-            console.log('✅ User is logged in, redirecting to chat');
-            this.router.navigate(['/chat']);
-            return false;
-          }
-          // Si no está logueado, permitir acceso a auth
-          return true;
-        }
-
-        // Para otras rutas "guest", funcionar normal
+        // ✅ Si el usuario está logueado, redirigir a chat
         if (isLoggedIn && user) {
+          console.log('✅ Usuario ya autenticado, redirigiendo a /chat');
           this.router.navigate(['/chat']);
           return false;
         }
 
+        // ✅ Si no está logueado, permitir acceso a rutas de invitado
+        console.log(
+          '✅ Usuario no autenticado, permitiendo acceso a',
+          currentPath
+        );
         return true;
+      }),
+      catchError((error) => {
+        // ✅ En caso de error, permitir acceso (presumir no autenticado)
+        console.warn('⚠️ GuestGuard error, permitiendo acceso:', error);
+        return [true];
       })
     );
   }

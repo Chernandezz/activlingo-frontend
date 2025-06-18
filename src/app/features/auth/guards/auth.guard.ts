@@ -1,36 +1,51 @@
-// core/guards/auth.guard.ts - GUARD CORREGIDO
+// src/app/features/auth/guards/auth.guard.ts - MEJORADO
 import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { map, take } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import { UserService } from '../../../core/services/user.service';
+import { map, take, catchError } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthGuard implements CanActivate {
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private userService: UserService,
+    private router: Router
+  ) {}
 
-  canActivate(): Observable<boolean> | boolean {
-    // Verificar estado de autenticación
+  canActivate(): Observable<boolean> {
     return this.authService.user$.pipe(
       take(1),
       map((user) => {
         const isLoggedIn = this.authService.isLoggedIn();
 
-        console.log('AuthGuard check:', {
-          user,
+        console.log('🔐 AuthGuard check:', {
+          user: !!user,
           isLoggedIn,
-          authState: this.authService.getAuthState(),
+          userEmail: user?.email,
+          timestamp: new Date().toISOString(),
         });
 
         if (isLoggedIn && user) {
+          // ✅ Usuario autenticado - permitir acceso
           return true;
         } else {
-          console.log('AuthGuard: redirecting to login');
+          // ❌ No autenticado - redirigir a login
+          console.log(
+            '🔒 AuthGuard: Usuario no autenticado, redirigiendo a /auth'
+          );
           this.router.navigate(['/auth']);
           return false;
         }
+      }),
+      catchError((error) => {
+        // ❌ Error en verificación - redirigir a login por seguridad
+        console.error('❌ AuthGuard error:', error);
+        this.router.navigate(['/auth']);
+        return of(false);
       })
     );
   }

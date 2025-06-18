@@ -1,11 +1,9 @@
-// src/app/features/onboarding/pages/onboarding-welcome-overlay.component.ts
-
+// src/app/features/onboarding/pages/onboarding-welcome-overlay.component.ts - CORREGIDO
 import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserService, TrialStatus } from '../../../core/services/user.service';
+import { SubscriptionService } from '../../../core/services/subscription.service'; // ✅ AGREGADO
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-onboarding-welcome-overlay',
@@ -16,7 +14,7 @@ import { environment } from '../../../../environments/environment';
 })
 export class OnboardingWelcomeOverlayComponent implements OnInit {
   private userService = inject(UserService);
-  private http = inject(HttpClient);
+  private subscriptionService = inject(SubscriptionService); // ✅ CORREGIDO: inject() en lugar de declaración
 
   @Output() startFreeTrial = new EventEmitter<void>();
 
@@ -43,13 +41,21 @@ export class OnboardingWelcomeOverlayComponent implements OnInit {
 
   /** El usuario hace clic en "Iniciar mi prueba gratuita" */
   confirmStartTrial(): void {
-    this.userService.markOnboardingSeen().subscribe({
+    this.userService.startTrial().subscribe({
       next: () => {
-        this.startFreeTrial.emit();
+        this.userService.markOnboardingSeen().subscribe({
+          next: () => {
+            this.startFreeTrial.emit();
+          },
+          error: (err) => {
+            console.error('Error al marcar onboarding visto:', err);
+            this.startFreeTrial.emit();
+          },
+        });
       },
       error: (err) => {
-        console.error('Error al marcar onboarding visto:', err);
-        this.startFreeTrial.emit();
+        console.error('Error iniciando trial:', err);
+        this.startFreeTrial.emit(); // Si falla, igual cerramos
       },
     });
   }
@@ -58,29 +64,18 @@ export class OnboardingWelcomeOverlayComponent implements OnInit {
   selectPlan(planType: 'basic' | 'premium'): void {
     console.log(`🎯 Plan seleccionado: ${planType}`);
 
-    // Crear checkout session con el plan seleccionado
-    this.http
-      .post<{ url: string }>(
-        `${environment.apiUrl}/stripe/create-checkout-session`,
-        {
-          plan_type: planType,
-          price_id:
-            planType === 'basic'
-              ? 'price_basic_monthly' // ID del precio en Stripe para plan básico
-              : 'price_premium_monthly', // ID del precio en Stripe para plan premium
-        }
-      )
+    // ✅ CORREGIDO: Usar el servicio correctamente inyectado
+    this.subscriptionService
+      .createUpgradeSession(planType, 'monthly')
       .subscribe({
-        next: (res) => {
-          if (res.url) {
-            window.location.href = res.url;
+        next: (response) => {
+          if (response?.checkout_url) {
+            window.location.href = response.checkout_url;
           }
         },
         error: (err) => {
-          console.error('Error iniciando pago con Stripe:', err);
-          alert(
-            'Hubo un problema al iniciar el proceso de pago. Intenta de nuevo.'
-          );
+          console.error('Error:', err);
+          alert('Error al procesar el pago. Intenta de nuevo.');
         },
       });
   }

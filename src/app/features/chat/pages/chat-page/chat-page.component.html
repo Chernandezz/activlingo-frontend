@@ -110,19 +110,6 @@
           <div *ngIf="(messages$ | async)?.length! > 0" class="px-4 sm:px-6 py-6 space-y-4">
             <app-chat-message *ngFor="let message of messages$ | async; trackBy: trackByMessage" [message]="message"
               [hideAIResponses]="(hideAIResponses$ | async) ?? false"></app-chat-message>
-
-            <!-- Indicador de cargando -->
-            <div *ngIf="isLoading" class="flex items-center gap-3 px-4 py-3 bg-blue-50 rounded-xl max-w-xs">
-              <div
-                class="w-8 h-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center">
-                <i class="fas fa-robot text-white text-sm"></i>
-              </div>
-              <div class="flex items-center gap-1">
-                <div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
-                <div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                <div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-              </div>
-            </div>
           </div>
         </div>
 

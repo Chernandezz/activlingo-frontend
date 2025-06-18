@@ -283,14 +283,6 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
   }
 
   handleStartFreeTrial(): void {
-    this.userService.markOnboardingSeen().subscribe({
-      next: () => {
-        this.showOnboarding = false;
-      },
-      error: (err) => {
-        console.error('Error al marcar onboarding visto:', err);
-        this.showOnboarding = false;
-      },
-    });
+    this.showOnboarding = false;
   }
 }
