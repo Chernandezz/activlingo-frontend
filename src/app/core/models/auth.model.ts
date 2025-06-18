@@ -1,4 +1,4 @@
-// core/models/auth.model.ts - MODELOS ACTUALIZADOS
+// core/models/auth.model.ts
 
 export interface LoginRequest {
   email: string;
