@@ -3,46 +3,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { SubscriptionPlan } from './user.service';
+import { CancelResponse, CheckoutResponse, SubscriptionPlan, UserSubscription } from '../models/subscription.model';
+import { PlanFeaturesConfig } from '../interfaces/plan-feature.interface';
 
-export interface UserSubscription {
-  id: number;
-  user_id: string;
-  plan: SubscriptionPlan;
-  status: 'active' | 'canceled' | 'expired' | 'trial' | 'past_due';
-  starts_at: string;
-  ends_at: string | null;
-  trial_ends_at: string | null;
-  canceled_at: string | null;
-}
-
-export interface CheckoutResponse {
-  checkout_url: string;
-  session_id: string;
-}
-
-export interface CancelResponse {
-  success: boolean;
-  message: string;
-  ends_at: string;
-}
-
-// ✅ INTERFAZ PARA FEATURES CON INDEX SIGNATURE
-interface PlanFeatures {
-  unlimited_conversations: boolean;
-  advanced_scenarios: boolean;
-  priority_support: boolean;
-  analytics: boolean;
-  export_data: boolean;
-  api_access?: boolean;
-  custom_scenarios?: boolean;
-  max_conversations_per_day: number;
-  [key: string]: boolean | number | undefined; // ✅ Index signature agregada
-}
-
-interface PlanFeaturesConfig {
-  [planSlug: string]: PlanFeatures;
-}
 
 @Injectable({ providedIn: 'root' })
 export class SubscriptionService {
@@ -51,13 +14,8 @@ export class SubscriptionService {
   constructor(private http: HttpClient) {}
 
   // ========== PLANES ==========
-  getAvailablePlans(): Observable<{
-    success: boolean;
-    plans: SubscriptionPlan[];
-  }> {
-    return this.http.get<{ success: boolean; plans: SubscriptionPlan[] }>(
-      `${this.apiUrl}/plans`
-    );
+  getAvailablePlans(): Observable<{ plans: SubscriptionPlan[] }> {
+    return this.http.get<{ plans: SubscriptionPlan[] }>(`${this.apiUrl}/plans`);
   }
 
   // ========== SUSCRIPCIÓN ACTUAL ==========
@@ -166,6 +124,14 @@ export class SubscriptionService {
 
     return targetIndex > currentIndex;
   }
+
+  
+    startTrial(): Observable<{ success: boolean; message: string }> {
+      return this.http.post<{ success: boolean; message: string }>(
+        `${this.apiUrl}/trial/start`,
+        {}
+      );
+    }
 
   isSubscriptionActive(status: string): boolean {
     return ['active', 'trial'].includes(status);

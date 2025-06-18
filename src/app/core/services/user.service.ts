@@ -3,114 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
+import { ApiProfileResponse, UpdateProfileRequest } from '../models/profile.model';
+import { UserStats } from '../models/user.model';
+import { Achievement } from '../models/achievement.model';
+import { PlanInfo, TrialStatus, UserInfo } from '../models/user-legacy.model';
 
-// ========== INTERFACES ACTUALIZADAS ==========
 
-export interface UserStats {
-  total_conversations: number;
-  current_streak: number;
-  longest_streak: number;
-  total_words_learned: number;
-  average_session_minutes: number;
-  join_date: string;
-  last_activity: string;
-  conversations_this_month: number;
-  words_learned_this_month: number;
-}
-
-export interface Achievement {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  category: string;
-  target_value: number;
-  current_progress: number;
-  unlocked: boolean;
-  unlocked_at?: string;
-}
-
-export interface UserProfileResponse {
-  user: {
-    id: string;
-    email: string;
-    name: string;
-    avatar_url?: string;
-    created_at: string;
-  };
-  subscription: {
-    id: number;
-    user_id: string;
-    plan: {
-      id: number;
-      name: string;
-      slug: string;
-      price: number;
-      currency: string;
-      billing_interval: string;
-      features: string[];
-      max_conversations: number;
-      max_words_per_day: number;
-      priority_support: boolean;
-    };
-    status: string;
-    starts_at: string;
-    ends_at?: string;
-    trial_ends_at?: string;
-    canceled_at?: string;
-  } | null;
-  stats: UserStats;
-}
-
-// ✅ NUEVA INTERFAZ PARA LA RESPUESTA DEL BACKEND
-export interface ApiProfileResponse {
-  success: boolean;
-  profile: UserProfileResponse;
-}
-
-export interface UpdateProfileRequest {
-  name?: string;
-  language?: string;
-  learning_goal?: string;
-  difficulty_level?: string;
-  notifications?: {
-    daily_reminders: boolean;
-    achievements: boolean;
-    product_updates: boolean;
-  };
-}
-
-// ========== INTERFACES LEGACY (mantener compatibilidad) ==========
-
-export interface TrialStatus {
-  trial_end: string;
-  trial_active: boolean;
-  is_subscribed: boolean;
-  onboarding_seen: boolean;
-}
-
-export interface UserInfo {
-  id: string;
-  email: string;
-  subscription_type: string;
-  plan_type: string;
-  is_subscribed: boolean;
-  trial_active: boolean;
-  trial_end: string | null;
-  onboarding_seen: boolean;
-  created_at: string;
-}
-
-export interface PlanInfo {
-  current_plan: string;
-  is_premium: boolean;
-  features: {
-    name: string;
-    max_suggestions: number;
-    features: string[];
-    analyzer_type: string;
-  };
-}
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
@@ -141,13 +39,6 @@ export class UserService {
       achievements: Achievement[];
       total_unlocked: number;
     }>(`${this.apiUrl}/achievements`);
-  }
-
-  startTrial(): Observable<{ success: boolean; message: string }> {
-    return this.http.post<{ success: boolean; message: string }>(
-      `${this.apiUrl}/start-trial`,
-      {}
-    );
   }
 
   // ========== MÉTODOS LEGACY (mantener compatibilidad) ==========

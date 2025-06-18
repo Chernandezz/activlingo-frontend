@@ -1,50 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import {
-  UserProfileResponse,
   UserService,
-  UpdateProfileRequest,
 } from '../../../core/services/user.service';
 import { SubscriptionService } from '../../../core/services/subscription.service';
-
-interface UserStats {
-  totalChats: number;
-  currentStreak: number;
-  longestStreak: number;
-  totalWords: number;
-  averageSession: number;
-  joinDate: string;
-  level: string;
-  nextLevelProgress: number;
-}
-
-interface Achievement {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  unlocked: boolean;
-  unlocked_at?: string;
-  current_progress?: number;
-  target_value?: number;
-}
-
-interface SubscriptionPlan {
-  id: number;
-  name: string;
-  slug: string;
-  price: number;
-  currency: string;
-  billing_interval: string;
-  features: string[];
-  max_conversations: number;
-  max_words_per_day: number;
-  priority_support: boolean;
-  stripe_price_id?: string;
-}
+import { UpdateProfileRequest, UserProfileResponse } from '../../../core/models/profile.model';
+import { SubscriptionPlan } from '../../../core/models/subscription.model';
+import { UserStats } from '../../../core/models/user.model';
+import { Achievement } from '../../../core/models/achievement.model';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-profile',
@@ -54,11 +21,11 @@ interface SubscriptionPlan {
   styleUrls: ['./profile.component.css'],
 })
 export class ProfileComponent implements OnInit {
+  activeTab: string = 'settings';
   user: any = null;
   profileData: UserProfileResponse | null = null;
   availablePlans: SubscriptionPlan[] = [];
 
-  isEditing = false;
   isUpgrading = false;
   isCanceling = false;
   isLoading = true;
@@ -77,26 +44,28 @@ export class ProfileComponent implements OnInit {
   };
 
   userStats: UserStats = {
-    totalChats: 0,
-    currentStreak: 0,
-    longestStreak: 0,
-    totalWords: 0,
-    averageSession: 0,
-    joinDate: '',
-    level: 'Nuevo',
-    nextLevelProgress: 0,
+    total_conversations: 0,
+    current_streak: 0,
+    longest_streak: 0,
+    total_words_learned: 0,
+    average_session_minutes: 0,
+    join_date: '',
   };
 
   achievements: Achievement[] = [];
-  activeTab = 'overview';
 
   constructor(
     private authService: AuthService,
     private userService: UserService,
-    private subscriptionService: SubscriptionService
+    private subscriptionService: SubscriptionService,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
+    this.route.fragment.subscribe((fragment) => {
+      this.activeTab = fragment || 'settings';
+    });
+
     this.loadUserData();
   }
 
@@ -104,32 +73,27 @@ export class ProfileComponent implements OnInit {
     this.user = this.authService.currentUser;
     this.isLoading = true;
 
-    console.log('🔍 Current user from auth:', this.user);
 
     if (this.user) {
       // ✅ CARGAR DATOS DE PERFIL PRIMERO
       this.userService.getFullProfile().subscribe({
         next: (response) => {
-          console.log('📊 Full response received:', response);
-          
+
           // ✅ EXTRAER LOS DATOS CORRECTAMENTE
           if (response.success && response.profile) {
             this.profileData = response.profile;
-            console.log('✅ Profile data extracted:', this.profileData);
-            
+
             // ✅ MAPEAR ESTADÍSTICAS
             if (this.profileData.stats) {
               this.userStats = {
-                totalChats: this.profileData.stats.total_conversations,
-                currentStreak: this.profileData.stats.current_streak,
-                longestStreak: this.profileData.stats.longest_streak,
-                totalWords: this.profileData.stats.total_words_learned,
-                averageSession: this.profileData.stats.average_session_minutes,
-                joinDate: this.profileData.stats.join_date,
-                level: this.userService.getLevel(this.profileData.stats.total_conversations),
-                nextLevelProgress: this.calculateLevelProgress(),
+                total_conversations: this.profileData.stats.total_conversations,
+                current_streak: this.profileData.stats.current_streak,
+                longest_streak: this.profileData.stats.longest_streak,
+                total_words_learned: this.profileData.stats.total_words_learned,
+                average_session_minutes:
+                  this.profileData.stats.average_session_minutes,
+                join_date: this.profileData.stats.join_date,
               };
-              console.log('📈 User stats mapped:', this.userStats);
             }
 
             // ✅ MAPEAR FORMULARIO
@@ -146,16 +110,15 @@ export class ProfileComponent implements OnInit {
                   product_updates: false,
                 },
               };
-              console.log('📝 Edit form populated:', this.editForm);
             }
           }
-          
+
           // ✅ CARGAR PLANES DISPONIBLES
           this.loadAvailablePlans();
-          
+
           // ✅ CARGAR LOGROS
           this.loadAchievements();
-          
+
           this.isLoading = false;
         },
         error: (error) => {
@@ -172,12 +135,9 @@ export class ProfileComponent implements OnInit {
   private loadAvailablePlans(): void {
     this.subscriptionService.getAvailablePlans().subscribe({
       next: (data) => {
-        console.log('📋 Plans data received:', data);
-        // ✅ Filtrar planes - excluir "trial" y "basic"
         this.availablePlans = data.plans.filter(
-          (plan) => !['trial', 'basic'].includes(plan.slug)
+          (plan) => !['trial'].includes(plan.slug)
         );
-        console.log('💰 Available plans after filter:', this.availablePlans);
       },
       error: (error) => {
         console.error('❌ Error loading plans:', error);
@@ -189,19 +149,16 @@ export class ProfileComponent implements OnInit {
   private loadAchievements(): void {
     this.userService.getAchievements().subscribe({
       next: (achievementData) => {
-        console.log('🏆 Achievements data:', achievementData);
         this.achievements = achievementData.achievements || [];
-        console.log('🏆 Processed achievements:', this.achievements);
       },
       error: (error) => {
-        console.error('❌ Error loading achievements:', error);
         this.achievements = [];
       },
     });
   }
 
   private calculateLevelProgress(): number {
-    const conversations = this.userStats.totalChats;
+    const conversations = this.userStats.total_conversations;
     const currentLevelBase = Math.floor(conversations / 10) * 10;
     const nextLevelBase = currentLevelBase + 10;
     const progress =
@@ -223,7 +180,6 @@ export class ProfileComponent implements OnInit {
         window.location.href = response.checkout_url;
       }
     } catch (error) {
-      console.error('Error upgrading subscription:', error);
       alert('Error al procesar el upgrade. Por favor intenta de nuevo.');
     } finally {
       this.isUpgrading = false;
@@ -296,7 +252,7 @@ export class ProfileComponent implements OnInit {
 
   getTrialDaysRemaining(): number {
     const subscription = this.profileData?.subscription;
-    if (!subscription?.trial_ends_at) return 7;
+    if (!subscription?.trial_ends_at) return 3;
 
     try {
       const trialEnd = new Date(subscription.trial_ends_at);
@@ -306,55 +262,12 @@ export class ProfileComponent implements OnInit {
 
       return Math.max(0, diffDays);
     } catch {
-      return 7;
+      return 3;
     }
   }
 
   setActiveTab(tab: string): void {
     this.activeTab = tab;
-  }
-
-  toggleEdit(): void {
-    this.isEditing = !this.isEditing;
-    if (!this.isEditing && this.profileData) {
-      this.editForm = {
-        name: this.profileData.user.name || '',
-        email: this.profileData.user.email || '',
-        language: 'es',
-        learning_goal: 'conversation',
-        difficulty_level: 'intermediate',
-        notifications: {
-          daily_reminders: true,
-          achievements: true,
-          product_updates: false,
-        },
-      };
-    }
-  }
-
-  saveProfile(): void {
-    if (!this.profileData) return;
-
-    const updateData: UpdateProfileRequest = {
-      name: this.editForm.name,
-      language: this.editForm.language,
-      learning_goal: this.editForm.learning_goal,
-      difficulty_level: this.editForm.difficulty_level,
-      notifications: this.editForm.notifications,
-    };
-
-    this.userService.updateProfile(updateData).subscribe({
-      next: (response) => {
-        if (this.profileData) {
-          this.profileData.user.name = this.editForm.name;
-        }
-        this.isEditing = false;
-        console.log('Perfil actualizado exitosamente');
-      },
-      error: (error) => {
-        console.error('Error updating profile:', error);
-      },
-    });
   }
 
   getUserInitials(): string {
@@ -381,45 +294,36 @@ export class ProfileComponent implements OnInit {
     const name = this.profileData?.user?.name;
     const email = this.profileData?.user?.email;
 
-    console.log('🔍 getDisplayName - name:', name, 'email:', email);
-
     if (name && name.trim() !== '') {
-      console.log('✅ Using name:', name);
       return name;
     }
 
     if (email) {
       const username = email.split('@')[0];
-      console.log('✅ Using email username:', username);
       return username;
     }
 
-    console.log('⚠️ Using fallback: Usuario');
     return 'Usuario';
   }
 
   getStreakIcon(): string {
-    if (this.userStats.currentStreak >= 30) return 'fas fa-crown';
-    if (this.userStats.currentStreak >= 7) return 'fas fa-fire';
+    if (this.userStats.current_streak >= 30) return 'fas fa-crown';
+    if (this.userStats.current_streak >= 7) return 'fas fa-fire';
     return 'fas fa-calendar-check';
   }
 
   getStreakColor(): string {
-    if (this.userStats.currentStreak >= 30) return 'text-yellow-500';
-    if (this.userStats.currentStreak >= 7) return 'text-orange-500';
+    if (this.userStats.current_streak >= 30) return 'text-yellow-500';
+    if (this.userStats.current_streak >= 7) return 'text-orange-500';
     return 'text-blue-500';
   }
 
-  getLevelProgress(): number {
-    return this.userStats.nextLevelProgress;
-  }
-
   getJoinedDaysAgo(): number {
-    if (!this.userStats.joinDate) return 0;
+    if (!this.userStats.join_date) return 0;
     try {
-      const joinDate = new Date(this.userStats.joinDate);
+      const join_date = new Date(this.userStats.join_date);
       const today = new Date();
-      const diffTime = Math.abs(today.getTime() - joinDate.getTime());
+      const diffTime = Math.abs(today.getTime() - join_date.getTime());
       return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     } catch {
       return 0;
@@ -428,13 +332,11 @@ export class ProfileComponent implements OnInit {
 
   getUnlockedAchievements(): Achievement[] {
     const unlocked = this.achievements.filter((a) => a.unlocked);
-    console.log('🔓 Getting unlocked achievements:', unlocked);
     return unlocked;
   }
 
   getLockedAchievements(): Achievement[] {
     const locked = this.achievements.filter((a) => !a.unlocked);
-    console.log('🔒 Getting locked achievements:', locked);
     return locked;
   }
 
@@ -447,10 +349,7 @@ export class ProfileComponent implements OnInit {
   }
 
   formatDate(dateString: string): string {
-    console.log('📅 Formatting date:', dateString);
-
     if (!dateString) {
-      console.log('⚠️ No date string provided');
       return 'Fecha no disponible';
     }
 
@@ -460,7 +359,6 @@ export class ProfileComponent implements OnInit {
         month: 'long',
         day: 'numeric',
       });
-      console.log('✅ Formatted date:', formatted);
       return formatted;
     } catch (error) {
       console.error('❌ Error formatting date:', error);
