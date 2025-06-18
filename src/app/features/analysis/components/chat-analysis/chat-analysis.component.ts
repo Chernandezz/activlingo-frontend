@@ -37,8 +37,8 @@ export class ChatAnalysisComponent implements OnChanges {
   error: string | null = null;
 
   // Estado del plan del usuario
-  userPlan: string = 'basic';
-  isPremium: boolean = false;
+  userPlan: string = 'premium';
+  isPremium: boolean = true;
 
   // Categorías que requieren premium (las últimas 3)
   premiumCategories = ['expression', 'collocation', 'context_appropriateness'];
@@ -55,7 +55,6 @@ export class ChatAnalysisComponent implements OnChanges {
   showPaywall = false;
 
   ngOnChanges(): void {
-    console.log('🔍 Analyzing chatId:', this.chatId);
     this.expandedPoints.clear();
     this.resetFilters();
     this.loadUserPlan();
@@ -64,10 +63,10 @@ export class ChatAnalysisComponent implements OnChanges {
 
   private loadUserPlan(): void {
     this.userService.getFullProfile().subscribe({
-      next: (profile) => {
-        // this.userPlan = profile?.subscription?.plan?.slug || 'basic';
+      next: (response) => {
+        const subscription = response?.profile?.subscription;
+        this.userPlan = subscription?.plan?.slug || 'basic';
         this.isPremium = ['premium', 'trial'].includes(this.userPlan);
-        console.log(`👤 User plan: ${this.userPlan}`);
       },
       error: (error) => {
         console.warn('Could not get user plan, defaulting to basic');
@@ -88,8 +87,6 @@ export class ChatAnalysisComponent implements OnChanges {
 
     this.analysisService.getChatAnalysisSummary(this.chatId).subscribe({
       next: (summary: ChatAnalysisSummary) => {
-        console.log('📊 Analysis summary received:', summary);
-
         this.points = summary.analysis_points;
         this.dictionaryWords = summary.dictionary_words_used;
         this.overallScore = summary.stats.overall_score;
@@ -296,11 +293,8 @@ export class ChatAnalysisComponent implements OnChanges {
       status: 'passive' as const,
     };
 
-    console.log(`📚 Adding "${word}" to dictionary:`, wordData);
-
     this.dictionaryService.addWord(wordData).subscribe({
       next: (result) => {
-        console.log('✅ Word added successfully:', result);
         this.addingToDictionary.delete(point.id);
         this.showMessage(
           point.id,
@@ -464,23 +458,17 @@ export class ChatAnalysisComponent implements OnChanges {
 
   // ✅ CORREGIDO: Método upgradeToPremium con tipado correcto
   upgradeToPremium(): void {
-    console.log('🚀 Iniciando upgrade a premium...');
-
     this.subscriptionService.getAvailablePlans().subscribe({
       next: (data) => {
         const premiumPlan = data.plans.find((p) => p.slug === 'premium');
         if (premiumPlan) {
-          console.log('📋 Plan premium encontrado:', premiumPlan);
-
           this.subscriptionService
             .createUpgradeSession('premium', 'monthly')
             .subscribe({
               next: (response) => {
-                console.log('✅ Checkout session creada:', response);
                 if (response?.checkout_url) {
                   window.location.href = response.checkout_url;
                 } else {
-                  console.error('❌ No checkout_url in response');
                   alert('Error: No se pudo generar la URL de pago');
                 }
               },
