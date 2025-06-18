@@ -10,9 +10,10 @@ import {
   faUser,
 } from '@fortawesome/free-solid-svg-icons';
 import { AuthService } from '../../../core/services/auth.service';
-import { UserService, UserStats } from '../../../core/services/user.service';
+import { UserService } from '../../../core/services/user.service';
 import { Subject, takeUntil, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { UserStats } from '../../../core/models/user.model';
 
 @Component({
   selector: 'app-header',
