@@ -1,7 +1,7 @@
 <!-- dictionary-page.component.html - DISEÑO RESPONSIVE MEJORADO -->
 <div class="min-h-screen bg-gradient-to-br from-gray-50 to-slate-100">
   <!-- Header Compacto con Search y Filtros - Optimizado para móvil -->
-  <div class="sticky top-0 z-50 bg-white/90 backdrop-blur-lg border-b border-gray-200 shadow-sm">
+  <div class=" bg-white/90 backdrop-blur-lg border-b border-gray-200 shadow-sm">
     <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
       @if (!searchMode()) {
       <!-- Header Principal - Responsive -->
@@ -329,7 +329,7 @@
 
   <!-- Word Details Modal - Responsive -->
   @if (selectedWord()) {
-  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4"
+  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-999 flex items-center justify-center p-3 sm:p-4"
     (click)="selectedWord.set(null)">
     <div class="max-w-2xl w-full max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
       <app-word-details [word]="selectedWord()!" (back)="selectedWord.set(null)">

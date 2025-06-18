@@ -36,7 +36,7 @@ import { UserService } from '../../../../core/services/user.service';
   imports: [
     CommonModule,
     ChatSidebarComponent,
-    ConversationCreatorModalComponent, // AGREGADO
+    ConversationCreatorModalComponent,
     ChatMessageComponent,
     ChatInputComponent,
     ChatAnalysisComponent,
@@ -58,13 +58,16 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
   hideAIResponses$: Observable<boolean>;
   chatForAnalysis: Chat | null = null;
   tasks$: Observable<Task[]>;
-  showOnboarding = false;
+
+  // ✅ MODIFICADO: Estados de onboarding con loading
+  isLoadingUserData = true;
+  shouldShowOnboarding = false; // Cambiado de showOnboarding = true
 
   // Estado UI
   currentChatId: string | null = null;
   isSidebarOpen = false;
   isCreatingChat = false;
-  showModal = false; // LA PRINCIPAL PARA EL MODAL
+  showModal = false;
   showAnalysis = false;
   isLoading = false;
   isRecordingManual = false;
@@ -98,14 +101,27 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
   ngOnInit(): void {
     this.chatService.fetchChats();
 
+    // ✅ CORREGIDO: Manejo del estado de onboarding con loading
     this.userService
       .getTrialInfo()
       .pipe(take(1))
-      .subscribe((res) => {
-        console.log('Trial info:', res);
-        if (res.trial_active && !res.is_subscribed && !res.onboarding_seen) {
-          this.showOnboarding = true;
-        }
+      .subscribe({
+        next: (res) => {
+
+          // Solo mostrar onboarding si:
+          // - No hay trial activo
+          // - No está suscrito
+          // - No ha visto el onboarding
+          this.shouldShowOnboarding = !res.is_subscribed && !res.onboarding_seen;
+
+          this.isLoadingUserData = false;
+        },
+        error: (err) => {
+          console.error('Error getting trial info:', err);
+          // En caso de error, no mostrar onboarding por defecto
+          this.shouldShowOnboarding = false;
+          this.isLoadingUserData = false;
+        },
       });
 
     this.subscriptions.add(
@@ -232,17 +248,17 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
           }
 
           this.isCreatingChat = false;
-          this.showModal = false; // CERRAR MODAL
+          this.showModal = false;
           this.ui.closeSidebar();
         },
         error: () => {
           this.isCreatingChat = false;
-          this.showModal = false; // CERRAR MODAL
+          this.showModal = false;
         },
       });
   }
 
-  // MÉTODOS LIMPIOS PARA EL MODAL
+  // MÉTODOS PARA EL MODAL
   openModal(): void {
     this.showModal = true;
   }
@@ -282,7 +298,8 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     return message.id;
   }
 
+  // ✅ MODIFICADO: Método para manejar cuando se inicia el trial
   handleStartFreeTrial(): void {
-    this.showOnboarding = false;
+    this.shouldShowOnboarding = false;
   }
 }

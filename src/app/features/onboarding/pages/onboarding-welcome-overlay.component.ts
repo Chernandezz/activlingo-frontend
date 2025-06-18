@@ -1,9 +1,10 @@
 // src/app/features/onboarding/pages/onboarding-welcome-overlay.component.ts - CORREGIDO
 import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
-import { UserService, TrialStatus } from '../../../core/services/user.service';
+import { UserService } from '../../../core/services/user.service';
 import { SubscriptionService } from '../../../core/services/subscription.service'; // ✅ AGREGADO
 import { CommonModule } from '@angular/common';
+import { TrialStatus } from '../../../core/models/user-legacy.model';
 
 @Component({
   selector: 'app-onboarding-welcome-overlay',
@@ -41,7 +42,7 @@ export class OnboardingWelcomeOverlayComponent implements OnInit {
 
   /** El usuario hace clic en "Iniciar mi prueba gratuita" */
   confirmStartTrial(): void {
-    this.userService.startTrial().subscribe({
+    this.subscriptionService.startTrial().subscribe({
       next: () => {
         this.userService.markOnboardingSeen().subscribe({
           next: () => {
@@ -55,14 +56,13 @@ export class OnboardingWelcomeOverlayComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error iniciando trial:', err);
-        this.startFreeTrial.emit(); // Si falla, igual cerramos
+        this.startFreeTrial.emit(); 
       },
     });
   }
 
   /** Seleccionar un plan específico */
   selectPlan(planType: 'basic' | 'premium'): void {
-    console.log(`🎯 Plan seleccionado: ${planType}`);
 
     // ✅ CORREGIDO: Usar el servicio correctamente inyectado
     this.subscriptionService
