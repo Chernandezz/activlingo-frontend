@@ -5,6 +5,10 @@
   --dvh: 1dvh;
 }
 
+button{
+  cursor: pointer;
+}
+
 /* Fallback para navegadores que no soportan dvh */
 @supports not (height: 100dvh) {
   :root {

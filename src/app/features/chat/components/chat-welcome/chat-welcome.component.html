@@ -53,7 +53,7 @@
     <div class="mb-16" *ngIf="!selectedCategory && (!searchTerm || !searchTerm.trim())">
       <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-8">Recomendados para ti</h2>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:lg:grid-cols-3 gap-6">
         <div *ngFor="let scenario of getRecommendedScenarios()" (click)="selectScenario(scenario)"
           class="group bg-white border border-gray-200 rounded-2xl p-6 cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-lg hover:border-blue-200 shadow-sm">
 

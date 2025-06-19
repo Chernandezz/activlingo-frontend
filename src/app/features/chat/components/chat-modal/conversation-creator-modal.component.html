@@ -41,15 +41,11 @@
         </div>
 
         <button (click)="close()" [disabled]="isCreatingChat"
-          class="w-7 h-7 sm:w-8 sm:h-8 bg-white/20 hover:bg-white/30 rounded-lg flex items-center justify-center transition-all duration-200 backdrop-blur-sm group disabled:opacity-50 disabled:cursor-not-allowed">
+          class="cursor-pointer w-7 h-7 sm:w-8 sm:h-8 bg-white/20 hover:bg-white/30 rounded-lg flex items-center justify-center transition-all duration-200 backdrop-blur-sm group disabled:opacity-50 disabled:cursor-not-allowed">
           <i class="fas fa-times text-white text-xs sm:text-sm group-hover:scale-110 transition-transform"></i>
         </button>
       </div>
 
-      <!-- Decoración reducida -->
-      <div
-        class="absolute top-0 right-0 w-20 h-20 sm:w-32 sm:h-32 bg-white/5 rounded-full -translate-y-10 translate-x-10 sm:-translate-y-16 sm:translate-x-16">
-      </div>
     </div>
 
     <!-- Content con scroll -->

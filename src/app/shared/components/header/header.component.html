@@ -6,11 +6,10 @@
       <!-- Logo Section -->
       <div class="flex items-center">
         <div class="flex cursor-pointer items-center space-x-2" routerLink="/chat">
-          <h1 class="text-xl font-bold text-blue-600 sm:text-2xl">
-            Activlingo
-          </h1>
+          <img src="assets/images/activlingologo.webp" alt="Activlingo" class="w-35 sm:w-40" />
         </div>
       </div>
+
 
       <!-- Desktop Navigation -->
       <nav class="hidden items-center space-x-6 md:flex">
@@ -89,22 +88,22 @@
       </div>
 
       <!-- Mobile Menu Button -->
-       <div class="flex md:hidden">
+      <div class="flex md:hidden">
         <button routerLink="/chat" routerLinkActive="bg-blue-50 text-blue-600 border-blue-200"
           [routerLinkActiveOptions]="{ exact: true }"
           class="flex items-center space-x-3 rounded-lg border border-transparent px-3 py-3 text-gray-700 hover:bg-gray-50">
           <i class="fas fa-comments text-lg w-5"></i>
         </button>
-        
+
         <button routerLink="/dictionary" routerLinkActive="bg-blue-50 text-blue-600 border-blue-200"
           [routerLinkActiveOptions]="{ exact: true }"
           class="flex items-center space-x-3 rounded-lg border border-transparent px-3 py-3 text-gray-700 hover:bg-gray-50">
           <i class="fas fa-book-open text-lg w-5"></i>
         </button>
-         <button (click)="toggleSidebar()" class="rounded-lg p-2 text-gray-600 hover:bg-gray-100">
-           <i class="fas fa-bars text-xl"></i>
-          </button>
-        </div>
+        <button (click)="toggleSidebar()" class="rounded-lg p-2 text-gray-600 hover:bg-gray-100">
+          <i class="fas fa-bars text-xl"></i>
+        </button>
+      </div>
     </div>
   </div>
 
