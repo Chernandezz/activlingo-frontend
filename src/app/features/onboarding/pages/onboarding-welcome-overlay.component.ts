@@ -208,22 +208,7 @@ export class OnboardingWelcomeOverlayComponent implements OnInit {
     });
   }
 
-  // ========== MÉTODOS LEGACY PARA COMPATIBILIDAD ==========
 
-  /** Legacy method para compatibilidad con templates existentes */
-  goToPricing(): void {
-    this.selectPlan('premium');
-  }
-
-  /** Legacy method para compatibilidad */
-  selectBasicPlan(): void {
-    this.selectPlan('premium'); // Redirigir a premium ya que basic no está disponible
-  }
-
-  /** Legacy method para compatibilidad */
-  selectPremiumPlan(): void {
-    this.selectPlan('premium');
-  }
 
   // ========== UTILIDADES ==========
 

@@ -161,14 +161,12 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     // 3. No está en trial
     const hasSeenOnboarding = this.userProfile?.profile.onboarding_seen || false;
     const isSubscribed = this.isUserSubscribed;
-    const isInTrial = this.isUserInTrial;
 
-    const shouldShow = !hasSeenOnboarding && !isSubscribed && !isInTrial;
+    const shouldShow = !hasSeenOnboarding && !isSubscribed;
 
     console.log('🔍 Onboarding decision:', {
       hasSeenOnboarding,
       isSubscribed,
-      isInTrial,
       shouldShow,
     });
 
