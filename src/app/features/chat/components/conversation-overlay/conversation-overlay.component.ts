@@ -99,7 +99,7 @@ export class ConversationOverlayComponent {
   @Output() wordSelected = new EventEmitter<string>();
 
   // Declaramos todos los íconos que vamos a usar mediante FontAwesomeModule
-  
+
   faMicrophone = faMicrophone;
   faHandPaper = faHandPaper;
   faMicrochip = faMicrochip;
@@ -144,6 +144,19 @@ export class ConversationOverlayComponent {
 
   toggleTaskCompletion(index: number) {
     this.taskToggled.emit(index);
+  }
+
+  getActionIconClass(actionType: string): string {
+    switch (actionType) {
+      case 'settings':
+        return 'fas fa-cog';
+      case 'history':
+        return 'fas fa-history';
+      case 'help':
+        return 'fas fa-question-circle';
+      default:
+        return 'fas fa-circle';
+    }
   }
 
   emitDummyAudio() {

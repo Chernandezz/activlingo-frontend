@@ -539,24 +539,7 @@ export class DictionaryPageComponent implements OnInit, OnDestroy {
     this.loadWordsFromBackend(true);
   }
 
-  // Métodos para acciones rápidas del dashboard
-  startQuickPractice(): void {
-    // Implementar navegación a práctica
-    console.log('Starting quick practice...');
-    // this.router.navigate(['/dictionary/practice']);
-  }
 
-  startQuickQuiz(): void {
-    // Implementar navegación a quiz
-    console.log('Starting quick quiz...');
-    // this.router.navigate(['/dictionary/quiz']);
-  }
-
-  viewMoreStats(): void {
-    // Implementar navegación a estadísticas detalladas
-    console.log('Viewing more statistics...');
-    // this.router.navigate(['/dictionary/statistics']);
-  }
 
   // Métodos de utilidad para templates
   trackByWordId(index: number, word: UserDictionaryEntry): string {
@@ -597,60 +580,4 @@ export class DictionaryPageComponent implements OnInit, OnDestroy {
     linkElement.click();
   }
 
-  // Métodos de configuración avanzada
-  bulkUpdateStatus(newStatus: WordStatus): void {
-    const selectedWords = this.filteredWords();
-
-    if (
-      confirm(`¿Marcar ${selectedWords.length} palabras como ${newStatus}?`)
-    ) {
-      // Implementar actualización en lote
-      console.log(
-        `Bulk updating ${selectedWords.length} words to ${newStatus}`
-      );
-    }
-  }
-
-  deleteAllPassiveWords(): void {
-    const passiveWords = this.words().filter((w) => w.status === 'passive');
-
-    if (passiveWords.length === 0) {
-      alert('No hay palabras pasivas para eliminar');
-      return;
-    }
-
-    if (
-      confirm(
-        `¿Eliminar ${passiveWords.length} palabras pasivas? Esta acción no se puede deshacer.`
-      )
-    ) {
-      // Implementar eliminación en lote
-      console.log(`Deleting ${passiveWords.length} passive words`);
-    }
-  }
-
-
-  // Método para manejar errores de red
-  private handleNetworkError(error: any): void {
-    console.error('Network error:', error);
-
-    // Mostrar mensaje de error al usuario
-    const message =
-      error.status === 0
-        ? 'No hay conexión a internet'
-        : 'Error del servidor. Inténtalo de nuevo.';
-
-    // Aquí podrías usar un servicio de notificaciones
-    alert(message);
-  }
-
-  // Método para validar datos
-  private validateWordData(word: UserDictionaryEntry): boolean {
-    return !!(
-      word.word &&
-      word.word.trim().length > 0 &&
-      word.meaning &&
-      word.meaning.trim().length > 0
-    );
-  }
 }
