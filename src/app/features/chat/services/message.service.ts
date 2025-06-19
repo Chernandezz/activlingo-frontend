@@ -189,7 +189,6 @@ export class MessageService {
         this.speak(response.message.content);
 
         if (response.completed_tasks?.length) {
-          console.log('🎯 Completed tasks:', response.completed_tasks);
           response.completed_tasks.forEach((taskId) => {
             this.taskService.updateTaskCompleted(taskId);
           });

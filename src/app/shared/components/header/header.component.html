@@ -1,4 +1,4 @@
-<!-- header.component.html -->
+<!-- header.component.html - CORREGIDO -->
 <header class="sticky top-0 z-999 w-full bg-white border-b border-gray-200 shadow-sm">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <div class="flex h-16 items-center justify-between">
@@ -6,11 +6,10 @@
       <!-- Logo Section -->
       <div class="flex items-center">
         <div class="flex cursor-pointer items-center space-x-2" routerLink="/chat">
-          <h1 class="text-xl font-bold text-blue-600 sm:text-2xl">
-            Activlingo
-          </h1>
+          <img src="assets/images/activlingologo.webp" alt="Activlingo" class="w-35 sm:w-40" />
         </div>
       </div>
+
 
       <!-- Desktop Navigation -->
       <nav class="hidden items-center space-x-6 md:flex">
@@ -31,14 +30,7 @@
       <!-- Desktop User Menu -->
       <div class="hidden md:block relative">
         <button (click)="toggleUserMenu()"
-          class="flex items-center space-x-3 rounded-lg p-2 hover:bg-gray-50 transition-colors">
-
-          <!-- User Stats -->
-          <div class="flex flex-col items-end">
-            <span class="text-sm font-semibold text-gray-900">{{ userStats.streak }} días</span>
-            <span class="text-xs text-gray-500">Racha actual</span>
-          </div>
-
+          class="flex items-center space-x-3 rounded-lg p-2 hover:bg-gray-50 transition-colors user-button">
           <!-- Avatar -->
           <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white shadow-md">
             <i class="fas fa-user"></i>
@@ -50,33 +42,24 @@
 
         <!-- Desktop Dropdown Menu -->
         <div *ngIf="showUserMenu"
-          class="absolute right-0 mt-2 w-72 rounded-lg border border-gray-200 bg-white py-2 shadow-lg">
+          class="absolute right-0 mt-2 w-72 rounded-lg border border-gray-200 bg-white py-2 shadow-lg dropdown-menu">
 
           <!-- User Header -->
           <div class="border-b border-gray-100 px-4 pb-3">
-            <div class="flex items-center space-x-3">
-              <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-white">
-                <i class="fas fa-user text-lg"></i>
-              </div>
-              <div>
-                <h3 class="font-semibold text-gray-900">Mi Progreso</h3>
-                <p class="text-sm text-gray-500">Nivel {{ userStats.level }}</p>
-              </div>
-            </div>
 
             <!-- Quick Stats -->
             <div class="mt-3 grid grid-cols-3 gap-2 text-center">
               <div class="rounded-lg bg-blue-50 p-2">
-                <div class="text-lg font-bold text-blue-600">{{ userStats.streak }}</div>
+                <div class="text-lg font-bold text-blue-600">{{ getDisplayStreak() }}</div>
                 <div class="text-xs text-gray-600">Racha</div>
               </div>
               <div class="rounded-lg bg-blue-50 p-2">
-                <div class="text-lg font-bold text-blue-600">{{ userStats.chats }}</div>
+                <div class="text-lg font-bold text-blue-600">{{ getDisplayChats() }}</div>
                 <div class="text-xs text-gray-600">Chats</div>
               </div>
               <div class="rounded-lg bg-blue-50 p-2">
-                <div class="text-lg font-bold text-blue-600">B2</div>
-                <div class="text-xs text-gray-600">Nivel</div>
+                <div class="text-lg font-bold text-blue-600">{{ getDisplayWords() }}</div>
+                <div class="text-xs text-gray-600">Palabras</div>
               </div>
             </div>
           </div>
@@ -95,7 +78,6 @@
               Configuración
             </button>
 
-            <hr class="my-1">
 
             <button (click)="logout()" class="flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50">
               <i class="fas fa-sign-out-alt mr-3 w-4"></i>
@@ -106,9 +88,22 @@
       </div>
 
       <!-- Mobile Menu Button -->
-      <button (click)="toggleSidebar()" class="rounded-lg p-2 text-gray-600 hover:bg-gray-100 md:hidden">
-        <i class="fas fa-bars text-xl"></i>
-      </button>
+      <div class="flex md:hidden">
+        <button routerLink="/chat" routerLinkActive="bg-blue-50 text-blue-600 border-blue-200"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="flex items-center space-x-3 rounded-lg border border-transparent px-3 py-3 text-gray-700 hover:bg-gray-50">
+          <i class="fas fa-comments text-lg w-5"></i>
+        </button>
+
+        <button routerLink="/dictionary" routerLinkActive="bg-blue-50 text-blue-600 border-blue-200"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="flex items-center space-x-3 rounded-lg border border-transparent px-3 py-3 text-gray-700 hover:bg-gray-50">
+          <i class="fas fa-book-open text-lg w-5"></i>
+        </button>
+        <button (click)="toggleSidebar()" class="rounded-lg p-2 text-gray-600 hover:bg-gray-100">
+          <i class="fas fa-bars text-xl"></i>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -137,23 +132,23 @@
           </div>
           <div>
             <h3 class="font-semibold text-gray-900">Mi Progreso</h3>
-            <p class="text-sm text-gray-500">Nivel {{ userStats.level }}</p>
+            <p class="text-sm text-gray-500">{{ getDisplayWords() }} palabras</p>
           </div>
         </div>
 
         <!-- Mobile Stats -->
         <div class="grid grid-cols-3 gap-3">
           <div class="rounded-lg bg-blue-50 p-3 text-center">
-            <div class="text-lg font-bold text-blue-600">{{ userStats.streak }}</div>
+            <div class="text-lg font-bold text-blue-600">{{ getDisplayStreak() }}</div>
             <div class="text-xs text-gray-600">Racha</div>
           </div>
           <div class="rounded-lg bg-blue-50 p-3 text-center">
-            <div class="text-lg font-bold text-blue-600">{{ userStats.chats }}</div>
+            <div class="text-lg font-bold text-blue-600">{{ getDisplayChats() }}</div>
             <div class="text-xs text-gray-600">Chats</div>
           </div>
           <div class="rounded-lg bg-blue-50 p-3 text-center">
-            <div class="text-lg font-bold text-blue-600">B2</div>
-            <div class="text-xs text-gray-600">Nivel</div>
+            <div class="text-lg font-bold text-blue-600">{{ getDisplayWords() }}</div>
+            <div class="text-xs text-gray-600">Palabras</div>
           </div>
         </div>
       </div>

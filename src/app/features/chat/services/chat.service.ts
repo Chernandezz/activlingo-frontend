@@ -49,7 +49,6 @@ export class ChatService {
 
   fetchChats(): void {
     this.http.get<Chat[]>(`${this.apiUrl}/chats/`).subscribe((chats) => {
-      console.log('Chats recibidos:', chats);
       const sorted = [...chats].sort(
         (a, b) =>
           new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()

@@ -302,7 +302,7 @@
         </div>
 
         <!-- Puntos visibles (sin blur) -->
-        <div *ngFor="let point of getVisiblePoints(); trackBy: trackByPoint"
+        <div *ngFor="let point of getVisiblePoints(); trackBy: trackByPoint" (click)="toggle(point.id)"
           class="bg-white rounded-xl shadow-lg border border-gray-200/50 overflow-hidden">
 
           <!-- Header simplificado y más útil -->
@@ -320,7 +320,7 @@
               </div>
 
               <!-- Botón expandir más pequeño -->
-              <button (click)="toggle(point.id)" class="text-gray-400 hover:text-gray-600 transition-colors">
+              <button  class="text-gray-400 hover:text-gray-600 transition-colors">
                 <i class="fas fa-chevron-down transition-transform duration-200"
                   [class.rotate-180]="isExpanded(point.id)"></i>
               </button>

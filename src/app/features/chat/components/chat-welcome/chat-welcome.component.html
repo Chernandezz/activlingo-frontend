@@ -1,133 +1,276 @@
-<div class="h-full bg-gradient-to-br from-emerald-50 via-white to-blue-50 p-6 overflow-y-auto relative">
+<div class="h-full bg-gradient-to-br from-blue-50 via-white to-indigo-50 overflow-y-auto">
 
-<!-- Encabezado optimizado -->
-<div class="text-center mb-8">
+  <div class="px-6 py-8 text-center">
 
-  <div class="text-center mb-8 lg:hidden">
+    <div class="lg:hidden mb-6">
+      <button (click)="openChats()"
+        class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+        <i class="fas fa-comments text-lg"></i>
+        <span>Ver mis chats</span>
+      </button>
 
-    
-    <!-- Acción principal -->
-    <button (click)="openChats()"
-    class="w-full max-w-xs mx-auto mb-3 px-5 py-3 text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-base font-semibold rounded-xl shadow-md flex items-center justify-center gap-3 transition-all duration-200">
-    <i class="fas fa-comments text-lg"></i>
-    <span>Ver mis chats</span>
-  </button>
-  
-  <!-- Línea divisoria con texto -->
-  <div class="flex items-center justify-center gap-3 mb-4 text-gray-400 text-sm">
-    <div class="flex-grow border-t border-gray-300"></div>
-    <span class="whitespace-nowrap">o explora nuestros escenarios listos para practicar</span>
-    <div class="flex-grow border-t border-gray-300"></div>
-  </div>
-  
-</div>
-  <!-- Título y descripción -->
-  <h1
-    class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent mb-2">
-    ¡Comencemos a Practicar!
-  </h1>
-  <p class="text-gray-600 text-base sm:text-lg max-w-xl mx-auto">
-    Elige situaciones reales, entrena tu fluidez y habla con seguridad
-  </p>
-  
-</div>
-
-
-
-  <!-- Search Bar -->
-  <div class="max-w-md mx-auto mb-8">
-    <div class="relative">
-      <fa-icon [icon]="faSearch" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></fa-icon>
-      <input type="text" [(ngModel)]="searchTerm" (input)="filterScenarios()" placeholder="Buscar escenarios..."
-        class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent shadow-sm" />
+      <div class="flex items-center justify-center gap-4 mt-6 mb-6">
+        <div class="flex-1 h-px bg-gray-300"></div>
+        <span class="text-gray-500 text-sm">o explora escenarios</span>
+        <div class="flex-1 h-px bg-gray-300"></div>
+      </div>
     </div>
+
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
+      <span class="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+        ¡Comencemos a Practicar!
+      </span>
+    </h1>
+
+    <p class="text-base sm:text-lg text-gray-600 mb-6 max-w-2xl mx-auto">
+      Desde negociar con dragones hasta presentar startups.
+      <span class="text-blue-600 font-semibold">Elige tu aventura.</span>
+    </p>
+
+    <div class="max-w-md mx-auto mb-8">
+      <div class="relative">
+        <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+        <input type="text" [(ngModel)]="searchTerm" (input)="filterScenarios()" placeholder="Buscar escenarios..."
+          class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200 text-gray-700 placeholder-gray-400 shadow-sm" />
+      </div>
+    </div>
+
+    <div class="flex flex-wrap justify-center gap-3 sticky top-0 backdrop-blur-sm py-4 z-40 border-b border-gray-100">
+      <button *ngFor="let category of categories"
+        (click)="selectedCategory = selectedCategory === category.key ? null : category.key; filterScenarios()"
+        class="flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-sm transition-all duration-300" [class]="selectedCategory === category.key 
+            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md' 
+            : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'">
+        <i [class]="category.icon + ' text-sm'"></i>
+        <span>{{ category.name }}</span>
+      </button>
+    </div>
+
   </div>
 
-  <!-- Category Filters -->
-  <div class="flex flex-wrap justify-center gap-3 mb-8">
-    <button *ngFor="let category of categories" (click)="
-            selectedCategory =
-              selectedCategory === category.key ? null : category.key;
-            filterScenarios()
-          " class="px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 shadow-sm" [class]="
-            selectedCategory === category.key
-              ? 'bg-gradient-to-r from-emerald-500 to-blue-500 text-white shadow-md transform scale-105'
-              : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 hover:shadow-md'
-          ">
-      <fa-icon [icon]="category.icon" class="mr-2"></fa-icon>
-      {{ category.name }}
-    </button>
-  </div>
+  <div class="px-4 sm:px-6 lg:px-8 pb-16">
 
+    <div class="mb-16" *ngIf="!selectedCategory && (!searchTerm || !searchTerm.trim())">
+      <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-8">Recomendados para ti</h2>
 
-  <!-- Scenarios Grid -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-    <div *ngFor="let scenario of filteredScenarios" (click)="selectScenario(scenario)"
-      class="group bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100 hover:border-emerald-200 hover:-translate-y-1">
-      <!-- Icon and Category -->
-      <div class="flex items-start justify-between mb-4">
-        <div
-          class="inline-flex items-center justify-center w-12 h-12 rounded-xl shadow-sm group-hover:shadow-md transition-shadow"
-          [class]="getCategoryColor(scenario.category)">
-          <fa-icon [icon]="scenario.icon" class="text-white text-xl"></fa-icon>
-        </div>
-        <div class="flex flex-col items-end">
-          <span class="text-xs font-semibold px-2 py-1 rounded-full" [class]="getCategoryBadgeColor(scenario.category)">
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:lg:grid-cols-3 gap-6">
+        <div *ngFor="let scenario of getRecommendedScenarios()" (click)="selectScenario(scenario)"
+          class="group bg-white border border-gray-200 rounded-2xl p-6 cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-lg hover:border-blue-200 shadow-sm">
+
+          <div class="flex items-center justify-between mb-4">
+            <div
+              [class]="'w-12 h-12 rounded-xl flex items-center justify-center shadow-sm ' + getCategoryColor(scenario.category)">
+              <i [class]="scenario.icon + ' text-white text-lg'"></i>
+            </div>
+            <span [class]="'px-2 py-1 rounded-lg text-xs font-bold ' + getDifficultyColor(scenario.difficulty)">
+              {{ getDifficultyName(scenario.difficulty) }}
+            </span>
+          </div>
+
+          <h3 class="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+            {{ scenario.title }}
+          </h3>
+
+          <p class="text-gray-600 text-sm mb-4">{{ scenario.description }}</p>
+
+          <span
+            [class]="'inline-block text-xs font-medium px-3 py-1 rounded-lg mb-4 ' + getCategoryBadgeColor(scenario.category)">
             {{ getCategoryName(scenario.category) }}
           </span>
-          <span class="text-xs mt-1 px-2 py-1 rounded-full" [class]="getDifficultyColor(scenario.difficulty)">
-            {{ getDifficultyName(scenario.difficulty) }}
-          </span>
+
+          <div class="flex items-center justify-between">
+            <span class="text-gray-500 text-sm font-medium">Comenzar</span>
+            <div
+              class="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300">
+              <i class="fas fa-play text-white text-xs"></i>
+            </div>
+          </div>
         </div>
       </div>
+    </div>
 
-      <!-- Content -->
-      <div class="mb-4">
-        <h3 class="text-lg font-bold text-gray-900 mb-2 group-hover:text-emerald-600 transition-colors">
-          {{ scenario.title }}
-        </h3>
-        <p class="text-gray-600 text-sm leading-relaxed line-clamp-3">
-          {{ scenario.description }}
-        </p>
+    <div *ngIf="searchTerm && searchTerm.trim()" class="mb-16">
+      <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-8">
+        Resultados de búsqueda para "{{ searchTerm }}"
+        <span class="text-sm font-normal text-gray-500">({{ filteredScenarios.length }} encontrados)</span>
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div *ngFor="let scenario of filteredScenarios" (click)="selectScenario(scenario)"
+          class="group bg-white border border-gray-200 rounded-2xl p-6 cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-lg hover:border-blue-200 shadow-sm">
+
+          <div class="flex items-center justify-between mb-4">
+            <div
+              [class]="'w-12 h-12 rounded-xl flex items-center justify-center shadow-sm ' + getCategoryColor(scenario.category)">
+              <i [class]="scenario.icon + ' text-white text-lg'"></i>
+            </div>
+            <span [class]="'px-2 py-1 rounded-lg text-xs font-bold ' + getDifficultyColor(scenario.difficulty)">
+              {{ getDifficultyName(scenario.difficulty) }}
+            </span>
+          </div>
+
+          <h3 class="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+            {{ scenario.title }}
+          </h3>
+
+          <p class="text-gray-600 text-sm mb-4">{{ scenario.description }}</p>
+
+          <span
+            [class]="'inline-block text-xs font-medium px-3 py-1 rounded-lg mb-4 ' + getCategoryBadgeColor(scenario.category)">
+            {{ getCategoryName(scenario.category) }}
+          </span>
+
+          <div class="flex flex-wrap gap-2 mb-4">
+            <span *ngFor="let tag of scenario.tags.slice(0, 3)"
+              class="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">
+              {{ tag }}
+            </span>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <span class="text-gray-500 text-sm font-medium">Comenzar</span>
+            <div
+              class="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300">
+              <i class="fas fa-play text-white text-xs"></i>
+            </div>
+          </div>
+        </div>
       </div>
+    </div>
 
-      <!-- Tags -->
-      <div class="flex flex-wrap gap-1 mb-4">
-        <span *ngFor="let tag of scenario.tags.slice(0, 3)"
-          class="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded-md">
-          {{ tag }}
-        </span>
-        <span *ngIf="scenario.tags.length > 3" class="text-xs px-2 py-1 bg-gray-100 text-gray-500 rounded-md">
-          +{{ scenario.tags.length - 3 }}
-        </span>
-      </div>
+    <div *ngFor="let category of categories" class="mb-16">
+      <div [hidden]="selectedCategory && selectedCategory !== category.key">
+        <div [hidden]="searchTerm && searchTerm.trim()">
 
-      <!-- Action -->
-      <div class="pt-4 border-t border-gray-100">
-        <div class="flex items-center justify-between">
-          <span class="text-sm text-gray-500">Haz clic para comenzar</span>
-          <div
-            class="w-8 h-8 bg-emerald-50 rounded-full flex items-center justify-center group-hover:bg-emerald-100 transition-colors">
-            <svg class="w-4 h-4 text-emerald-600 transform group-hover:translate-x-0.5 transition-transform" fill="none"
-              stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-            </svg>
+          <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-4">
+              <div
+                class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                <i [class]="category.icon + ' text-white text-lg'"></i>
+              </div>
+              <div>
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-900">{{ category.name }}</h2>
+                <p class="text-gray-600 text-sm">{{ getCategoryDescription(category.key) }}</p>
+              </div>
+            </div>
+
+            <div class="hidden md:flex gap-2">
+              <button (click)="scrollCarousel('left', category.key)"
+                class="w-10 h-10 bg-white border border-gray-200 rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors shadow-sm">
+                <i class="fas fa-chevron-left text-gray-600"></i>
+              </button>
+              <button (click)="scrollCarousel('right', category.key)"
+                class="w-10 h-10 bg-white border border-gray-200 rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors shadow-sm">
+                <i class="fas fa-chevron-right text-gray-600"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="hidden md:block relative overflow-hidden">
+            <div [attr.data-category]="category.key" class="flex gap-6 overflow-x-auto scrollbar-hide pb-4"
+              style="scroll-snap-type: x mandatory;">
+
+              <div *ngFor="let scenario of getScenariosByCategory(category.key)" (click)="selectScenario(scenario)"
+                class="group flex-shrink-0 w-80 bg-white border border-gray-200 rounded-2xl p-6 cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-lg hover:border-blue-200 shadow-sm"
+                style="scroll-snap-align: start;">
+
+                <div class="flex items-center justify-between mb-4">
+                  <div
+                    [class]="'w-12 h-12 rounded-xl flex items-center justify-center shadow-sm ' + getCategoryColor(scenario.category)">
+                    <i [class]="scenario.icon + ' text-white text-lg'"></i>
+                  </div>
+                  <span [class]="'px-2 py-1 rounded-lg text-xs font-bold ' + getDifficultyColor(scenario.difficulty)">
+                    {{ getDifficultyName(scenario.difficulty) }}
+                  </span>
+                </div>
+
+                <h3 class="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                  {{ scenario.title }}
+                </h3>
+
+                <p class="text-gray-600 text-sm mb-4">{{ scenario.description }}</p>
+
+                <div class="flex flex-wrap gap-2 mb-4">
+                  <span *ngFor="let tag of scenario.tags.slice(0, 3)"
+                    class="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">
+                    {{ tag }}
+                  </span>
+                </div>
+
+                <div class="flex items-center justify-between">
+                  <span class="text-gray-500 text-sm font-medium">Comenzar</span>
+                  <div
+                    class="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-play text-white text-xs"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="md:hidden grid grid-cols-1 gap-6">
+            <div *ngFor="let scenario of getScenariosByCategory(category.key)" (click)="selectScenario(scenario)"
+              class="group bg-white border border-gray-200 rounded-2xl p-6 cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-lg hover:border-blue-200 shadow-sm">
+
+              <div class="flex items-center justify-between mb-4">
+                <div
+                  [class]="'w-12 h-12 rounded-xl flex items-center justify-center shadow-sm ' + getCategoryColor(scenario.category)">
+                  <i [class]="scenario.icon + ' text-white text-lg'"></i>
+                </div>
+                <span [class]="'px-2 py-1 rounded-lg text-xs font-bold ' + getDifficultyColor(scenario.difficulty)">
+                  {{ getDifficultyName(scenario.difficulty) }}
+                </span>
+              </div>
+
+              <h3 class="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                {{ scenario.title }}
+              </h3>
+
+              <p class="text-gray-600 text-sm mb-4">{{ scenario.description }}</p>
+
+              <div class="flex flex-wrap gap-2 mb-4">
+                <span *ngFor="let tag of scenario.tags.slice(0, 3)"
+                  class="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">
+                  {{ tag }}
+                </span>
+              </div>
+
+              <div class="flex items-center justify-between">
+                <span class="text-gray-500 text-sm font-medium">Comenzar</span>
+                <div
+                  class="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300">
+                  <i class="fas fa-play text-white text-xs"></i>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Empty State -->
   <div *ngIf="filteredScenarios.length === 0" class="text-center py-16">
-    <div class="w-20 h-20 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
-      <fa-icon [icon]="faSearch" class="text-gray-400 text-2xl"></fa-icon>
+    <div class="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+      <i class="fas fa-search text-gray-400 text-2xl"></i>
     </div>
-    <h3 class="text-xl font-semibold text-gray-900 mb-2">
-      No se encontraron escenarios
-    </h3>
-    <p class="text-gray-500 max-w-sm mx-auto">
-      Intenta con otros términos de búsqueda o crea tu propio escenario.
-    </p>
+
+    <h3 class="text-xl font-bold text-gray-900 mb-3">No encontramos esa aventura</h3>
+    <p class="text-gray-600 max-w-md mx-auto mb-6">Intenta con otros términos o explora nuestras categorías.</p>
+
+    <button (click)="searchTerm = ''; selectedCategory = null; filterScenarios()"
+      class="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+      Ver todos los escenarios
+    </button>
   </div>
 </div>
+
+<style>
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+</style>

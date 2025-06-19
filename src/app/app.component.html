@@ -1,6 +1,14 @@
-<div class="app-container h-screen flex flex-col">
-  <app-header *ngIf="!isAuthPage()"></app-header>
-  <div class="flex-1 overflow-auto">
-    <router-outlet></router-outlet>
+<ng-container *ngIf="isResolved; else loadingScreen">
+  <div class="app-container h-screen flex flex-col">
+    <app-header *ngIf="!isAuthPage()"></app-header>
+    <div class="flex-1 overflow-auto">
+      <router-outlet></router-outlet>
+    </div>
   </div>
-</div>
+</ng-container>
+
+<ng-template #loadingScreen>
+  <div class="h-screen flex items-center justify-center bg-white">
+    <i class="fas fa-spinner fa-spin text-3xl text-blue-600"></i>
+  </div>
+</ng-template>

@@ -1,78 +1,142 @@
-// src/app/core/services/user.service.ts - ACTUALIZADO
-
-import { HttpClient } from '@angular/common/http';
+// src/app/core/services/user.service.ts - COMPLETAMENTE NUEVO Y LIMPIO
 import { Injectable } from '@angular/core';
-import { environment } from '../../../environments/environment';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
-export interface TrialStatus {
-  trial_end: string;
-  trial_active: boolean;
-  is_subscribed: boolean;
-  onboarding_seen: boolean;
-}
-
-// 🆕 Interface para información del usuario completa
-export interface UserInfo {
-  id: string;
-  email: string;
-  subscription_type: string; // 'basic' | 'premium'
-  plan_type: string;
-  is_subscribed: boolean;
-  trial_active: boolean;
-  trial_end: string | null;
-  onboarding_seen: boolean;
-  created_at: string;
-}
-
-// 🆕 Interface para información del plan
-export interface PlanInfo {
-  current_plan: string;
-  is_premium: boolean;
-  features: {
-    name: string;
-    max_suggestions: number;
-    features: string[];
-    analyzer_type: string;
-  };
-}
+import { environment } from '../../../environments/environment';
+import {
+  UserProfile,
+  UserStats,
+  Achievement,
+  UpdateProfileRequest,
+} from '../models/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
-  private apiUrl = `${environment.apiUrl}/user`;
+  private readonly apiUrl = `${environment.apiUrl}/user`;
 
   constructor(private http: HttpClient) {}
 
-  // Métodos existentes
-  getTrialInfo(): Observable<TrialStatus> {
-    return this.http.get<TrialStatus>(`${this.apiUrl}/trial-status`);
+  // ========== PERFIL ==========
+
+  getProfile(): Observable<UserProfile> {
+    return this.http.get<UserProfile>(`${this.apiUrl}/profile`);
   }
 
-  markOnboardingSeen(): Observable<any> {
-    return this.http.post(`${this.apiUrl}/onboarding-seen`, {});
+  updateProfile(data: UpdateProfileRequest): Observable<{ message: string }> {
+    return this.http.put<{ message: string }>(`${this.apiUrl}/profile`, data);
   }
 
-  // 🆕 Obtener información completa del usuario
-  getCurrentUser(): Observable<UserInfo> {
-    return this.http.get<UserInfo>(`${this.apiUrl}/profile`);
+  // ========== ESTADÍSTICAS ==========
+
+  getStats(): Observable<UserStats> {
+    return this.http.get<UserStats>(`${this.apiUrl}/stats`);
   }
 
-  // 🆕 Obtener información del plan actual
-  getPlanInfo(): Observable<PlanInfo> {
-    return this.http.get<PlanInfo>(`${this.apiUrl}/plan-info`);
+  // ========== LOGROS ==========
+
+  getAchievements(): Observable<{
+    achievements: Achievement[];
+    total_unlocked: number;
+  }> {
+    return this.http.get<{
+      achievements: Achievement[];
+      total_unlocked: number;
+    }>(`${this.apiUrl}/achievements`);
   }
 
-  // 🆕 Actualizar plan del usuario (para cuando se suscriban)
-  updateSubscriptionPlan(planType: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/update-plan`, {
-      subscription_type: planType,
-    });
-  }
+  // ========== ONBOARDING ==========
 
-  // 🆕 Verificar si el usuario tiene acceso premium
-  hasPremiumAccess(): Observable<{ has_premium: boolean; plan_type: string }> {
-    return this.http.get<{ has_premium: boolean; plan_type: string }>(
-      `${this.apiUrl}/premium-access`
+  markOnboardingCompleted(): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${this.apiUrl}/onboarding-seen`,
+      {}
     );
+  }
+
+  // ========== UTILIDADES ==========
+
+  formatDate(dateString: string): string {
+    if (!dateString) return 'Fecha no disponible';
+
+    try {
+      return new Date(dateString).toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+    } catch {
+      return 'Fecha inválida';
+    }
+  }
+
+  calculateDaysAgo(dateString: string): number {
+    if (!dateString) return 0;
+
+    try {
+      const date = new Date(dateString);
+      const today = new Date();
+      const diffTime = Math.abs(today.getTime() - date.getTime());
+      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    } catch {
+      return 0;
+    }
+  }
+
+  getUserLevel(totalConversations: number): string {
+    if (totalConversations < 10) return 'Principiante';
+    if (totalConversations < 50) return 'Intermedio';
+    if (totalConversations < 100) return 'Avanzado';
+    return 'Experto';
+  }
+
+  getLevelProgress(totalConversations: number): number {
+    const currentLevelBase = Math.floor(totalConversations / 10) * 10;
+    const nextLevelBase = currentLevelBase + 10;
+    const progress =
+      ((totalConversations - currentLevelBase) /
+        (nextLevelBase - currentLevelBase)) *
+      100;
+    return Math.min(progress, 100);
+  }
+
+  getStreakIcon(streak: number): string {
+    if (streak >= 30) return 'fas fa-crown';
+    if (streak >= 7) return 'fas fa-fire';
+    return 'fas fa-calendar-check';
+  }
+
+  getStreakColor(streak: number): string {
+    if (streak >= 30) return 'text-yellow-500';
+    if (streak >= 7) return 'text-orange-500';
+    return 'text-blue-500';
+  }
+
+  getUserInitials(name?: string, email?: string): string {
+    if (name?.trim()) {
+      return name
+        .split(' ')
+        .map((word) => word.charAt(0))
+        .join('')
+        .toUpperCase()
+        .substring(0, 2);
+    }
+
+    if (email) {
+      return email.charAt(0).toUpperCase();
+    }
+
+    return 'U';
+  }
+
+  getDisplayName(name?: string, email?: string): string {
+    if (name?.trim()) {
+      return name;
+    }
+
+    if (email) {
+      return email.split('@')[0];
+    }
+
+    return 'Usuario';
   }
 }
