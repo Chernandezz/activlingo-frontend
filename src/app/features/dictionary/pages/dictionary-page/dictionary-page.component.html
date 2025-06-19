@@ -1,341 +1,444 @@
-<!-- dictionary-page.component.html - DISEÑO RESPONSIVE MEJORADO -->
+<!-- dictionary-page.component.html - MY LEARNING SIMPLIFICADO -->
 <div class="min-h-screen bg-gradient-to-br from-gray-50 to-slate-100">
-  <!-- Header Compacto con Search y Filtros - Optimizado para móvil -->
-  <div class=" bg-white/90 backdrop-blur-lg border-b border-gray-200 shadow-sm">
-    <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
-      @if (!searchMode()) {
-      <!-- Header Principal - Responsive -->
-      <div class="flex flex-col gap-3 py-3 sm:py-4">
 
-        <!-- Primera fila: Search y botón nueva palabra -->
-        <div class="flex items-center gap-2 sm:gap-3">
-          <!-- Search Bar - Más compacto en móvil -->
-          <div class="relative flex-1">
-            <div class="absolute inset-y-0 left-0 pl-2 sm:pl-3 flex items-center pointer-events-none">
-              <i class="fas fa-search text-gray-400 text-xs sm:text-sm"></i>
-            </div>
-            <input type="text" [(ngModel)]="searchTerm" (input)="onSearchChange()" placeholder="Buscar palabras..."
-              class="block w-full pl-7 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-2.5 bg-white border border-gray-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm">
-          </div>
+  @if (!showDictionaryView() && !showCorrectionsView()) {
+  <!-- VISTA PRINCIPAL - MY LEARNING -->
+  <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-6">
 
-          <!-- Botón Nueva Palabra - Icono solo en móvil -->
-          <button (click)="searchMode.set(true)"
-            class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-purple-700 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg flex items-center gap-1 sm:gap-2 whitespace-nowrap">
-            <i class="fas fa-plus text-xs sm:text-sm"></i>
-            <span class="hidden xs:inline text-xs sm:text-sm">Agregar</span>
-            <span class="hidden sm:inline text-sm">Palabra</span>
-          </button>
-        </div>
-
-        <!-- Segunda fila: Filtros - Scroll horizontal en móvil -->
-        <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
-          <span class="text-xs font-medium text-gray-500 whitespace-nowrap hidden sm:inline">Filtrar:</span>
-
-          <div class="flex items-center gap-1 sm:gap-1.5 min-w-max">
-            <button (click)="onFilterChange('all')"
-              class="px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold rounded-md transition-all duration-200 whitespace-nowrap"
-              [ngClass]="{
-                'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md': filter() === 'all',
-                'bg-gray-100 text-gray-600 hover:bg-gray-200': filter() !== 'all'
-              }">
-              <span>Todas</span>
-              <span class="ml-1">({{ totalWordCount() }})</span>
-            </button>
-
-            <button (click)="onFilterChange('active')"
-              class="px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold rounded-md transition-all duration-200 whitespace-nowrap"
-              [ngClass]="{
-                'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-md': filter() === 'active',
-                'bg-gray-100 text-gray-600 hover:bg-gray-200': filter() !== 'active'
-              }">
-              <span>Activas</span>
-              <span class="ml-1">({{ activeWordCount() }})</span>
-            </button>
-
-            <button (click)="onFilterChange('passive')"
-              class="px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold rounded-md transition-all duration-200 whitespace-nowrap"
-              [ngClass]="{
-                'bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-md': filter() === 'passive',
-                'bg-gray-100 text-gray-600 hover:bg-gray-200': filter() !== 'passive'
-              }">
-              <span>Pasivas</span>
-              <span class="ml-1">({{ passiveWordCount() }})</span>
-            </button>
-          </div>
-        </div>
-      </div>
-      } @else {
-      <!-- Modo Search Panel -->
-      <div class="py-4">
-        <app-dictionary-search-panel (exitSearch)="searchMode.set(false)" (wordAdded)="handleWordAdded()">
-        </app-dictionary-search-panel>
-      </div>
-      }
-    </div>
-  </div>
-
-  <!-- Main Content -->
-  @if (!searchMode()) {
-  <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
-
-    <!-- Sección de Estadísticas - Grid 2x2 en móvil, 4 columnas en desktop -->
-    <div class="mb-6 sm:mb-8">
-      <div class="flex items-center justify-between mb-4 sm:mb-6">
-        <h2 class="text-lg sm:text-xl font-bold text-gray-900">Tus estadísticas</h2>
-      </div>
-
-      <!-- Grid responsivo: 2x2 en móvil, 4 columnas en desktop -->
-      <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
-
-        <!-- Palabra Estrella -->
-        <div
-          class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 border border-gray-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-          <div class="flex flex-row items-center justify-between mb-3 sm:mb-4">
-            <div
-              class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg sm:rounded-xl flex items-center justify-center">
-              <i class="fas fa-fire text-white text-sm sm:text-base"></i>
-            </div>
-            <span class="text-xl sm:text-2xl font-bold text-gray-900 self-auto">{{ mostUsedWordCount()
-              }}</span>
-          </div>
-          <h3 class="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Palabra Estrella</h3>
-          <p class="text-xs sm:text-sm text-gray-600 capitalize font-medium mb-2 sm:mb-3 truncate">{{
-            mostUsedWord()?.word || 'N/A' }}</p>
-          <div class="flex items-center text-xs sm:text-sm text-blue-600">
-            <i class="fas fa-chart-line mr-1"></i>
-            <span class="truncate">{{ mostUsedWord()?.usage_count || 0 }} usos totales</span>
-          </div>
-        </div>
-
-        <!-- Palabras Olvidadas -->
-        <div
-          class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 border border-gray-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4">
-            <div
-              class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-amber-500 to-amber-600 rounded-lg sm:rounded-xl flex items-center justify-center mb-2 sm:mb-0">
-              <i class="fas fa-clock text-white text-sm sm:text-base"></i>
-            </div>
-            <span class="text-xl sm:text-2xl font-bold text-gray-900 self-end sm:self-auto">{{ forgottenWordsCount()
-              }}</span>
-          </div>
-          <h3 class="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Necesitan Repaso</h3>
-          <p class="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3">Sin usar >30 días</p>
-          <div class="flex items-center text-xs sm:text-sm text-amber-600">
-            <i class="fas fa-exclamation-triangle mr-1"></i>
-            <span>Revisar pronto</span>
-          </div>
-        </div>
-
-        <!-- Progreso Semanal -->
-        <div
-          class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 border border-gray-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4">
-            <div
-              class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-lg sm:rounded-xl flex items-center justify-center mb-2 sm:mb-0">
-              <i class="fas fa-chart-line text-white text-sm sm:text-base"></i>
-            </div>
-            <span class="text-xl sm:text-2xl font-bold text-gray-900 self-end sm:self-auto">{{ weeklyProgress()
-              }}%</span>
-          </div>
-          <h3 class="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Progreso Semanal</h3>
-          <p class="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3">Meta: 5 palabras nuevas</p>
-          <div class="w-full bg-gray-200 rounded-full h-1.5 sm:h-2">
-            <div
-              class="bg-gradient-to-r from-emerald-500 to-emerald-600 h-1.5 sm:h-2 rounded-full transition-all duration-500"
-              [style.width.%]="weeklyProgress()"></div>
-          </div>
-        </div>
-
-        <!-- Racha de Estudio -->
-        <div
-          class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 border border-gray-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4">
-            <div
-              class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center mb-2 sm:mb-0">
-              <i class="fas fa-medal text-white text-sm sm:text-base"></i>
-            </div>
-            <span class="text-xl sm:text-2xl font-bold text-gray-900 self-end sm:self-auto">{{ studyStreak() }}</span>
-          </div>
-          <h3 class="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Racha de Estudio</h3>
-          <p class="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3">Días consecutivos</p>
-          <div class="flex items-center text-xs sm:text-sm text-purple-600">
-            <i class="fas fa-crown mr-1"></i>
-            <span>¡Sigue así!</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Sección 3: Lista/Grid de Palabras RESPONSIVE -->
+    <!-- Header -->
     <div class="mb-8">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
-        <h2 class="text-lg sm:text-xl font-bold text-gray-900">
-          @if (filter() === 'all') {
-          Todas mis palabras
-          } @else if (filter() === 'active') {
-          Palabras activas
-          } @else {
-          Palabras pasivas
-          }
-        </h2>
-
-        @if (filteredWords().length > 0) {
-        <div class="flex flex-col xs:flex-row items-start xs:items-center gap-2 xs:gap-4">
-          <span class="text-sm text-gray-600">{{ filteredWords().length }} palabras</span>
-          <!-- Ordenar -->
-          <select [(ngModel)]="sortBy" (change)="updateSort()"
-            class="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-0 w-full xs:w-auto">
-            <option value="recent">Más recientes</option>
-            <option value="alphabetical">Alfabético</option>
-            <option value="most_used">Más usadas</option>
-            <option value="least_used">Menos usadas</option>
-          </select>
+      <div class="flex items-center gap-4 mb-2">
+        <div
+          class="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-md">
+          <i class="fas fa-graduation-cap text-white text-lg"></i>
         </div>
-        }
-      </div>
-
-      <!-- Content -->
-      @if (isLoading()) {
-      <div class="flex justify-center items-center h-64">
-        <div class="relative">
-          <div class="w-12 h-12 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Mi Aprendizaje</h1>
+          <p class="text-gray-600">Progreso personalizado, diccionario y correcciones</p>
         </div>
       </div>
-      } @else {
-      @if (filteredWords().length > 0) {
+    </div>
 
-      <!-- Grid responsivo de palabras -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-        @for (word of paginatedWords(); track trackByWordId($index, word)) {
-        <div (click)="onSelectWord(word)"
-          class="group bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl border border-gray-100 cursor-pointer transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 overflow-hidden">
+    <!-- 1. TU PROGRESO - Stats Section Mejorado -->
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-200/50 p-6 mb-6">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+          <i class="fas fa-chart-line text-white text-sm"></i>
+        </div>
+        <div>
+          <h2 class="text-lg font-bold text-gray-900">📈 Tu Progreso</h2>
+          <p class="text-sm text-gray-600">Análisis de tus últimas conversaciones</p>
+        </div>
+      </div>
 
-          <div class="p-4 sm:p-6">
-            <!-- Header con palabra y estado -->
-            <div class="flex justify-between items-start mb-3 sm:mb-4">
+      <!-- Top Categories Grid -->
+      <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+        <!-- Strongest Skills -->
+        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+          <div class="flex items-center gap-2 mb-2">
+            <i class="fas fa-trophy text-emerald-600 text-sm"></i>
+            <span class="text-sm font-semibold text-emerald-800">Fortaleza</span>
+          </div>
+          <div class="text-xl font-bold text-emerald-700 mb-1">Vocabulary</div>
+          <div class="text-sm text-emerald-600">85% de precisión</div>
+          <div class="text-xs text-emerald-500 mt-1">↗ +12% esta semana</div>
+        </div>
+
+        <!-- Needs Practice -->
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <div class="flex items-center gap-2 mb-2">
+            <i class="fas fa-target text-amber-600 text-sm"></i>
+            <span class="text-sm font-semibold text-amber-800">Para Mejorar</span>
+          </div>
+          <div class="text-xl font-bold text-amber-700 mb-1">Phrasal Verbs</div>
+          <div class="text-sm text-amber-600">30% de precisión</div>
+          <div class="text-xs text-amber-500 mt-1">5 errores recientes</div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 col-span-2 lg:col-span-1">
+          <div class="flex items-center gap-2 mb-2">
+            <i class="fas fa-clock text-blue-600 text-sm"></i>
+            <span class="text-sm font-semibold text-blue-800">Actividad</span>
+          </div>
+          <div class="text-xl font-bold text-blue-700 mb-1">{{ studyStreak() }} días</div>
+          <div class="text-sm text-blue-600">racha activa</div>
+          <div class="text-xs text-blue-500 mt-1">Última sesión: hoy</div>
+        </div>
+      </div>
+
+      <!-- Detailed Progress -->
+      <div class="space-y-4 mb-6">
+        <h3 class="text-sm font-semibold text-gray-700 mb-3">Progreso Detallado</h3>
+
+        <div *ngFor="let category of progressCategories(); trackBy: trackByCategory"
+          class="group hover:bg-gray-50 rounded-lg p-3 transition-colors duration-200">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-white transition-colors">
+                <i [class]="category.icon + ' text-gray-600 text-sm'"></i>
+              </div>
+              <div>
+                <span class="font-medium text-gray-900">{{ category.name }}</span>
+                <div class="text-xs text-gray-500">{{ getCategoryInsight(category) }}</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-lg font-bold text-gray-900">{{ category.progress }}%</div>
+              <div class="text-xs font-medium px-2 py-1 rounded-full bg-gray-100 text-gray-600">
+                {{ category.level }}
+              </div>
+            </div>
+          </div>
+
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="h-2 rounded-full transition-all duration-700 bg-gradient-to-r from-blue-500 to-blue-600"
+              [style.width.%]="category.progress">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weekly Summary -->
+      <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
+        <h3 class="text-sm font-semibold text-gray-700 mb-3">Resumen de la Semana</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+          <div>
+            <div class="text-2xl font-bold text-gray-900">{{ totalWords() }}</div>
+            <div class="text-xs text-gray-600">Palabras usadas</div>
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-gray-900">{{ savedCorrections() }}</div>
+            <div class="text-xs text-gray-600">Errores corregidos</div>
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-gray-900">15</div>
+            <div class="text-xs text-gray-600">Minutos promedio</div>
+          </div>
+          <div>
+            <div class="text-2xl font-bold text-gray-900">{{ weeklyGoal() }}%</div>
+            <div class="text-xs text-gray-600">Meta alcanzada</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. MI DICCIONARIO - Quick View Card Mejorado -->
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-200/50 p-6 mb-6">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <div
+            class="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
+            <i class="fas fa-book text-white text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-gray-900">📚 Mi Diccionario</h2>
+            <p class="text-sm text-gray-600">{{ totalWords() }} palabras • {{ activeWords() }} dominadas • {{
+              getWeeklyNewWords() }} nuevas esta semana</p>
+          </div>
+        </div>
+
+        <button (click)="openDictionaryView()"
+          class="flex items-center gap-2 px-3 py-1.5 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium">
+          <span>Explorar</span>
+          <i class="fas fa-arrow-right text-xs"></i>
+        </button>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="relative mb-4">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <i class="fas fa-search text-gray-400 text-sm"></i>
+        </div>
+        <input type="text" [(ngModel)]="dictionarySearch" (input)="onDictionarySearchChange()"
+          placeholder="Buscar palabras en tu diccionario..."
+          class="block w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm transition-all">
+      </div>
+
+      <!-- Quick Filters -->
+      <div class="flex items-center gap-2 mb-4 overflow-x-auto pb-1">
+        <button *ngFor="let filter of dictionaryFilters; trackBy: trackByFilter"
+          (click)="setDictionaryFilter(filter.key)"
+          class="px-3 py-1 text-xs font-medium rounded-full whitespace-nowrap transition-all" [class]="activeDictionaryFilter() === filter.key ? 
+                  'bg-green-100 text-green-700 border border-green-200' : 
+                  'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+          {{ filter.label }}
+        </button>
+      </div>
+
+      <!-- Quick View Grid -->
+      <div *ngIf="filteredDictionaryPreview().length > 0; else noDictionaryWords"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div *ngFor="let word of filteredDictionaryPreview(); trackBy: trackByWord" (click)="onSelectWord(word)"
+          class="bg-gray-50 hover:bg-green-50 border border-gray-200 hover:border-green-300 rounded-lg p-4 cursor-pointer transition-all duration-200 group">
+
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex-1 min-w-0">
               <h3
-                class="text-base sm:text-lg font-bold text-gray-900 capitalize group-hover:text-blue-600 transition-colors truncate flex-1 mr-2">
+                class="font-bold text-gray-900 capitalize text-base truncate group-hover:text-green-700 transition-colors">
                 {{ word.word }}
               </h3>
-              <span class="text-xs font-semibold px-2 sm:px-3 py-1 rounded-full flex-shrink-0"
-                [class]="word.status === 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'">
-                {{ word.status === 'active' ? 'Activa' : 'Pasiva' }}
-              </span>
-            </div>
-
-            <!-- Significado -->
-            <p class="text-gray-600 text-sm line-clamp-3 mb-3 sm:mb-4 leading-relaxed">{{ word.meaning }}</p>
-
-            <!-- Estadísticas de uso -->
-            <div class="space-y-2 sm:space-y-3 mb-3 sm:mb-4">
-              <!-- Número de usos -->
-              <div class="flex items-center justify-between text-sm">
-                <span class="text-gray-500 flex items-center">
-                  <i class="fas fa-eye mr-2 text-blue-500 text-xs"></i>
-                  <span class="hidden xs:inline">Veces usada</span>
-                  <span class="xs:hidden">Usos</span>
+              <div class="flex items-center gap-2 mt-1">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
+                  [class]="word.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'">
+                  {{ word.status === 'active' ? 'Dominada' : 'Aprendiendo' }}
                 </span>
-                <span class="font-semibold text-gray-700">{{ word.usage_count || 0 }}</span>
-              </div>
-
-              <!-- Última vez usada -->
-              <div class="flex items-center justify-between text-sm">
-                <span class="text-gray-500 flex items-center">
-                  <i class="fas fa-clock mr-2 text-purple-500 text-xs"></i>
-                  <span class="hidden xs:inline">Última vez</span>
-                  <span class="xs:hidden">Último</span>
-                </span>
-                <span class="font-semibold text-gray-700">{{ getLastUsedText(word) }}</span>
-              </div>
-
-              <!-- Nivel de dominio -->
-              <div class="space-y-2">
-                <div class="flex items-center justify-between text-sm">
-                  <span class="text-gray-500 flex items-center">
-                    <i class="fas fa-brain mr-2 text-emerald-500 text-xs"></i>
-                    <span>Dominio</span>
-                  </span>
-                  <span class="font-semibold text-xs sm:text-sm" [class]="getMasteryLevelClass(word)">
-                    {{ getMasteryLevel(word) }}
-                  </span>
-                </div>
-                <div class="w-full bg-gray-200 rounded-full h-1.5 sm:h-2">
-                  <div class="h-1.5 sm:h-2 rounded-full transition-all duration-500" [class]="getMasteryBarClass(word)"
-                    [style.width.%]="getMasteryPercentage(word)"></div>
-                </div>
+                <span class="text-xs text-gray-500">{{ getWordMasteryLevel(word) }}</span>
               </div>
             </div>
           </div>
+
+          <p class="text-sm text-gray-600 line-clamp-2 leading-relaxed mb-3">{{ word.meaning }}</p>
+
+          <div class="flex items-center justify-between text-xs text-gray-500">
+            <div class="flex items-center gap-3">
+              <span class="flex items-center gap-1">
+                <i class="fas fa-eye"></i>
+                {{ word.usage_count || 0 }}
+              </span>
+              <span class="flex items-center gap-1">
+                <i class="fas fa-clock"></i>
+                {{ getLastUsedText(word) }}
+              </span>
+            </div>
+            <button class="text-green-600 hover:text-green-700 font-medium">
+              Estudiar
+            </button>
+          </div>
         </div>
-        }
       </div>
-      }
 
-      <!-- Pagination - Responsive -->
-      @if (totalPages() > 1) {
-      <div class="flex items-center justify-center mt-6 sm:mt-8 space-x-2">
-        <button (click)="previousPage()" [disabled]="currentPage() === 1"
-          class="px-3 sm:px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-          <i class="fas fa-chevron-left mr-1"></i>
-          <span class="hidden xs:inline">Anterior</span>
-        </button>
-
-        <span class="px-3 sm:px-4 py-2 text-sm text-gray-700">
-          <span class="hidden xs:inline">Página </span>{{ currentPage() }}<span class="hidden xs:inline"> de {{
-            totalPages() }}</span>
-          <span class="xs:hidden">/{{ totalPages() }}</span>
-        </span>
-
-        <button (click)="nextPage()" [disabled]="currentPage() === totalPages()"
-          class="px-3 sm:px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-          <span class="hidden xs:inline">Siguiente</span>
-          <i class="fas fa-chevron-right ml-1"></i>
-        </button>
-      </div>
-      } @else {
-      <!-- Empty State - Responsive -->
-      <div class="flex flex-col items-center justify-center py-12 sm:py-16 text-center px-4">
-        <div
-          class="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
-          <i class="fas fa-book-open text-2xl sm:text-3xl text-gray-400"></i>
+      <ng-template #noDictionaryWords>
+        <div class="text-center py-8">
+          <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <i class="fas fa-book-open text-gray-400 text-xl"></i>
+          </div>
+          <h3 class="font-semibold text-gray-700 mb-1">
+            {{ dictionarySearch() ? 'No encontramos esa palabra' : 'Tu diccionario está vacío' }}
+          </h3>
+          <p class="text-sm text-gray-500">
+            {{ dictionarySearch() ? 'Intenta con otros términos' : 'Agrega palabras desde tus conversaciones' }}
+          </p>
         </div>
-        <h3 class="text-lg sm:text-xl font-bold text-gray-600 mb-2">
-          @if (searchTerm()) {
-          No se encontraron palabras
-          } @else {
-          No hay palabras {{ filter() === 'active' ? 'activas' : filter() === 'passive' ? 'pasivas' : '' }}
-          }
-        </h3>
-        <p class="text-gray-500 mb-6 max-w-md leading-relaxed text-sm sm:text-base">
-          @if (searchTerm()) {
-          No se encontraron palabras que coincidan con "{{ searchTerm() }}"
-          } @else if (filter() === 'active') {
-          Usa más tus palabras pasivas para activarlas mediante conversaciones
-          } @else if (filter() === 'passive') {
-          Agrega nuevas palabras para empezar tu aprendizaje
-          } @else {
-          ¡Comienza agregando tu primera palabra al diccionario!
-          }
-        </p>
+      </ng-template>
+    </div>
+
+    <!-- 3. MIS CORRECCIONES - Quick View Card Mejorado -->
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-200/50 p-6">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <div
+            class="w-8 h-8 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+            <i class="fas fa-lightbulb text-white text-sm"></i>
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-gray-900">🎯 Mis Correcciones</h2>
+            <p class="text-sm text-gray-600">{{ savedCorrections() }} errores guardados • {{ getPendingPractice() }}
+              pendientes de práctica</p>
+          </div>
+        </div>
+
+        <button (click)="openCorrectionsView()"
+          class="flex items-center gap-2 px-3 py-1.5 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium">
+          <span>Ver Todos</span>
+          <i class="fas fa-arrow-right text-xs"></i>
+        </button>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="relative mb-4">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <i class="fas fa-search text-gray-400 text-sm"></i>
+        </div>
+        <input type="text" [(ngModel)]="correctionsSearch" (input)="onCorrectionsSearchChange()"
+          placeholder="Buscar en tus correcciones..."
+          class="block w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm transition-all">
+      </div>
+
+      <!-- Category Filters -->
+      <div class="flex items-center gap-2 mb-4 overflow-x-auto pb-1">
+        <button *ngFor="let category of correctionCategories; trackBy: trackByCorrectionCategory"
+          (click)="setCorrectionFilter(category.key)"
+          class="px-3 py-1 text-xs font-medium rounded-full whitespace-nowrap transition-all flex items-center gap-1"
+          [class]="activeCorrectionFilter() === category.key ? 
+                  'bg-purple-100 text-purple-700 border border-purple-200' : 
+                  'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+          <i [class]="category.icon" class="text-xs"></i>
+          {{ category.label }} ({{ getCorrectionCategoryCount(category.key) }})
+        </button>
+      </div>
+
+      <!-- Quick View List -->
+      <div *ngIf="filteredCorrectionsPreview().length > 0; else noCorrections"
+        class="space-y-3 max-h-96 overflow-y-auto">
+        <div *ngFor="let correction of filteredCorrectionsPreview(); trackBy: trackByCorrection"
+          class="bg-gray-50 hover:bg-purple-50 border border-gray-200 hover:border-purple-300 rounded-lg p-4 cursor-pointer transition-all duration-200 group">
+
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-1 text-xs font-medium rounded-full" [class]="getCategoryStyle(correction.category)">
+                {{ getCategoryLabel(correction.category) }}
+              </span>
+              <span class="text-xs text-gray-500">{{ correction.date }}</span>
+            </div>
+            <div class="flex items-center gap-2 text-xs">
+              <span class="text-gray-500">{{ correction.practiced_count }}x practicado</span>
+              <span class="w-2 h-2 rounded-full"
+                [class]="correction.practiced_count >= 3 ? 'bg-green-400' : 'bg-amber-400'"></span>
+            </div>
+          </div>
+
+          <div class="space-y-2 mb-3">
+            <div class="flex items-start gap-2">
+              <i class="fas fa-times-circle text-red-500 text-xs mt-1 flex-shrink-0"></i>
+              <p class="text-sm text-red-700 line-clamp-1 flex-1">{{ correction.mistake }}</p>
+            </div>
+            <div class="flex items-start gap-2">
+              <i class="fas fa-check-circle text-emerald-500 text-xs mt-1 flex-shrink-0"></i>
+              <p class="text-sm text-emerald-700 line-clamp-1 flex-1">{{ correction.correction }}</p>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between">
+            <p class="text-xs text-gray-600 line-clamp-1 flex-1 mr-3">{{ correction.explanation }}</p>
+            <button
+              class="text-xs text-purple-600 hover:text-purple-700 font-medium bg-purple-100 hover:bg-purple-200 px-2 py-1 rounded transition-colors">
+              Practicar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #noCorrections>
+        <div class="text-center py-8">
+          <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <i class="fas fa-lightbulb text-gray-400 text-xl"></i>
+          </div>
+          <h3 class="font-semibold text-gray-700 mb-1">
+            {{ correctionsSearch() ? 'No encontramos correcciones' : 'No tienes correcciones guardadas' }}
+          </h3>
+          <p class="text-sm text-gray-500">
+            {{ correctionsSearch() ? 'Intenta con otros términos' : 'Guarda errores desde el análisis de chat' }}
+          </p>
+        </div>
+      </ng-template>
+    </div>
+
+  </div>
+  }
+
+  @if (showDictionaryView()) {
+  <!-- VISTA DE DICCIONARIO COMPLETO (la que ya existe) -->
+  <div class="bg-white/90 backdrop-blur-lg border-b border-gray-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <button (click)="closeDictionaryView()"
+            class="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-center transition-colors">
+            <i class="fas fa-arrow-left text-gray-600"></i>
+          </button>
+          <div>
+            <h1 class="text-xl font-bold text-gray-900">Mi Diccionario Completo</h1>
+            <p class="text-sm text-gray-600">{{ totalWords() }} palabras en tu colección</p>
+          </div>
+        </div>
+
         <button (click)="searchMode.set(true)"
-          class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl text-sm sm:text-base">
-          <i class="fas fa-plus mr-2 sm:mr-3"></i>Agregar Primera Palabra
+          class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg flex items-center gap-2">
+          <i class="fas fa-plus text-sm"></i>
+          <span class="hidden sm:inline">Agregar Palabra</span>
         </button>
       </div>
-      }
-      }
     </div>
   </div>
 
-  <!-- Word Details Modal - Responsive -->
-  @if (selectedWord()) {
-  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-999 flex items-center justify-center p-3 sm:p-4"
-    (click)="selectedWord.set(null)">
-    <div class="max-w-2xl w-full max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
-      <app-word-details [word]="selectedWord()!" (back)="selectedWord.set(null)">
-      </app-word-details>
+  <!-- Aquí va el contenido completo del diccionario actual -->
+  <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
+    <!-- Todo el contenido del diccionario existente -->
+    <!-- ... (copiado del código original) ... -->
+  </div>
+  }
+
+  @if (showCorrectionsView()) {
+  <!-- VISTA DE CORRECCIONES -->
+  <div class="bg-white/90 backdrop-blur-lg border-b border-gray-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <button (click)="closeCorrectionsView()"
+            class="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-lg flex items-center justify-center transition-colors">
+            <i class="fas fa-arrow-left text-gray-600"></i>
+          </button>
+          <div>
+            <h1 class="text-xl font-bold text-gray-900">Mis Correcciones Guardadas</h1>
+            <p class="text-sm text-gray-600">{{ savedCorrections() }} errores para estudiar</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-6">
+    <!-- Lista de correcciones -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div *ngFor="let correction of dummyCorrections(); trackBy: trackByCorrection"
+        class="bg-white rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300">
+
+        <div class="p-6">
+          <!-- Category Badge -->
+          <div class="flex items-center justify-between mb-4">
+            <span class="px-3 py-1 text-xs font-semibold rounded-full" [class]="getCategoryStyle(correction.category)">
+              {{ getCategoryLabel(correction.category) }}
+            </span>
+            <span class="text-xs text-gray-500">{{ correction.date }}</span>
+          </div>
+
+          <!-- Error y Corrección -->
+          <div class="space-y-3 mb-4">
+            <div class="bg-red-50 border-l-4 border-red-400 p-3 rounded-r-lg">
+              <div class="flex items-center gap-2 mb-1">
+                <i class="fas fa-times-circle text-red-500 text-sm"></i>
+                <span class="text-xs font-semibold text-red-800">Error</span>
+              </div>
+              <p class="text-sm text-red-700">{{ correction.mistake }}</p>
+            </div>
+
+            <div class="bg-emerald-50 border-l-4 border-emerald-400 p-3 rounded-r-lg">
+              <div class="flex items-center gap-2 mb-1">
+                <i class="fas fa-check-circle text-emerald-500 text-sm"></i>
+                <span class="text-xs font-semibold text-emerald-800">Corrección</span>
+              </div>
+              <p class="text-sm text-emerald-700">{{ correction.correction }}</p>
+            </div>
+          </div>
+
+          <!-- Explicación -->
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+            <div class="flex items-center gap-2 mb-2">
+              <i class="fas fa-lightbulb text-blue-600"></i>
+              <span class="text-xs font-semibold text-blue-800">Explicación</span>
+            </div>
+            <p class="text-sm text-blue-700">{{ correction.explanation }}</p>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2 text-xs text-gray-500">
+              <i class="fas fa-repeat"></i>
+              <span>{{ correction.practiced_count }} veces practicado</span>
+            </div>
+
+            <button
+              class="px-3 py-1.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-xs font-medium">
+              <i class="fas fa-dumbbell mr-1"></i>
+              Practicar
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
   }
-  }
+
 </div>
