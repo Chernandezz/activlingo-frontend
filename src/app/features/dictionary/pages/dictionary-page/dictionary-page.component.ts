@@ -1,4 +1,4 @@
-// dictionary-page.component.ts - MY LEARNING SIMPLIFICADO
+// dictionary-page.component.ts - ENHANCED WITH CEFR LEVELS
 import {
   Component,
   OnInit,
@@ -21,13 +21,18 @@ import {
 } from '../../../../core/models/user-dictionary.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
+type CEFRLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
+
 interface ProgressCategory {
   name: string;
+  cefr: CEFRLevel;
+  cefrColor: string;
+  cefrBg: string;
   progress: number;
-  level: string;
-  levelClass: string;
   color: string;
   icon: string;
+  insight: string;
+  trend: 'up' | 'down' | 'stable';
 }
 
 interface SavedCorrection {
@@ -43,12 +48,7 @@ interface SavedCorrection {
 @Component({
   selector: 'app-dictionary-page',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    WordDetailsComponent,
-    DictionarySearchPanelComponent,
-  ],
+  imports: [CommonModule, FormsModule],
   templateUrl: './dictionary-page.component.html',
   styleUrls: ['./dictionary-page.component.css'],
 })
@@ -102,10 +102,47 @@ export class DictionaryPageComponent implements OnInit, OnDestroy {
   ];
 
   // ========== COMPUTED INSIGHTS ==========
-  getWeeklyNewWords = computed(() => 3);
+  getWeeklyNewWords = computed(() => 8);
   getPendingPractice = computed(
     () => this.dummyCorrections().filter((c) => c.practiced_count < 3).length
   );
+
+  // ========== CEFR UTILITIES ==========
+  getCEFRColor(level: CEFRLevel): string {
+    const colors: Record<CEFRLevel, string> = {
+      A1: 'text-red-600',
+      A2: 'text-orange-600',
+      B1: 'text-amber-600',
+      B2: 'text-yellow-600',
+      C1: 'text-green-600',
+      C2: 'text-emerald-600',
+    };
+    return colors[level];
+  }
+
+  getCEFRBg(level: CEFRLevel): string {
+    const bgs: Record<CEFRLevel, string> = {
+      A1: 'bg-red-50 border-red-200 text-red-700',
+      A2: 'bg-orange-50 border-orange-200 text-orange-700',
+      B1: 'bg-amber-50 border-amber-200 text-amber-700',
+      B2: 'bg-yellow-50 border-yellow-200 text-yellow-700',
+      C1: 'bg-green-50 border-green-200 text-green-700',
+      C2: 'bg-emerald-50 border-emerald-200 text-emerald-700',
+    };
+    return bgs[level];
+  }
+
+  getCEFRDescription(level: CEFRLevel): string {
+    const descriptions: Record<CEFRLevel, string> = {
+      A1: 'Principiante',
+      A2: 'Elemental',
+      B1: 'Intermedio',
+      B2: 'Intermedio Alto',
+      C1: 'Avanzado',
+      C2: 'Maestría',
+    };
+    return descriptions[level];
+  }
 
   // ========== COMPUTED PREVIEWS WITH FILTERS ==========
   filteredDictionaryPreview = computed(() => {
@@ -191,19 +228,35 @@ export class DictionaryPageComponent implements OnInit, OnDestroy {
     // Filtering handled by computed
   }
 
-  // ========== CATEGORY INSIGHTS ==========
-  getCategoryInsight(category: ProgressCategory): string {
-    const insights = {
-      'Context Awareness': '3 conversaciones analizadas',
-      Grammar: 'Mejora en present perfect',
-      Vocabulary: '5 palabras nuevas esta semana',
-      'Phrasal Verbs': 'Practica "look up", "give up"',
-      Collocations: 'Trabaja combinaciones naturales',
-      Expressions: 'Dominas expresiones básicas',
+  // ========== CATEGORY STYLING METHODS ==========
+  getCategoryGradient(categoryName: string): string {
+    const gradients: Record<string, string> = {
+      'Context Awareness': 'linear-gradient(135deg, #3B82F6, #1E40AF)',
+      Grammar: 'linear-gradient(135deg, #EC4899, #BE185D)',
+      Vocabulary: 'linear-gradient(135deg, #F59E0B, #D97706)',
+      'Phrasal Verbs': 'linear-gradient(135deg, #6366F1, #4F46E5)',
+      Collocations: 'linear-gradient(135deg, #8B5CF6, #7C3AED)',
+      Expressions: 'linear-gradient(135deg, #10B981, #059669)',
     };
     return (
-      insights[category.name as keyof typeof insights] || 'Progreso constante'
+      gradients[categoryName] || 'linear-gradient(135deg, #6B7280, #4B5563)'
     );
+  }
+
+  getLevelBadgeClass(level: string): string {
+    const classes: Record<string, string> = {
+      Excelente: 'bg-emerald-100 text-emerald-800',
+      Avanzado: 'bg-blue-100 text-blue-800',
+      Intermedio: 'bg-purple-100 text-purple-800',
+      Básico: 'bg-amber-100 text-amber-800',
+      Principiante: 'bg-gray-100 text-gray-800',
+    };
+    return classes[level] || 'bg-gray-100 text-gray-800';
+  }
+
+  // ========== ENHANCED CATEGORY INSIGHTS ==========
+  getCategoryInsight(category: ProgressCategory): string {
+    return category.insight;
   }
 
   // ========== WORD UTILITY METHODS ==========
@@ -223,16 +276,16 @@ export class DictionaryPageComponent implements OnInit, OnDestroy {
   trackByCorrectionCategory(index: number, category: any): string {
     return category.key;
   }
-  totalWords = computed(() => this.words().length || 23);
-  activeWords = computed(
-    () => this.words().filter((w) => w.status === 'active').length || 15
-  );
-  studyStreak = computed(() => 7); // dummy
-  savedCorrections = computed(() => 12); // dummy
-  weeklyGoal = computed(() => 85); // dummy
 
-  grammarCorrections = computed(() => 5); // dummy
-  vocabularyCorrections = computed(() => 4); // dummy
+  totalWords = computed(() => this.words().length || 247);
+  activeWords = computed(
+    () => this.words().filter((w) => w.status === 'active').length || 189
+  );
+  studyStreak = computed(() => 12); // Enhanced streak
+  savedCorrections = computed(() => 18); // Enhanced corrections
+
+  grammarCorrections = computed(() => 6);
+  vocabularyCorrections = computed(() => 4);
 
   recentWords = computed(() => {
     if (this.words().length > 0) {
@@ -240,62 +293,83 @@ export class DictionaryPageComponent implements OnInit, OnDestroy {
     }
     // Dummy data si no hay palabras reales
     return [
-      { id: '1', word: 'exciting', status: 'active' },
-      { id: '2', word: 'challenging', status: 'passive' },
-      { id: '3', word: 'amazed', status: 'active' },
+      { id: '1', word: 'sophisticated', status: 'active' },
+      { id: '2', word: 'breakthrough', status: 'passive' },
+      { id: '3', word: 'compelling', status: 'active' },
     ] as any[];
   });
 
+  // ========== ENHANCED PROGRESS CATEGORIES WITH CEFR ==========
   progressCategories = computed((): ProgressCategory[] => [
     {
-      name: 'Context Awareness',
-      progress: 80,
-      level: 'Avanzado',
-      levelClass: 'text-blue-600',
-      color: 'linear-gradient(135deg, #3B82F6, #1D4ED8)',
-      icon: 'fas fa-user-tie',
-    },
-    {
       name: 'Grammar',
-      progress: 70,
-      level: 'Intermedio',
-      levelClass: 'text-purple-600',
+      cefr: 'C1',
+      cefrColor: this.getCEFRColor('C1'),
+      cefrBg: this.getCEFRBg('C1'),
+      progress: 85,
       color: 'linear-gradient(135deg, #EC4899, #BE185D)',
       icon: 'fas fa-spell-check',
+      insight: 'Excelente en condicionales',
+      trend: 'up',
     },
     {
       name: 'Vocabulary',
-      progress: 85,
-      level: 'Avanzado',
-      levelClass: 'text-blue-600',
+      cefr: 'C1',
+      cefrColor: this.getCEFRColor('C1'),
+      cefrBg: this.getCEFRBg('C1'),
+      progress: 88,
       color: 'linear-gradient(135deg, #F59E0B, #D97706)',
       icon: 'fas fa-book-open',
+      insight: '+12 palabras esta semana',
+      trend: 'up',
+    },
+    {
+      name: 'Context Awareness',
+      cefr: 'B2',
+      cefrColor: this.getCEFRColor('B2'),
+      cefrBg: this.getCEFRBg('B2'),
+      progress: 75,
+      color: 'linear-gradient(135deg, #3B82F6, #1E40AF)',
+      icon: 'fas fa-user-tie',
+      insight: 'Mejorando en formal',
+      trend: 'up',
     },
     {
       name: 'Phrasal Verbs',
-      progress: 30,
-      level: 'Básico',
-      levelClass: 'text-amber-600',
+      cefr: 'B1',
+      cefrColor: this.getCEFRColor('B1'),
+      cefrBg: this.getCEFRBg('B1'),
+      progress: 60,
       color: 'linear-gradient(135deg, #6366F1, #4F46E5)',
       icon: 'fas fa-link',
-    },
-    {
-      name: 'Collocations',
-      progress: 50,
-      level: 'Intermedio',
-      levelClass: 'text-purple-600',
-      color: 'linear-gradient(135deg, #8B5CF6, #7C3AED)',
-      icon: 'fas fa-puzzle-piece',
+      insight: 'Practica get, take, put',
+      trend: 'stable',
     },
     {
       name: 'Expressions',
-      progress: 70,
-      level: 'Intermedio',
-      levelClass: 'text-purple-600',
+      cefr: 'B2',
+      cefrColor: this.getCEFRColor('B2'),
+      cefrBg: this.getCEFRBg('B2'),
+      progress: 72,
       color: 'linear-gradient(135deg, #10B981, #059669)',
       icon: 'fas fa-comments',
+      insight: 'Idioms más naturales',
+      trend: 'up',
+    },
+    {
+      name: 'Collocations',
+      cefr: 'B1',
+      cefrColor: this.getCEFRColor('B1'),
+      cefrBg: this.getCEFRBg('B1'),
+      progress: 58,
+      color: 'linear-gradient(135deg, #8B5CF6, #7C3AED)',
+      icon: 'fas fa-puzzle-piece',
+      insight: 'Enfócate en verbos',
+      trend: 'stable',
     },
   ]);
+
+  weeklyGoal = computed(() => 92); // Enhanced goal
 
   dummyCorrections = computed((): SavedCorrection[] => [
     {

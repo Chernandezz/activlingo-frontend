@@ -1,208 +1,231 @@
-<!-- dictionary-page.component.html - MY LEARNING SIMPLIFICADO -->
-<div class="min-h-screen bg-gradient-to-br from-gray-50 to-slate-100">
+<!-- dictionary-page.component.html - ENHANCED WITH CEFR LEVELS -->
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
 
   @if (!showDictionaryView() && !showCorrectionsView()) {
-  <!-- VISTA PRINCIPAL - MY LEARNING -->
+  <!-- VISTA PRINCIPAL - MY LEARNING ENHANCED -->
   <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-6">
 
-    <!-- Header -->
+    <!-- Header Principal Mejorado -->
     <div class="mb-8">
-      <div class="flex items-center gap-4 mb-2">
-        <div
-          class="w-12 h-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-md">
-          <i class="fas fa-graduation-cap text-white text-lg"></i>
-        </div>
-        <div>
-          <h1 class="text-3xl font-bold text-gray-900">Mi Aprendizaje</h1>
-          <p class="text-gray-600">Progreso personalizado, diccionario y correcciones</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- 1. TU PROGRESO - Stats Section Mejorado -->
-    <div class="bg-white rounded-2xl shadow-lg border border-gray-200/50 p-6 mb-6">
-      <div class="flex items-center gap-3 mb-6">
-        <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-          <i class="fas fa-chart-line text-white text-sm"></i>
-        </div>
-        <div>
-          <h2 class="text-lg font-bold text-gray-900">📈 Tu Progreso</h2>
-          <p class="text-sm text-gray-600">Análisis de tus últimas conversaciones</p>
-        </div>
-      </div>
-
-      <!-- Top Categories Grid -->
-      <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-        <!-- Strongest Skills -->
-        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
-          <div class="flex items-center gap-2 mb-2">
-            <i class="fas fa-trophy text-emerald-600 text-sm"></i>
-            <span class="text-sm font-semibold text-emerald-800">Fortaleza</span>
-          </div>
-          <div class="text-xl font-bold text-emerald-700 mb-1">Vocabulary</div>
-          <div class="text-sm text-emerald-600">85% de precisión</div>
-          <div class="text-xs text-emerald-500 mt-1">↗ +12% esta semana</div>
-        </div>
-
-        <!-- Needs Practice -->
-        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
-          <div class="flex items-center gap-2 mb-2">
-            <i class="fas fa-target text-amber-600 text-sm"></i>
-            <span class="text-sm font-semibold text-amber-800">Para Mejorar</span>
-          </div>
-          <div class="text-xl font-bold text-amber-700 mb-1">Phrasal Verbs</div>
-          <div class="text-sm text-amber-600">30% de precisión</div>
-          <div class="text-xs text-amber-500 mt-1">5 errores recientes</div>
-        </div>
-
-        <!-- Recent Activity -->
-        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 col-span-2 lg:col-span-1">
-          <div class="flex items-center gap-2 mb-2">
-            <i class="fas fa-clock text-blue-600 text-sm"></i>
-            <span class="text-sm font-semibold text-blue-800">Actividad</span>
-          </div>
-          <div class="text-xl font-bold text-blue-700 mb-1">{{ studyStreak() }} días</div>
-          <div class="text-sm text-blue-600">racha activa</div>
-          <div class="text-xs text-blue-500 mt-1">Última sesión: hoy</div>
-        </div>
-      </div>
-
-      <!-- Detailed Progress -->
-      <div class="space-y-4 mb-6">
-        <h3 class="text-sm font-semibold text-gray-700 mb-3">Progreso Detallado</h3>
-
-        <div *ngFor="let category of progressCategories(); trackBy: trackByCategory"
-          class="group hover:bg-gray-50 rounded-lg p-3 transition-colors duration-200">
-          <div class="flex items-center justify-between mb-2">
-            <div class="flex items-center gap-3">
-              <div
-                class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-white transition-colors">
-                <i [class]="category.icon + ' text-gray-600 text-sm'"></i>
-              </div>
-              <div>
-                <span class="font-medium text-gray-900">{{ category.name }}</span>
-                <div class="text-xs text-gray-500">{{ getCategoryInsight(category) }}</div>
-              </div>
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="relative">
+            <div
+              class="w-14 h-14 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl">
+              <i class="fas fa-graduation-cap text-white text-xl"></i>
             </div>
-            <div class="text-right">
-              <div class="text-lg font-bold text-gray-900">{{ category.progress }}%</div>
-              <div class="text-xs font-medium px-2 py-1 rounded-full bg-gray-100 text-gray-600">
-                {{ category.level }}
-              </div>
+            <div class="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+              <span class="text-white text-xs font-bold">{{ studyStreak() }}</span>
             </div>
           </div>
-
-          <div class="w-full bg-gray-200 rounded-full h-2">
-            <div class="h-2 rounded-full transition-all duration-700 bg-gradient-to-r from-blue-500 to-blue-600"
-              [style.width.%]="category.progress">
-            </div>
+          <div>
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Mi
+              Aprendizaje</h1>
+            <p class="text-gray-600 mt-1">Tu progreso personalizado con estándares CEFR</p>
           </div>
         </div>
-      </div>
 
-      <!-- Weekly Summary -->
-      <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
-        <h3 class="text-sm font-semibold text-gray-700 mb-3">Resumen de la Semana</h3>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-          <div>
-            <div class="text-2xl font-bold text-gray-900">{{ totalWords() }}</div>
-            <div class="text-xs text-gray-600">Palabras usadas</div>
+        <!-- Quick Stats -->
+        <div class="hidden lg:flex items-center gap-4">
+          <div class="text-center">
+            <div class="text-2xl font-bold text-blue-600">{{ totalWords() }}</div>
+            <div class="text-xs text-gray-500 font-medium">Palabras</div>
           </div>
-          <div>
-            <div class="text-2xl font-bold text-gray-900">{{ savedCorrections() }}</div>
-            <div class="text-xs text-gray-600">Errores corregidos</div>
-          </div>
-          <div>
-            <div class="text-2xl font-bold text-gray-900">15</div>
-            <div class="text-xs text-gray-600">Minutos promedio</div>
-          </div>
-          <div>
-            <div class="text-2xl font-bold text-gray-900">{{ weeklyGoal() }}%</div>
-            <div class="text-xs text-gray-600">Meta alcanzada</div>
+          <div class="w-px h-8 bg-gray-300"></div>
+          <div class="text-center">
+            <div class="text-2xl font-bold text-green-600">{{ weeklyGoal() }}%</div>
+            <div class="text-xs text-gray-500 font-medium">Meta Semanal</div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 2. MI DICCIONARIO - Quick View Card Mejorado -->
-    <div class="bg-white rounded-2xl shadow-lg border border-gray-200/50 p-6 mb-6">
-      <div class="flex items-center justify-between mb-4">
+    <!-- SECTION 1: PROGRESS SECTION - MÁS COMPACTO Y ELEGANTE -->
+    <div class="bg-white/70 backdrop-blur-sm rounded-3xl shadow-xl border border-white/50 p-6 mb-8">
+      <div class="flex items-center justify-between mb-6">
         <div class="flex items-center gap-3">
           <div
-            class="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
-            <i class="fas fa-book text-white text-sm"></i>
+            class="w-8 h-8 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-lg flex items-center justify-center">
+            <i class="fas fa-chart-line text-white text-sm"></i>
+          </div>
+          <h2 class="text-xl font-bold text-gray-900">Progreso por Habilidades</h2>
+        </div>
+        <div class="text-sm text-gray-500">Según Marco CEFR</div>
+      </div>
+
+      <!-- Grid Más Compacto para Progress Categories -->
+      <div class="grid lg:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div *ngFor="let category of progressCategories(); trackBy: trackByCategory"
+          class="group bg-white/80 hover:bg-white border border-gray-200/50 hover:border-gray-300 rounded-2xl p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+
+          <!-- Header con CEFR Level -->
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm"
+                [style.background]="category.color">
+                <i [class]="category.icon + ' text-white text-sm'"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h3 class="font-semibold text-gray-900 text-sm truncate">{{ category.name }}</h3>
+                <p class="text-xs text-gray-600 truncate">{{ category.insight }}</p>
+              </div>
+            </div>
+
+            <!-- CEFR Badge -->
+            <div class="flex flex-col items-end gap-1">
+              <div class="px-2.5 py-1 border rounded-lg text-xs font-bold" [class]="category.cefrBg">
+                {{ category.cefr }}
+              </div>
+              <div class="flex items-center gap-1">
+                <i class="fas fa-trend-up text-xs"
+                  [class]="category.trend === 'up' ? 'text-green-500' : category.trend === 'down' ? 'text-red-500' : 'text-gray-400'"></i>
+                <span class="text-xs font-medium text-gray-700">{{ category.progress }}%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Barra de progreso mejorada -->
+          <div class="relative">
+            <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+              <div class="h-full rounded-full transition-all duration-1000 ease-out" [style.width.%]="category.progress"
+                [style.background]="category.color">
+              </div>
+            </div>
+            <!-- CEFR Description -->
+            <div class="flex justify-between items-center mt-2">
+              <span class="text-xs text-gray-500">{{ getCEFRDescription(category.cefr) }}</span>
+              <span class="text-xs font-medium" [class]="category.cefrColor">
+                {{ category.cefr }} Nivel
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Insights Row -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6 pt-6 border-t border-gray-200">
+        <div class="text-center">
+          <div
+            class="w-12 h-12 bg-gradient-to-br from-emerald-100 to-green-100 rounded-2xl flex items-center justify-center mx-auto mb-2">
+            <i class="fas fa-fire text-green-600 text-lg"></i>
+          </div>
+          <div class="text-xl font-bold text-green-700">{{ studyStreak() }}</div>
+          <div class="text-xs text-gray-600">Días seguidos</div>
+        </div>
+
+        <div class="text-center">
+          <div
+            class="w-12 h-12 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-2">
+            <i class="fas fa-plus-circle text-blue-600 text-lg"></i>
+          </div>
+          <div class="text-xl font-bold text-blue-700">{{ getWeeklyNewWords() }}</div>
+          <div class="text-xs text-gray-600">Nuevas esta semana</div>
+        </div>
+
+        <div class="text-center">
+          <div
+            class="w-12 h-12 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-2">
+            <i class="fas fa-exclamation-triangle text-purple-600 text-lg"></i>
+          </div>
+          <div class="text-xl font-bold text-purple-700">{{ getPendingPractice() }}</div>
+          <div class="text-xs text-gray-600">Por practicar</div>
+        </div>
+
+        <div class="text-center">
+          <div
+            class="w-12 h-12 bg-gradient-to-br from-amber-100 to-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-2">
+            <i class="fas fa-target text-amber-600 text-lg"></i>
+          </div>
+          <div class="text-xl font-bold text-amber-700">{{ weeklyGoal() }}%</div>
+          <div class="text-xs text-gray-600">Meta semanal</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2: MI DICCIONARIO - ENHANCED -->
+    <div class="bg-white/70 backdrop-blur-sm rounded-3xl shadow-xl border border-white/50 p-6 mb-8">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <div
+            class="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
+            <i class="fas fa-book text-white text-lg"></i>
           </div>
           <div>
-            <h2 class="text-lg font-bold text-gray-900">📚 Mi Diccionario</h2>
-            <p class="text-sm text-gray-600">{{ totalWords() }} palabras • {{ activeWords() }} dominadas • {{
-              getWeeklyNewWords() }} nuevas esta semana</p>
+            <h2 class="text-xl font-bold text-gray-900">📚 Mi Diccionario Personal</h2>
+            <p class="text-sm text-gray-600">{{ totalWords() }} palabras • {{ activeWords() }} dominadas</p>
           </div>
         </div>
 
         <button (click)="openDictionaryView()"
-          class="flex items-center gap-2 px-3 py-1.5 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium">
-          <span>Explorar</span>
-          <i class="fas fa-arrow-right text-xs"></i>
+          class="group flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+          <span class="font-medium">Explorar Todo</span>
+          <i class="fas fa-arrow-right text-sm group-hover:translate-x-1 transition-transform"></i>
         </button>
       </div>
 
-      <!-- Search Bar -->
+      <!-- Enhanced Search Bar -->
       <div class="relative mb-4">
-        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <i class="fas fa-search text-gray-400 text-sm"></i>
+        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <i class="fas fa-search text-gray-400"></i>
         </div>
         <input type="text" [(ngModel)]="dictionarySearch" (input)="onDictionarySearchChange()"
-          placeholder="Buscar palabras en tu diccionario..."
-          class="block w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm transition-all">
+          placeholder="Buscar en tu diccionario personal..."
+          class="block w-full pl-11 pr-4 py-3 bg-gray-50/80 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition-all duration-200 backdrop-blur-sm">
       </div>
 
-      <!-- Quick Filters -->
-      <div class="flex items-center gap-2 mb-4 overflow-x-auto pb-1">
+      <!-- Enhanced Filters -->
+      <div class="flex items-center gap-2 mb-6 overflow-x-auto pb-1">
         <button *ngFor="let filter of dictionaryFilters; trackBy: trackByFilter"
           (click)="setDictionaryFilter(filter.key)"
-          class="px-3 py-1 text-xs font-medium rounded-full whitespace-nowrap transition-all" [class]="activeDictionaryFilter() === filter.key ? 
-                  'bg-green-100 text-green-700 border border-green-200' : 
-                  'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+          class="px-4 py-2 text-sm font-medium rounded-xl whitespace-nowrap transition-all duration-200" [class]="activeDictionaryFilter() === filter.key ? 
+                        'bg-green-500 text-white shadow-lg transform scale-105' : 
+                        'bg-white/60 text-gray-600 hover:bg-white hover:shadow-md'">
           {{ filter.label }}
         </button>
       </div>
 
-      <!-- Quick View Grid -->
+      <!-- Enhanced Words Grid -->
       <div *ngIf="filteredDictionaryPreview().length > 0; else noDictionaryWords"
-        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div *ngFor="let word of filteredDictionaryPreview(); trackBy: trackByWord" (click)="onSelectWord(word)"
-          class="bg-gray-50 hover:bg-green-50 border border-gray-200 hover:border-green-300 rounded-lg p-4 cursor-pointer transition-all duration-200 group">
+          class="group bg-white/60 hover:bg-white border border-gray-200/50 hover:border-green-300 rounded-2xl p-5 cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-2">
 
-          <div class="flex items-start justify-between mb-3">
+          <div class="flex items-start justify-between mb-4">
             <div class="flex-1 min-w-0">
               <h3
-                class="font-bold text-gray-900 capitalize text-base truncate group-hover:text-green-700 transition-colors">
+                class="font-bold text-gray-900 capitalize text-lg truncate group-hover:text-green-700 transition-colors">
                 {{ word.word }}
               </h3>
-              <div class="flex items-center gap-2 mt-1">
-                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
-                  [class]="word.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'">
-                  {{ word.status === 'active' ? 'Dominada' : 'Aprendiendo' }}
+              <div class="flex items-center gap-2 mt-2">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold border"
+                  [class]="word.status === 'active' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-amber-50 text-amber-700 border-amber-200'">
+                  {{ word.status === 'active' ? '✓ Dominada' : '📚 Aprendiendo' }}
                 </span>
-                <span class="text-xs text-gray-500">{{ getWordMasteryLevel(word) }}</span>
+              </div>
+            </div>
+            <div class="text-right">
+              <div
+                class="w-8 h-8 bg-gray-100 group-hover:bg-green-100 rounded-lg flex items-center justify-center transition-colors">
+                <i class="fas fa-eye text-gray-400 group-hover:text-green-600 text-xs"></i>
               </div>
             </div>
           </div>
 
-          <p class="text-sm text-gray-600 line-clamp-2 leading-relaxed mb-3">{{ word.meaning }}</p>
+          <p class="text-sm text-gray-600 line-clamp-2 leading-relaxed mb-4">{{ word.meaning }}</p>
 
-          <div class="flex items-center justify-between text-xs text-gray-500">
-            <div class="flex items-center gap-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3 text-xs text-gray-500">
               <span class="flex items-center gap-1">
-                <i class="fas fa-eye"></i>
-                {{ word.usage_count || 0 }}
+                <i class="fas fa-chart-bar"></i>
+                {{ word.usage_count || 0 }} usos
               </span>
               <span class="flex items-center gap-1">
                 <i class="fas fa-clock"></i>
                 {{ getLastUsedText(word) }}
               </span>
             </div>
-            <button class="text-green-600 hover:text-green-700 font-medium">
+            <button
+              class="text-green-600 hover:text-green-700 font-semibold text-xs bg-green-100 hover:bg-green-200 px-3 py-1 rounded-lg transition-colors">
               Estudiar
             </button>
           </div>
@@ -210,116 +233,124 @@
       </div>
 
       <ng-template #noDictionaryWords>
-        <div class="text-center py-8">
-          <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
-            <i class="fas fa-book-open text-gray-400 text-xl"></i>
+        <div class="text-center py-12">
+          <div
+            class="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-book-open text-gray-400 text-2xl"></i>
           </div>
-          <h3 class="font-semibold text-gray-700 mb-1">
-            {{ dictionarySearch() ? 'No encontramos esa palabra' : 'Tu diccionario está vacío' }}
+          <h3 class="font-semibold text-gray-700 mb-2 text-lg">
+            {{ dictionarySearch() ? 'No encontramos esa palabra' : 'Tu diccionario está esperándote' }}
           </h3>
-          <p class="text-sm text-gray-500">
-            {{ dictionarySearch() ? 'Intenta con otros términos' : 'Agrega palabras desde tus conversaciones' }}
+          <p class="text-gray-500">
+            {{ dictionarySearch() ? 'Intenta con otros términos de búsqueda' : 'Agrega palabras desde tus conversaciones
+            con IA' }}
           </p>
         </div>
       </ng-template>
     </div>
 
-    <!-- 3. MIS CORRECCIONES - Quick View Card Mejorado -->
-    <div class="bg-white rounded-2xl shadow-lg border border-gray-200/50 p-6">
-      <div class="flex items-center justify-between mb-4">
+    <!-- SECTION 3: MIS CORRECCIONES - ENHANCED -->
+    <div class="bg-white/70 backdrop-blur-sm rounded-3xl shadow-xl border border-white/50 p-6">
+      <div class="flex items-center justify-between mb-6">
         <div class="flex items-center gap-3">
           <div
-            class="w-8 h-8 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
-            <i class="fas fa-lightbulb text-white text-sm"></i>
+            class="w-10 h-10 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-xl flex items-center justify-center shadow-lg">
+            <i class="fas fa-lightbulb text-white text-lg"></i>
           </div>
           <div>
-            <h2 class="text-lg font-bold text-gray-900">🎯 Mis Correcciones</h2>
+            <h2 class="text-xl font-bold text-gray-900">🎯 Mis Correcciones Guardadas</h2>
             <p class="text-sm text-gray-600">{{ savedCorrections() }} errores guardados • {{ getPendingPractice() }}
-              pendientes de práctica</p>
+              pendientes</p>
           </div>
         </div>
 
         <button (click)="openCorrectionsView()"
-          class="flex items-center gap-2 px-3 py-1.5 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium">
-          <span>Ver Todos</span>
-          <i class="fas fa-arrow-right text-xs"></i>
+          class="group flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+          <span class="font-medium">Ver Todas</span>
+          <i class="fas fa-arrow-right text-sm group-hover:translate-x-1 transition-transform"></i>
         </button>
       </div>
 
-      <!-- Search Bar -->
+      <!-- Enhanced Search -->
       <div class="relative mb-4">
-        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <i class="fas fa-search text-gray-400 text-sm"></i>
+        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <i class="fas fa-search text-gray-400"></i>
         </div>
         <input type="text" [(ngModel)]="correctionsSearch" (input)="onCorrectionsSearchChange()"
-          placeholder="Buscar en tus correcciones..."
-          class="block w-full pl-9 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm transition-all">
+          placeholder="Buscar en tus correcciones guardadas..."
+          class="block w-full pl-11 pr-4 py-3 bg-gray-50/80 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all duration-200 backdrop-blur-sm">
       </div>
 
-      <!-- Category Filters -->
-      <div class="flex items-center gap-2 mb-4 overflow-x-auto pb-1">
+      <!-- Enhanced Category Filters -->
+      <div class="flex items-center gap-2 mb-6 overflow-x-auto pb-1">
         <button *ngFor="let category of correctionCategories; trackBy: trackByCorrectionCategory"
           (click)="setCorrectionFilter(category.key)"
-          class="px-3 py-1 text-xs font-medium rounded-full whitespace-nowrap transition-all flex items-center gap-1"
+          class="px-4 py-2 text-sm font-medium rounded-xl whitespace-nowrap transition-all duration-200 flex items-center gap-2"
           [class]="activeCorrectionFilter() === category.key ? 
-                  'bg-purple-100 text-purple-700 border border-purple-200' : 
-                  'bg-gray-100 text-gray-600 hover:bg-gray-200'">
+                        'bg-purple-500 text-white shadow-lg transform scale-105' : 
+                        'bg-white/60 text-gray-600 hover:bg-white hover:shadow-md'">
           <i [class]="category.icon" class="text-xs"></i>
-          {{ category.label }} ({{ getCorrectionCategoryCount(category.key) }})
+          {{ category.label }}
+          <span class="text-xs opacity-75">({{ getCorrectionCategoryCount(category.key) }})</span>
         </button>
       </div>
 
-      <!-- Quick View List -->
+      <!-- Enhanced Corrections List -->
       <div *ngIf="filteredCorrectionsPreview().length > 0; else noCorrections"
-        class="space-y-3 max-h-96 overflow-y-auto">
+        class="space-y-4 max-h-96 overflow-y-auto pr-2">
         <div *ngFor="let correction of filteredCorrectionsPreview(); trackBy: trackByCorrection"
-          class="bg-gray-50 hover:bg-purple-50 border border-gray-200 hover:border-purple-300 rounded-lg p-4 cursor-pointer transition-all duration-200 group">
+          class="group bg-white/60 hover:bg-white border border-gray-200/50 hover:border-purple-300 rounded-2xl p-5 cursor-pointer transition-all duration-300 hover:shadow-xl">
 
-          <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center gap-2">
-              <span class="px-2 py-1 text-xs font-medium rounded-full" [class]="getCategoryStyle(correction.category)">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <span class="px-3 py-1.5 text-xs font-semibold rounded-xl border"
+                [class]="getCategoryStyle(correction.category)">
                 {{ getCategoryLabel(correction.category) }}
               </span>
-              <span class="text-xs text-gray-500">{{ correction.date }}</span>
+              <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-lg">{{ correction.date }}</span>
             </div>
             <div class="flex items-center gap-2 text-xs">
-              <span class="text-gray-500">{{ correction.practiced_count }}x practicado</span>
-              <span class="w-2 h-2 rounded-full"
-                [class]="correction.practiced_count >= 3 ? 'bg-green-400' : 'bg-amber-400'"></span>
+              <span class="text-gray-500 bg-gray-100 px-2 py-1 rounded-lg">{{ correction.practiced_count }}x</span>
+              <div class="w-3 h-3 rounded-full"
+                [class]="correction.practiced_count >= 3 ? 'bg-green-400' : 'bg-amber-400'"></div>
             </div>
           </div>
 
-          <div class="space-y-2 mb-3">
-            <div class="flex items-start gap-2">
-              <i class="fas fa-times-circle text-red-500 text-xs mt-1 flex-shrink-0"></i>
-              <p class="text-sm text-red-700 line-clamp-1 flex-1">{{ correction.mistake }}</p>
+          <div class="space-y-3 mb-4">
+            <div class="flex items-start gap-3 p-3 bg-red-50/80 border border-red-200 rounded-xl">
+              <i class="fas fa-times-circle text-red-500 text-sm mt-0.5 flex-shrink-0"></i>
+              <p class="text-sm text-red-700 flex-1">{{ correction.mistake }}</p>
             </div>
-            <div class="flex items-start gap-2">
-              <i class="fas fa-check-circle text-emerald-500 text-xs mt-1 flex-shrink-0"></i>
-              <p class="text-sm text-emerald-700 line-clamp-1 flex-1">{{ correction.correction }}</p>
+            <div class="flex items-start gap-3 p-3 bg-emerald-50/80 border border-emerald-200 rounded-xl">
+              <i class="fas fa-check-circle text-emerald-500 text-sm mt-0.5 flex-shrink-0"></i>
+              <p class="text-sm text-emerald-700 flex-1">{{ correction.correction }}</p>
             </div>
           </div>
 
-          <div class="flex items-center justify-between">
-            <p class="text-xs text-gray-600 line-clamp-1 flex-1 mr-3">{{ correction.explanation }}</p>
+          <div class="flex items-start justify-between gap-4">
+            <p class="text-xs text-gray-600 flex-1 bg-blue-50/50 p-3 rounded-xl border border-blue-200">
+              <i class="fas fa-lightbulb text-blue-500 mr-2"></i>{{ correction.explanation }}
+            </p>
             <button
-              class="text-xs text-purple-600 hover:text-purple-700 font-medium bg-purple-100 hover:bg-purple-200 px-2 py-1 rounded transition-colors">
-              Practicar
+              class="flex-shrink-0 text-sm text-purple-600 hover:text-purple-700 font-semibold bg-purple-100 hover:bg-purple-200 px-4 py-2 rounded-xl transition-all duration-200 transform hover:scale-105">
+              <i class="fas fa-dumbbell mr-2"></i>Practicar
             </button>
           </div>
         </div>
       </div>
 
       <ng-template #noCorrections>
-        <div class="text-center py-8">
-          <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
-            <i class="fas fa-lightbulb text-gray-400 text-xl"></i>
+        <div class="text-center py-12">
+          <div
+            class="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-lightbulb text-gray-400 text-2xl"></i>
           </div>
-          <h3 class="font-semibold text-gray-700 mb-1">
-            {{ correctionsSearch() ? 'No encontramos correcciones' : 'No tienes correcciones guardadas' }}
+          <h3 class="font-semibold text-gray-700 mb-2 text-lg">
+            {{ correctionsSearch() ? 'No encontramos correcciones' : 'No tienes correcciones guardadas aún' }}
           </h3>
-          <p class="text-sm text-gray-500">
-            {{ correctionsSearch() ? 'Intenta con otros términos' : 'Guarda errores desde el análisis de chat' }}
+          <p class="text-gray-500">
+            {{ correctionsSearch() ? 'Intenta con otros términos de búsqueda' : 'Guarda errores desde el análisis de
+            chat para estudiar después' }}
           </p>
         </div>
       </ng-template>
@@ -329,7 +360,7 @@
   }
 
   @if (showDictionaryView()) {
-  <!-- VISTA DE DICCIONARIO COMPLETO (la que ya existe) -->
+  <!-- VISTA DE DICCIONARIO COMPLETO -->
   <div class="bg-white/90 backdrop-blur-lg border-b border-gray-200 shadow-sm">
     <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4">
       <div class="flex items-center justify-between">
@@ -352,16 +383,10 @@
       </div>
     </div>
   </div>
-
-  <!-- Aquí va el contenido completo del diccionario actual -->
-  <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
-    <!-- Todo el contenido del diccionario existente -->
-    <!-- ... (copiado del código original) ... -->
-  </div>
   }
 
   @if (showCorrectionsView()) {
-  <!-- VISTA DE CORRECCIONES -->
+  <!-- VISTA DE CORRECCIONES COMPLETA -->
   <div class="bg-white/90 backdrop-blur-lg border-b border-gray-200 shadow-sm">
     <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4">
       <div class="flex items-center justify-between">
@@ -380,59 +405,68 @@
   </div>
 
   <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-6">
-    <!-- Lista de correcciones -->
+    <!-- Enhanced Corrections Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div *ngFor="let correction of dummyCorrections(); trackBy: trackByCorrection"
-        class="bg-white rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300">
+        class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200/50 hover:shadow-2xl transition-all duration-300 overflow-hidden">
 
         <div class="p-6">
-          <!-- Category Badge -->
-          <div class="flex items-center justify-between mb-4">
-            <span class="px-3 py-1 text-xs font-semibold rounded-full" [class]="getCategoryStyle(correction.category)">
+          <!-- Enhanced Header -->
+          <div class="flex items-center justify-between mb-5">
+            <span class="px-4 py-2 text-sm font-semibold rounded-xl border"
+              [class]="getCategoryStyle(correction.category)">
               {{ getCategoryLabel(correction.category) }}
             </span>
-            <span class="text-xs text-gray-500">{{ correction.date }}</span>
-          </div>
-
-          <!-- Error y Corrección -->
-          <div class="space-y-3 mb-4">
-            <div class="bg-red-50 border-l-4 border-red-400 p-3 rounded-r-lg">
-              <div class="flex items-center gap-2 mb-1">
-                <i class="fas fa-times-circle text-red-500 text-sm"></i>
-                <span class="text-xs font-semibold text-red-800">Error</span>
+            <div class="flex items-center gap-3">
+              <span class="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-lg">{{ correction.date }}</span>
+              <div class="flex items-center gap-1">
+                <div class="w-2 h-2 rounded-full"
+                  [class]="correction.practiced_count >= 3 ? 'bg-green-400' : 'bg-amber-400'"></div>
+                <span class="text-xs text-gray-600">{{ correction.practiced_count }}x</span>
               </div>
-              <p class="text-sm text-red-700">{{ correction.mistake }}</p>
-            </div>
-
-            <div class="bg-emerald-50 border-l-4 border-emerald-400 p-3 rounded-r-lg">
-              <div class="flex items-center gap-2 mb-1">
-                <i class="fas fa-check-circle text-emerald-500 text-sm"></i>
-                <span class="text-xs font-semibold text-emerald-800">Corrección</span>
-              </div>
-              <p class="text-sm text-emerald-700">{{ correction.correction }}</p>
             </div>
           </div>
 
-          <!-- Explicación -->
-          <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-            <div class="flex items-center gap-2 mb-2">
+          <!-- Enhanced Error/Correction Display -->
+          <div class="space-y-4 mb-5">
+            <div class="bg-gradient-to-r from-red-50 to-red-100/50 border-l-4 border-red-400 p-4 rounded-r-xl">
+              <div class="flex items-center gap-2 mb-2">
+                <i class="fas fa-times-circle text-red-500"></i>
+                <span class="text-sm font-semibold text-red-800">Error Original</span>
+              </div>
+              <p class="text-red-700 font-medium">{{ correction.mistake }}</p>
+            </div>
+
+            <div
+              class="bg-gradient-to-r from-emerald-50 to-emerald-100/50 border-l-4 border-emerald-400 p-4 rounded-r-xl">
+              <div class="flex items-center gap-2 mb-2">
+                <i class="fas fa-check-circle text-emerald-500"></i>
+                <span class="text-sm font-semibold text-emerald-800">Corrección</span>
+              </div>
+              <p class="text-emerald-700 font-medium">{{ correction.correction }}</p>
+            </div>
+          </div>
+
+          <!-- Enhanced Explanation -->
+          <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 mb-5">
+            <div class="flex items-center gap-2 mb-3">
               <i class="fas fa-lightbulb text-blue-600"></i>
-              <span class="text-xs font-semibold text-blue-800">Explicación</span>
+              <span class="text-sm font-semibold text-blue-800">Explicación Detallada</span>
             </div>
-            <p class="text-sm text-blue-700">{{ correction.explanation }}</p>
+            <p class="text-blue-700 leading-relaxed">{{ correction.explanation }}</p>
           </div>
 
-          <!-- Actions -->
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2 text-xs text-gray-500">
-              <i class="fas fa-repeat"></i>
-              <span>{{ correction.practiced_count }} veces practicado</span>
+          <!-- Enhanced Actions -->
+          <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+            <div class="flex items-center gap-2">
+              <i class="fas fa-repeat text-gray-400"></i>
+              <span class="text-sm text-gray-600">Practicado {{ correction.practiced_count }} veces</span>
             </div>
 
             <button
-              class="px-3 py-1.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-xs font-medium">
-              <i class="fas fa-dumbbell mr-1"></i>
-              Practicar
+              class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl font-medium">
+              <i class="fas fa-dumbbell mr-2"></i>
+              Practicar Ahora
             </button>
           </div>
         </div>
