@@ -15,6 +15,10 @@ import { Subject, takeUntil, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { UserStats } from '../../../core/models/user.model';
 
+// ✅ NUEVO: Importar servicios del chat
+import { ChatService } from '../../../features/chat/services/chat.service';
+import { MessageService } from '../../../features/chat/services/message.service';
+
 @Component({
   selector: 'app-header',
   standalone: true,
@@ -44,7 +48,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
     public ui: UiService,
     private router: Router,
     private authService: AuthService,
-    private userService: UserService
+    private userService: UserService,
+    // ✅ NUEVO: Inyectar servicios del chat
+    private chatService: ChatService,
+    private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
@@ -98,6 +105,21 @@ export class HeaderComponent implements OnInit, OnDestroy {
       conversations_this_month: 0,
       words_learned_this_month: 0,
     };
+  }
+
+  // ✅ NUEVO: Método para ir al catálogo y cerrar chat
+  goToConversations(): void {
+    // 1. Cerrar chat actual si existe
+    this.chatService.setCurrentChat(null);
+
+    // 2. Limpiar mensajes
+    this.messageService.clearMessages();
+
+    // 3. Cerrar sidebar móvil si está abierto
+    this.ui.closeSidebar();
+
+    // 4. Navegar a /chat (que mostrará el welcome view)
+    this.router.navigate(['/chat']);
   }
 
   @HostListener('document:click', ['$event'])
