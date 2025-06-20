@@ -9,11 +9,159 @@ import {
   Achievement,
   UpdateProfileRequest,
 } from '../models/user.model';
-import { tap, shareReplay, switchMap, catchError } from 'rxjs/operators';
+import { tap, shareReplay, switchMap, catchError, map } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private readonly apiUrl = `${environment.apiUrl}/user`;
+
+  private readonly STORAGE_KEYS = {
+    PROFILE: 'activlingo_profile_cache',
+    ACHIEVEMENTS: 'activlingo_achievements_cache',
+  };
+
+  // ========== CACHE SYSTEM ==========
+  private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
+  private profileCache: { data: UserProfile; timestamp: number } | null = null;
+  private achievementsCache: { data: Achievement[]; timestamp: number } | null =
+    null;
+
+  private userProfileSubject = new BehaviorSubject<UserProfile | null>(null);
+  private achievementsFullSubject = new BehaviorSubject<Achievement[] | null>(
+    null
+  );
+
+  public userProfile$ = this.userProfileSubject.asObservable();
+  public achievementsFull$ = this.achievementsFullSubject.asObservable();
+
+  // ========== MÉTODOS MODIFICADOS ==========
+
+  // REEMPLAZAR el método getProfile existente:
+  getProfile(): Observable<UserProfile> {
+    // 1. Intentar cargar desde cache en memoria
+    if (this.profileCache && this.isCacheValid(this.STORAGE_KEYS.PROFILE)) {
+      this.userProfileSubject.next(this.profileCache.data);
+      return of(this.profileCache.data);
+    }
+
+    // 2. Intentar cargar desde localStorage
+    try {
+      const cached = localStorage.getItem(this.STORAGE_KEYS.PROFILE);
+      if (cached && this.isCacheValid(this.STORAGE_KEYS.PROFILE)) {
+        const { data } = JSON.parse(cached);
+        this.profileCache = { data, timestamp: Date.now() };
+        this.userProfileSubject.next(data);
+
+        // Refresh en background (sin loading)
+        this.loadProfileFromServer(false).subscribe();
+
+        return of(data);
+      }
+    } catch (error) {
+      console.warn('Error reading profile cache:', error);
+    }
+
+    // 3. Si no hay cache, cargar desde servidor
+    return this.loadProfileFromServer(true);
+  }
+
+  // REEMPLAZAR el método getAchievements existente:
+  getAchievements(): Observable<{
+    achievements: Achievement[];
+    total_unlocked: number;
+  }> {
+    // Si tenemos cache válido, devolverlo inmediatamente
+    if (
+      this.achievementsCache &&
+      this.isCacheValidByTimestamp(this.achievementsCache.timestamp)
+    ) {
+      const achievements = this.achievementsCache.data;
+      this.achievementsFullSubject.next(achievements);
+      return of({
+        achievements,
+        total_unlocked: achievements.filter((a) => a.unlocked).length,
+      });
+    }
+
+    // Si no, cargar desde servidor
+    return this.loadAchievementsFromServer();
+  }
+
+  // AGREGAR estos métodos nuevos:
+  private loadProfileFromServer(showLoading = true): Observable<UserProfile> {
+    return this.http.get<UserProfile>(`${this.apiUrl}/profile`).pipe(
+      tap((profile) => {
+        // Guardar en memoria
+        this.profileCache = { data: profile, timestamp: Date.now() };
+
+        // Guardar en localStorage
+        localStorage.setItem(
+          this.STORAGE_KEYS.PROFILE,
+          JSON.stringify({
+            data: profile,
+            timestamp: Date.now(),
+          })
+        );
+
+        this.userProfileSubject.next(profile);
+      }),
+      shareReplay(1)
+    );
+  }
+
+  private loadAchievementsFromServer(): Observable<{
+    achievements: Achievement[];
+    total_unlocked: number;
+  }> {
+    return this.http
+      .get<{ achievements: Achievement[]; total_unlocked: number }>(
+        `${this.apiUrl}/achievements`
+      )
+      .pipe(
+        tap((data) => {
+          this.achievementsCache = {
+            data: data.achievements,
+            timestamp: Date.now(),
+          };
+          this.achievementsFullSubject.next(data.achievements);
+        }),
+        shareReplay(1)
+      );
+  }
+
+  private isCacheValid(storageKey: string): boolean {
+    try {
+      const cached = localStorage.getItem(storageKey);
+      if (!cached) return false;
+
+      const { timestamp } = JSON.parse(cached);
+      return Date.now() - timestamp < this.CACHE_DURATION;
+    } catch {
+      return false;
+    }
+  }
+  private isCacheValidByTimestamp(timestamp: number): boolean {
+    return Date.now() - timestamp < this.CACHE_DURATION;
+  }
+
+  preloadUserData(): Observable<void> {
+    return this.loadProfileFromServer().pipe(
+      switchMap(() => this.loadAchievementsFromServer()),
+      map(() => void 0),
+      catchError(() => of(void 0))
+    );
+  }
+
+  clearCache(): void {
+    this.profileCache = null;
+    this.achievementsCache = null;
+    this.userProfileSubject.next(null);
+    this.achievementsFullSubject.next(null);
+
+    // Limpiar localStorage
+    localStorage.removeItem(this.STORAGE_KEYS.PROFILE);
+    localStorage.removeItem(this.STORAGE_KEYS.ACHIEVEMENTS);
+  }
 
   // ========== ESTADO REACTIVO ==========
   private userStatsSubject = new BehaviorSubject<UserStats | null>(null);
@@ -131,26 +279,8 @@ export class UserService {
     };
   }
 
-  // ========== PERFIL ==========
-
-  getProfile(): Observable<UserProfile> {
-    return this.http.get<UserProfile>(`${this.apiUrl}/profile`);
-  }
-
   updateProfile(data: UpdateProfileRequest): Observable<{ message: string }> {
     return this.http.put<{ message: string }>(`${this.apiUrl}/profile`, data);
-  }
-
-  // ========== LOGROS ==========
-
-  getAchievements(): Observable<{
-    achievements: Achievement[];
-    total_unlocked: number;
-  }> {
-    return this.http.get<{
-      achievements: Achievement[];
-      total_unlocked: number;
-    }>(`${this.apiUrl}/achievements`);
   }
 
   // ========== ONBOARDING ==========

@@ -1,8 +1,8 @@
 // src/app/core/services/subscription.service.ts - COMPLETAMENTE NUEVO Y LIMPIO
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { Observable, of, throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import {
   SubscriptionPlan,
@@ -15,6 +15,13 @@ import {
 @Injectable({ providedIn: 'root' })
 export class SubscriptionService {
   private readonly apiUrl = `${environment.apiUrl}/subscription`;
+
+  private readonly CACHE_DURATION = 3 * 60 * 1000; // 3 minutos
+  private readonly STORAGE_KEY = 'activlingo_subscription_cache';
+  private subscriptionCache: {
+    data: SubscriptionStatus;
+    timestamp: number;
+  } | null = null;
 
   constructor(private http: HttpClient) {}
 
@@ -29,9 +36,29 @@ export class SubscriptionService {
   // ========== ESTADO DE SUSCRIPCIÓN ==========
 
   getStatus(): Observable<SubscriptionStatus> {
-    return this.http
-      .get<SubscriptionStatus>(`${this.apiUrl}/status`)
-      .pipe(catchError(this.handleError));
+    // 1. Intentar cargar desde cache en memoria
+    if (this.subscriptionCache && this.isCacheValid()) {
+      return of(this.subscriptionCache.data);
+    }
+
+    // 2. Intentar cargar desde localStorage
+    try {
+      const cached = localStorage.getItem(this.STORAGE_KEY);
+      if (cached && this.isCacheValidFromStorage()) {
+        const { data } = JSON.parse(cached);
+        this.subscriptionCache = { data, timestamp: Date.now() };
+
+        // Refresh en background
+        this.loadFromServer(false).subscribe();
+
+        return of(data);
+      }
+    } catch (error) {
+      console.warn('Error reading subscription cache:', error);
+    }
+
+    // 3. Si no hay cache, cargar desde servidor
+    return this.loadFromServer(true);
   }
 
   // ========== CHECKOUT ==========
@@ -64,6 +91,51 @@ export class SubscriptionService {
     return this.http
       .post<CancelResponse>(`${this.apiUrl}/cancel`, {})
       .pipe(catchError(this.handleError));
+  }
+
+  //CACHE
+  private loadFromServer(isMainLoad: boolean): Observable<SubscriptionStatus> {
+    return this.http.get<SubscriptionStatus>(`${this.apiUrl}/status`).pipe(
+      tap((status) => {
+        // Guardar en memoria
+        this.subscriptionCache = { data: status, timestamp: Date.now() };
+
+        // Guardar en localStorage
+        localStorage.setItem(
+          this.STORAGE_KEY,
+          JSON.stringify({
+            data: status,
+            timestamp: Date.now(),
+          })
+        );
+      }),
+      catchError(this.handleError)
+    );
+  }
+
+  // REEMPLAZAR el método isCacheValid existente:
+  private isCacheValid(): boolean {
+    if (!this.subscriptionCache) return false;
+
+    return Date.now() - this.subscriptionCache.timestamp < this.CACHE_DURATION;
+  }
+
+  private isCacheValidFromStorage(): boolean {
+    try {
+      const cached = localStorage.getItem(this.STORAGE_KEY);
+      if (!cached) return false;
+
+      const { timestamp } = JSON.parse(cached);
+      return Date.now() - timestamp < this.CACHE_DURATION;
+    } catch {
+      return false;
+    }
+  }
+
+  // AGREGAR método para limpiar cache:
+  clearCache(): void {
+    this.subscriptionCache = null;
+    localStorage.removeItem(this.STORAGE_KEY);
   }
 
   // ========== UTILIDADES ==========

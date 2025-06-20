@@ -9,8 +9,16 @@ import { AuthService } from '../../../core/services/auth.service';
 import { UserService } from '../../../core/services/user.service';
 import { SubscriptionService } from '../../../core/services/subscription.service';
 
-import { Achievement, UpdateProfileRequest, UserProfile, UserStats } from '../../../core/models/user.model';
-import { SubscriptionPlan, SubscriptionStatus } from '../../../core/models/subscription.model';
+import {
+  Achievement,
+  UpdateProfileRequest,
+  UserProfile,
+  UserStats,
+} from '../../../core/models/user.model';
+import {
+  SubscriptionPlan,
+  SubscriptionStatus,
+} from '../../../core/models/subscription.model';
 
 @Component({
   selector: 'app-profile',
@@ -64,9 +72,12 @@ export class ProfileComponent implements OnInit {
   // ========== CARGA DE DATOS ==========
 
   private loadAllData(): void {
-    this.isLoading = true;
+    // Solo mostrar loading si no hay datos en cache
+    const hasCache = localStorage.getItem('activlingo_profile_cache');
+    if (!hasCache) {
+      this.isLoading = true;
+    }
 
-    // Cargar perfil completo
     this.userService.getProfile().subscribe({
       next: (profile) => {
         console.log('✅ Perfil cargado:', profile);
@@ -82,6 +93,11 @@ export class ProfileComponent implements OnInit {
   }
 
   private loadSubscriptionStatus(): void {
+    // Solo mostrar loading si no hay cache de suscripción
+    const hasSubscriptionCache = localStorage.getItem(
+      'activlingo_subscription_cache'
+    );
+
     this.subscriptionService.getStatus().subscribe({
       next: (status) => {
         console.log('✅ Estado de suscripción:', status);
@@ -112,7 +128,7 @@ export class ProfileComponent implements OnInit {
   private loadAchievements(): void {
     this.userService.getAchievements().subscribe({
       next: (data) => {
-        console.log('✅ Logros cargados:', data);
+        console.log('✅ Logros cargados (posiblemente desde cache):', data);
         this.achievements = data.achievements;
       },
       error: (error) => {
