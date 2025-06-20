@@ -6,9 +6,13 @@ import {
   AfterViewInit,
   ElementRef,
   ViewChild,
+  inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Message } from '../../../../core/models/message.model';
+
+import { MessageService } from '../../services/message.service';
+
 
 @Component({
   selector: 'app-chat-message',
@@ -17,6 +21,7 @@ import { Message } from '../../../../core/models/message.model';
   templateUrl: './chat-message.component.html',
 })
 export class ChatMessageComponent implements OnInit, AfterViewInit {
+  private messageService = inject(MessageService);
   @Input() hideAIResponses = false;
 
   @Input() message!: Message;
@@ -24,6 +29,7 @@ export class ChatMessageComponent implements OnInit, AfterViewInit {
 
   showTimestamp = false;
   isTyping = false;
+  isSpeaking = false;
 
   ngOnInit(): void {
     // Simulate typing effect for AI messages
@@ -45,6 +51,23 @@ export class ChatMessageComponent implements OnInit, AfterViewInit {
     setTimeout(() => {
       this.isTyping = false;
     }, 1000);
+  }
+
+  speakMessage(): void {
+    if (this.isSpeaking) return;
+    this.isSpeaking = true;
+    this.messageService.speak(this.message.content, () => {
+      this.isSpeaking = false;
+    });
+  }
+
+  get canSpeak(): boolean {
+    return (
+      this.isAI &&
+      !this.isLoading &&
+      !!this.message.content &&
+      this.message.content !== '...'
+    );
   }
 
   toggleTimestamp(): void {

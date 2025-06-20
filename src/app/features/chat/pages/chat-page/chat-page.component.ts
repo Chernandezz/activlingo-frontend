@@ -173,6 +173,8 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     return shouldShow;
   }
 
+
+  
   private setupSubscriptions(): void {
     // Suscribirse al chat actual
     this.subscriptions.add(
