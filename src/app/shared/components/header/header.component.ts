@@ -93,7 +93,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
       current_streak: 0,
       longest_streak: 0,
       total_words_learned: 0,
-      average_session_minutes: 0,
       join_date: new Date().toISOString(),
       last_activity: new Date().toISOString(),
       conversations_this_month: 0,

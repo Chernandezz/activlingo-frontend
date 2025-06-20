@@ -201,7 +201,6 @@ export class ProfileComponent implements OnInit {
         current_streak: 0,
         longest_streak: 0,
         total_words_learned: 0,
-        average_session_minutes: 0,
         join_date: '',
         last_activity: '',
         conversations_this_month: 0,
