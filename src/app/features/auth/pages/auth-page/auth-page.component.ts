@@ -20,6 +20,8 @@ interface LoadingStates {
   facebookAuth: boolean;
 }
 
+type AuthMethod = 'email' | 'google' | null;
+
 @Component({
   selector: 'app-auth-page',
   standalone: true,
@@ -38,6 +40,9 @@ export class AuthPageComponent implements OnInit, OnDestroy {
   showConfirmationNotice = false;
   showPassword = false;
   showConfirmPassword = false;
+  currentAuthMethod: AuthMethod = null;
+  showMethodSelection = true;
+  showEmailForm = false;
 
   // Loading states
   loadingStates: LoadingStates = {
@@ -70,7 +75,7 @@ export class AuthPageComponent implements OnInit, OnDestroy {
     // Setup debounced validation
     this.setupValidationSubscriptions();
 
-    // 🆕 Escuchar cambios en el usuario para navegar automáticamente
+    // Listen for user changes to navigate automatically
     this.authService.user$.subscribe((user) => {
       if (user && this.authService.isLoggedIn()) {
         setTimeout(() => {
@@ -137,6 +142,27 @@ export class AuthPageComponent implements OnInit, OnDestroy {
     if (this.loadingStates.googleAuth) return 'Conectando con Google...';
     if (this.loadingStates.facebookAuth) return 'Conectando con Facebook...';
     return 'Procesando...';
+  }
+
+  // ============= AUTH METHOD SELECTION =============
+
+  selectAuthMethod(method: AuthMethod): void {
+    this.currentAuthMethod = method;
+
+    if (method === 'email') {
+      this.showMethodSelection = false;
+      this.showEmailForm = true;
+    } else if (method === 'google') {
+      this.loginWithGoogle();
+    }
+  }
+
+  goBackToMethodSelection(): void {
+    this.showEmailForm = false;
+    this.showMethodSelection = true;
+    this.currentAuthMethod = null;
+    this.clearForm();
+    this.clearMessages();
   }
 
   // ============= VALIDATION METHODS =============
@@ -276,6 +302,7 @@ export class AuthPageComponent implements OnInit, OnDestroy {
 
   toggleMode(): void {
     this.isLogin = !this.isLogin;
+    this.goBackToMethodSelection();
     this.clearForm();
     this.clearMessages();
   }
@@ -377,6 +404,8 @@ export class AuthPageComponent implements OnInit, OnDestroy {
         next: () => {
           this.message = 'Cuenta creada exitosamente';
           this.showConfirmationNotice = true;
+          this.showEmailForm = false;
+          this.showMethodSelection = false;
           this.clearForm();
         },
         error: (err) => {
@@ -430,8 +459,10 @@ export class AuthPageComponent implements OnInit, OnDestroy {
 
   goToLogin(): void {
     this.showConfirmationNotice = false;
+    this.showMethodSelection = true;
+    this.showEmailForm = false;
     if (!this.isLogin) {
-      this.toggleMode();
+      this.isLogin = true;
     }
     this.clearMessages();
   }
@@ -465,27 +496,6 @@ export class AuthPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  async loginWithFacebook(): Promise<void> {
-    this.loadingStates.facebookAuth = true;
-    this.clearMessages();
-
-    try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'facebook',
-        options: {
-          redirectTo: environment.supabaseRedirectTo,
-        },
-      });
-
-      if (error) throw error;
-
-      // Note: The actual redirect will happen automatically
-    } catch (error: any) {
-      console.error('Facebook auth error:', error);
-      this.message = 'Error al iniciar sesión con Facebook';
-      this.loadingStates.facebookAuth = false;
-    }
-  }
 
   // ============= UTILITY METHODS =============
 
