@@ -73,7 +73,8 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
 
   // ========== ESTADO DE LA UI ==========
   currentChatId: string | null = null;
-  isSidebarOpen = false;
+  isSidebarOpen = false; // Mantener para móvil
+  isSidebarExpanded = true; // ✅ NUEVO: Para controlar el sidebar colapsable en desktop
   isCreatingChat = false;
   showModal = false;
   showAnalysis = false;
@@ -159,7 +160,8 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
     // 1. El usuario no ha visto el onboarding
     // 2. No tiene suscripción activa
     // 3. No está en trial
-    const hasSeenOnboarding = this.userProfile?.profile.onboarding_seen || false;
+    const hasSeenOnboarding =
+      this.userProfile?.profile.onboarding_seen || false;
     const isSubscribed = this.isUserSubscribed;
 
     const shouldShow = !hasSeenOnboarding && !isSubscribed;
@@ -182,7 +184,7 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
       })
     );
 
-    // Suscribirse al estado del sidebar
+    // Suscribirse al estado del sidebar (mantener para móvil)
     this.subscriptions.add(
       this.ui.sidebarOpen$.subscribe((open) => (this.isSidebarOpen = open))
     );
@@ -196,6 +198,12 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
         }));
       })
     );
+  }
+
+  // ========== NUEVO MÉTODO PARA MANEJAR EL SIDEBAR COLAPSABLE ==========
+
+  handleSidebarExpandedChange(isExpanded: boolean): void {
+    this.isSidebarExpanded = isExpanded;
   }
 
   // ========== GETTERS PARA EL ESTADO DE SUSCRIPCIÓN ==========
@@ -421,6 +429,7 @@ export class ChatPageComponent implements OnInit, AfterViewChecked, OnDestroy {
       isUserInTrial: this.isUserInTrial,
       subscriptionStatus: this.subscriptionStatus,
       userProfile: this.userProfile,
+      isSidebarExpanded: this.isSidebarExpanded,
     });
   }
 }

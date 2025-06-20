@@ -12,7 +12,6 @@ export interface UserStats {
   current_streak: number;
   longest_streak: number;
   total_words_learned: number;
-  average_session_minutes: number;
   join_date: string;
   last_activity: string;
   conversations_this_month: number;

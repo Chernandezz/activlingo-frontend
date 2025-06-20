@@ -7,6 +7,8 @@ import { environment } from '../../../environments/environment';
 import { supabase } from '../utils/supabase-client';
 import { of } from 'rxjs';
 import { LoginRequest, SignUpRequest } from '../models/auth.model';
+import { UserService } from './user.service';
+import { SubscriptionService } from './subscription.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -17,14 +19,16 @@ export class AuthService {
   // 🔧 NO marcar como resuelto hasta que termine la inicialización
   isAuthResolved$ = new BehaviorSubject<boolean>(false);
 
-  constructor(private http: HttpClient) {
-    // 🔧 NO marcar como resuelto aquí - esperar a que termine initializeAuth
+  constructor(
+    private http: HttpClient,
+    private userService: UserService,
+    private subscriptionService: SubscriptionService
+  ) {
     this.initializeAuth();
   }
 
   private async initializeAuth(): Promise<void> {
     try {
-
       // Verificar sesión de Supabase primero
       const {
         data: { session },
@@ -53,8 +57,6 @@ export class AuthService {
 
       // Escuchar cambios de Supabase
       supabase.auth.onAuthStateChange((event, session) => {
-
-
         if (event === 'SIGNED_IN' && session) {
           this.setUserPrivate(session.user);
           if (session.access_token) {
@@ -77,7 +79,6 @@ export class AuthService {
   login(credentials: LoginRequest): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/auth/login`, credentials).pipe(
       tap((response) => {
-
         if (response.access_token) {
           localStorage.setItem('access_token', response.access_token);
         }
@@ -120,7 +121,6 @@ export class AuthService {
   }
 
   private async performLogout(): Promise<void> {
-
     const { error } = await supabase.auth.signOut();
 
     this.clearAuth();
@@ -130,6 +130,7 @@ export class AuthService {
     this.setUserPrivate(user);
   }
 
+  // MODIFICAR el método setUserPrivate:
   private setUserPrivate(user: any): void {
     if (!user) return;
 
@@ -145,12 +146,19 @@ export class AuthService {
     };
 
     this.userSubject.next(formattedUser);
+
+    // ✅ AGREGAR: Pre-cargar datos cuando se establece el usuario
+    this.userService.preloadUserData().subscribe();
   }
 
   private clearAuth(): void {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     this.userSubject.next(null);
+
+    // ✅ AGREGAR: Limpiar cache al hacer logout
+    this.userService.clearCache();
+    this.subscriptionService.clearCache(); // ✅ AGREGAR
   }
 
   private isTokenExpired(token: string): boolean {

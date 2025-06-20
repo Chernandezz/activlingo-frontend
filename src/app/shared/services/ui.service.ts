@@ -8,9 +8,26 @@ export class UiService {
 
   private hideAIResponsesSubject = new BehaviorSubject<boolean>(false);
   hideAIResponses$ = this.hideAIResponsesSubject.asObservable();
+  private _sidebarExpanded = new BehaviorSubject<boolean>(true);
+  public sidebarExpanded$ = this._sidebarExpanded.asObservable();
 
+  toggleSidebarExpanded(): void {
+    this._sidebarExpanded.next(!this._sidebarExpanded.value);
+  }
+
+  setSidebarExpanded(expanded: boolean): void {
+    this._sidebarExpanded.next(expanded);
+  }
   get hideAIResponses(): boolean {
     return this.hideAIResponsesSubject.value;
+  }
+
+  get isSidebarExpanded(): boolean {
+    return this._sidebarExpanded.value;
+  }
+
+  closeAllSidebars(): void {
+    this._sidebarOpen.next(false); // móvil
   }
 
   toggleHideAIResponses(): void {

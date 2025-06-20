@@ -12,8 +12,10 @@ import {
 import { AuthService } from '../../../core/services/auth.service';
 import { UserService } from '../../../core/services/user.service';
 import { Subject, takeUntil, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-import { UserStats } from '../../../core/models/user.model';
+
+// ✅ NUEVO: Importar servicios del chat
+import { ChatService } from '../../../features/chat/services/chat.service';
+import { MessageService } from '../../../features/chat/services/message.service';
 
 @Component({
   selector: 'app-header',
@@ -44,15 +46,32 @@ export class HeaderComponent implements OnInit, OnDestroy {
     public ui: UiService,
     private router: Router,
     private authService: AuthService,
-    private userService: UserService
+    private userService: UserService,
+    // ✅ NUEVO: Inyectar servicios del chat
+    private chatService: ChatService,
+    private messageService: MessageService
   ) {}
 
+  // REEMPLAZAR todo el método ngOnInit:
   ngOnInit(): void {
-    // ✅ Solo cargar si el usuario está autenticado
     if (this.authService.isLoggedIn()) {
-      this.loadUserStats();
+      // ✅ USAR stats del perfil en lugar de stats separados
+      this.userService.userProfile$.pipe(takeUntil(this.destroy$)).subscribe({
+        next: (profile) => {
+          if (profile?.stats) {
+            this.userStats = {
+              streak: profile.stats.current_streak || 0,
+              words: profile.stats.total_words_learned || 0,
+              chats: profile.stats.total_conversations || 0,
+              isLoading: false,
+            };
+          }
+        },
+      });
+
+      // Triggear carga del perfil si no está cacheado
+      this.userService.getProfile().subscribe();
     } else {
-      // ✅ Si no está autenticado, usar valores por defecto sin loading
       this.userStats.isLoading = false;
     }
   }
@@ -62,43 +81,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private loadUserStats(): void {
-    // ✅ Solo obtener estadísticas del usuario
-    this.userService
-      .getStats()
-      .pipe(
-        catchError(() => of(this.getDefaultStats())),
-        takeUntil(this.destroy$)
-      )
-      .subscribe({
-        next: (stats: UserStats) => {
-          this.userStats = {
-            streak: stats.current_streak || 0,
-            words: stats.total_words_learned || 0,
-            chats: stats.total_conversations || 0,
-            isLoading: false,
-          };
-        },
-        error: (error: any) => {
-          console.warn('Error loading user stats:', error);
-          // ✅ No resetear, mantener valores por defecto
-          this.userStats.isLoading = false;
-        },
-      });
-  }
+  // ✅ NUEVO: Método para ir al catálogo y cerrar chat
+  goToConversations(): void {
+    // 1. Cerrar chat actual si existe
+    this.chatService.setCurrentChat(null);
 
-  private getDefaultStats(): UserStats {
-    return {
-      total_conversations: 0,
-      current_streak: 0,
-      longest_streak: 0,
-      total_words_learned: 0,
-      average_session_minutes: 0,
-      join_date: new Date().toISOString(),
-      last_activity: new Date().toISOString(),
-      conversations_this_month: 0,
-      words_learned_this_month: 0,
-    };
+    // 2. Limpiar mensajes
+    this.messageService.clearMessages();
+
+    // 3. Cerrar sidebar móvil si está abierto
+    this.ui.closeSidebar();
+
+    // 4. Navegar a /chat (que mostrará el welcome view)
+    this.router.navigate(['/chat']);
   }
 
   @HostListener('document:click', ['$event'])

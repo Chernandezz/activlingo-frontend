@@ -1,20 +1,13 @@
-<!-- chat-message.component.html -->
 <div class="group mb-6 flex items-start space-x-3" [class.flex-row-reverse]="isUser"
   [class.flex-row]="isAI || isSystem">
 
   <!-- Avatar -->
   <div class="flex-shrink-0" [class.order-2]="isUser" [class.ml-3]="isUser" [class.mr-0]="isUser">
 
-    <!-- User Avatar -->
-    <!-- <div *ngIf="isUser"
-      class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-semibold shadow-md">
-      {{ userAvatar }}
-    </div> -->
-
     <!-- AI Avatar -->
     <div *ngIf="isAI"
-      class="w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white text-xs font-bold shadow-md">
-      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+      class="w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">
+      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
         <path fill-rule="evenodd"
           d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
           clip-rule="evenodd"></path>
@@ -45,13 +38,11 @@
             <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
             <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
           </div>
-          <span class="text-sm text-gray-500">AI is thinking...</span>
         </div>
       </div>
 
       <!-- Regular Message -->
-      <div *ngIf="!isLoading"
-        class="relative rounded-2xl px-4 py-3 shadow-sm transition-all duration-200"
+      <div *ngIf="!isLoading" class="relative rounded-2xl px-4 py-3 shadow-sm transition-all duration-200"
         [class.bg-gradient-to-br]="isUser" [class.from-blue-500]="isUser" [class.to-indigo-600]="isUser"
         [class.text-white]="isUser" [class.bg-white]="isAI || isSystem" [class.border]="isAI || isSystem"
         [class.border-gray-200]="isAI || isSystem" [class.text-gray-800]="isAI || isSystem"
@@ -61,9 +52,25 @@
         <!-- Message Text -->
         <div class="text-sm leading-relaxed whitespace-pre-wrap break-words transition-all duration-300"
           [innerHTML]="formatContent(message.content)" [ngClass]="{
-                  'blur-xs text-black-800 transition duration-300': isAI && hideAIResponses
-                }">
+            'blur-xs text-black-800 transition duration-300': isAI && hideAIResponses
+          }">
         </div>
+
+        <!-- Minimal Action Icon (Solo para mensajes AI) - Siempre visible -->
+        <button *ngIf="canSpeak && !isLoading" (click)="speakMessage(); $event.stopPropagation()"
+          [disabled]="isSpeaking"
+          class="absolute bottom-2 right-2 w-6 h-6 rounded-full bg-gray-50 hover:bg-gray-100 flex items-center justify-center transition-all duration-200 disabled:opacity-50 border border-gray-200"
+          title="Escuchar mensaje">
+
+          <i *ngIf="!isSpeaking" class="fa-solid fa-volume-high text-xs text-gray-500"></i>
+          <i *ngIf="isSpeaking" class="fa-solid fa-volume-high text-xs text-blue-600 animate-pulse"></i>
+        </button>
+
+        <!-- Timestamp (solo se muestra cuando se hace click) -->
+        <div *ngIf="showTimestamp" class="mt-2 pt-2 border-t border-gray-100">
+          <span class="text-xs text-gray-500">{{ messageTime }}</span>
+        </div>
+      </div>
     </div>
   </div>
 </div>
