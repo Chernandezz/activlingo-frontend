@@ -55,7 +55,7 @@ export class ProfileComponent implements OnInit {
   ngOnInit(): void {
     // Configurar tab desde URL
     this.route.fragment.subscribe((fragment) => {
-      this.activeTab = fragment || 'settings';
+      this.activeTab = fragment || 'overview';
     });
 
     this.loadAllData();

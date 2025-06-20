@@ -1,7 +1,7 @@
-// src/app/core/services/user.service.ts - COMPLETAMENTE NUEVO Y LIMPIO
+// src/app/core/services/user.service.ts - CON ESTADO REACTIVO
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject, timer, of } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   UserProfile,
@@ -9,12 +9,127 @@ import {
   Achievement,
   UpdateProfileRequest,
 } from '../models/user.model';
+import { tap, shareReplay, switchMap, catchError } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private readonly apiUrl = `${environment.apiUrl}/user`;
 
-  constructor(private http: HttpClient) {}
+  // ========== ESTADO REACTIVO ==========
+  private userStatsSubject = new BehaviorSubject<UserStats | null>(null);
+  private isLoadingSubject = new BehaviorSubject<boolean>(false);
+
+  // Observables públicos
+  public userStats$ = this.userStatsSubject.asObservable();
+  public isLoading$ = this.isLoadingSubject.asObservable();
+
+  constructor(private http: HttpClient) {
+    // Auto-refresh cada 5 minutos (opcional)
+    timer(0, 300000)
+      .pipe(switchMap(() => this.loadStatsIfNeeded()))
+      .subscribe();
+  }
+
+  // ========== ESTADÍSTICAS REACTIVAS ==========
+
+  getStats(): Observable<UserStats> {
+    // Si ya tenemos stats, las devolvemos inmediatamente
+    const currentStats = this.userStatsSubject.value;
+    if (currentStats) {
+      return of(currentStats);
+    }
+
+    // Si no, cargar desde el servidor
+    return this.loadStatsFromServer();
+  }
+
+  private loadStatsFromServer(): Observable<UserStats> {
+    this.isLoadingSubject.next(true);
+
+    return this.http.get<UserStats>(`${this.apiUrl}/stats`).pipe(
+      tap((stats) => {
+        this.userStatsSubject.next(stats);
+        this.isLoadingSubject.next(false);
+      }),
+      catchError((error) => {
+        console.error('Error loading stats:', error);
+        this.isLoadingSubject.next(false);
+        return of(this.getDefaultStats());
+      }),
+      shareReplay(1)
+    );
+  }
+
+  private loadStatsIfNeeded(): Observable<UserStats> {
+    // Solo cargar si no hay stats o si han pasado más de 1 minuto
+    const currentStats = this.userStatsSubject.value;
+    if (!currentStats) {
+      return this.loadStatsFromServer();
+    }
+    return of(currentStats);
+  }
+
+  // ========== MÉTODOS PARA ACTUALIZAR STATS ==========
+
+  /**
+   * Llama esto cuando se completa una conversación
+   */
+  onConversationCompleted(): void {
+    this.refreshStats();
+  }
+
+  /**
+   * Llama esto cuando se aprende una nueva palabra
+   */
+  onWordLearned(): void {
+    this.refreshStats();
+  }
+
+  /**
+   * Fuerza la recarga de estadísticas
+   */
+  refreshStats(): void {
+    this.loadStatsFromServer().subscribe();
+  }
+
+  /**
+   * Actualiza una estadística específica sin recargar todo
+   */
+  updateStatistic(field: keyof UserStats, value: number): void {
+    const currentStats = this.userStatsSubject.value;
+    if (currentStats) {
+      const updatedStats = { ...currentStats, [field]: value };
+      this.userStatsSubject.next(updatedStats);
+    }
+  }
+
+  /**
+   * Incrementa una estadística específica
+   */
+  incrementStatistic(field: keyof UserStats, increment: number = 1): void {
+    const currentStats = this.userStatsSubject.value;
+    if (currentStats && typeof currentStats[field] === 'number') {
+      const currentValue = currentStats[field] as number;
+      const updatedStats = {
+        ...currentStats,
+        [field]: currentValue + increment,
+      };
+      this.userStatsSubject.next(updatedStats);
+    }
+  }
+
+  private getDefaultStats(): UserStats {
+    return {
+      total_conversations: 0,
+      current_streak: 0,
+      longest_streak: 0,
+      total_words_learned: 0,
+      join_date: new Date().toISOString(),
+      last_activity: new Date().toISOString(),
+      conversations_this_month: 0,
+      words_learned_this_month: 0,
+    };
+  }
 
   // ========== PERFIL ==========
 
@@ -24,12 +139,6 @@ export class UserService {
 
   updateProfile(data: UpdateProfileRequest): Observable<{ message: string }> {
     return this.http.put<{ message: string }>(`${this.apiUrl}/profile`, data);
-  }
-
-  // ========== ESTADÍSTICAS ==========
-
-  getStats(): Observable<UserStats> {
-    return this.http.get<UserStats>(`${this.apiUrl}/stats`);
   }
 
   // ========== LOGROS ==========
